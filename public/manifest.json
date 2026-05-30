@@ -1,7 +1,7 @@
 {
-  "name": "NewsHub - Breaking News & Latest Stories",
-  "short_name": "NewsHub",
-  "description": "Your trusted source for breaking news, in-depth analysis, and the stories that matter most.",
+  "name": "न्यूज़हब - ब्रेकिंग न्यूज़ और ताज़ा खबरें",
+  "short_name": "न्यूज़हब",
+  "description": "ब्रेकिंग न्यूज़, गहन विश्लेषण और सबसे महत्वपूर्ण खबरों के लिए आपका विश्वसनीय स्रोत।",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

@@ -11,28 +11,28 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata = {
   title: {
-    default: 'NewsHub - Breaking News & Latest Stories',
-    template: '%s | NewsHub',
+    default: 'न्यूज़हब - ब्रेकिंग न्यूज़ और ताज़ा खबरें',
+    template: '%s | न्यूज़हब',
   },
-  description: 'Your trusted source for breaking news, in-depth analysis, and the latest stories from around the world.',
-  keywords: ['news', 'breaking news', 'latest news', 'world news', 'technology', 'politics', 'sports'],
-  authors: [{ name: 'NewsHub' }],
-  creator: 'NewsHub',
-  publisher: 'NewsHub',
+  description: 'ब्रेकिंग न्यूज़, गहन विश्लेषण और दुनिया भर की नवीनतम खबरों के लिए आपका विश्वसनीय स्रोत।',
+  keywords: ['समाचार', 'ब्रेकिंग न्यूज़', 'ताज़ा खबरें', 'विश्व समाचार', 'तकनीक', 'राजनीति', 'खेल'],
+  authors: [{ name: 'न्यूज़हब' }],
+  creator: 'न्यूज़हब',
+  publisher: 'न्यूज़हब',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   openGraph: {
     type: 'website',
-    locale: 'en_US',
+    locale: 'hi_IN',
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: 'NewsHub',
-    title: 'NewsHub - Breaking News & Latest Stories',
-    description: 'Your trusted source for breaking news, in-depth analysis, and the latest stories.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'NewsHub' }],
+    siteName: 'न्यूज़हब',
+    title: 'न्यूज़हब - ब्रेकिंग न्यूज़ और ताज़ा खबरें',
+    description: 'ब्रेकिंग न्यूज़, गहन विश्लेषण और नवीनतम खबरों के लिए आपका विश्वसनीय स्रोत।',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'न्यूज़हब' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NewsHub - Breaking News',
-    description: 'Your trusted source for breaking news and latest stories.',
+    title: 'न्यूज़हब - ब्रेकिंग न्यूज़',
+    description: 'ब्रेकिंग न्यूज़ और ताज़ा खबरों के लिए आपका विश्वसनीय स्रोत।',
     images: ['/og-image.jpg'],
   },
   manifest: '/manifest.json',
@@ -49,7 +49,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="hi" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen`}>
         <ThemeProvider>
           <QueryProvider>

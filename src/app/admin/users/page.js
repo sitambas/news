@@ -4,13 +4,15 @@ import { useState } from 'react';
 import { FiSearch, FiMoreVertical, FiUserCheck, FiUserX, FiEdit, FiTrash2, FiPlus } from 'react-icons/fi';
 import { formatDate } from '@/utils/helpers';
 
+const ROLE_HINDI = { admin: 'व्यवस्थापक', editor: 'संपादक', author: 'लेखक', user: 'उपयोगकर्ता' };
+
 const SAMPLE_USERS = [
-  { _id: '1', name: 'Sarah Johnson', username: 'sarahjohnson', email: 'sarah@example.com', role: 'author', isActive: true, createdAt: new Date('2023-06-15') },
-  { _id: '2', name: 'Mike Chen', username: 'mikechen', email: 'mike@example.com', role: 'editor', isActive: true, createdAt: new Date('2023-04-20') },
-  { _id: '3', name: 'Emma Davis', username: 'emmadavis', email: 'emma@example.com', role: 'user', isActive: true, createdAt: new Date('2024-01-10') },
-  { _id: '4', name: 'Alex Turner', username: 'alexturner', email: 'alex@example.com', role: 'author', isActive: false, createdAt: new Date('2023-11-05') },
-  { _id: '5', name: 'Lisa Park', username: 'lisapark', email: 'lisa@example.com', role: 'user', isActive: true, createdAt: new Date('2024-03-22') },
-  { _id: '6', name: 'Tom Brown', username: 'tombrown', email: 'tom@example.com', role: 'admin', isActive: true, createdAt: new Date('2022-09-01') },
+  { _id: '1', name: 'सारा जॉनसन', username: 'sarahjohnson', email: 'sarah@example.com', role: 'author', isActive: true, createdAt: new Date('2023-06-15') },
+  { _id: '2', name: 'माइक चेन', username: 'mikechen', email: 'mike@example.com', role: 'editor', isActive: true, createdAt: new Date('2023-04-20') },
+  { _id: '3', name: 'एम्मा डेविस', username: 'emmadavis', email: 'emma@example.com', role: 'user', isActive: true, createdAt: new Date('2024-01-10') },
+  { _id: '4', name: 'अलेक्स टर्नर', username: 'alexturner', email: 'alex@example.com', role: 'author', isActive: false, createdAt: new Date('2023-11-05') },
+  { _id: '5', name: 'लिसा पार्क', username: 'lisapark', email: 'lisa@example.com', role: 'user', isActive: true, createdAt: new Date('2024-03-22') },
+  { _id: '6', name: 'टॉम ब्राउन', username: 'tombrown', email: 'tom@example.com', role: 'admin', isActive: true, createdAt: new Date('2022-09-01') },
 ];
 
 const ROLE_STYLES = {
@@ -22,31 +24,31 @@ const ROLE_STYLES = {
 
 export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('All');
+  const [roleFilter, setRoleFilter] = useState('सभी');
 
   const filtered = SAMPLE_USERS.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase());
-    const matchRole = roleFilter === 'All' || u.role === roleFilter;
+    const matchRole = roleFilter === 'सभी' || u.role === roleFilter;
     return matchSearch && matchRole;
   });
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Users</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">उपयोगकर्ता</h1>
         <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors">
-          <FiPlus className="w-4 h-4" /> Invite User
+          <FiPlus className="w-4 h-4" /> उपयोगकर्ता आमंत्रित करें
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Total Users', value: '48,320', color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' },
-          { label: 'Active Today', value: '1,243', color: 'bg-green-50 dark:bg-green-900/20 text-green-600' },
-          { label: 'New This Week', value: '87', color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600' },
-          { label: 'Admins/Editors', value: '12', color: 'bg-red-50 dark:bg-red-900/20 text-red-600' },
+          { label: 'कुल उपयोगकर्ता', value: '48,320', color: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' },
+          { label: 'आज सक्रिय', value: '1,243', color: 'bg-green-50 dark:bg-green-900/20 text-green-600' },
+          { label: 'इस सप्ताह नए', value: '87', color: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600' },
+          { label: 'व्यवस्थापक/संपादक', value: '12', color: 'bg-red-50 dark:bg-red-900/20 text-red-600' },
         ].map((s) => (
           <div key={s.label} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 text-center">
             <div className={`text-xl font-bold ${s.color.split(' ')[2]} mb-0.5`}>{s.value}</div>
@@ -63,12 +65,12 @@ export default function AdminUsersPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search users..."
+            placeholder="उपयोगकर्ता खोजें..."
             className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
           />
         </div>
         <div className="flex gap-2">
-          {['All', 'admin', 'editor', 'author', 'user'].map((r) => (
+          {['सभी', 'admin', 'editor', 'author', 'user'].map((r) => (
             <button
               key={r}
               onClick={() => setRoleFilter(r)}
@@ -87,12 +89,12 @@ export default function AdminUsersPage() {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
-              <th className="px-4 py-3 text-left font-medium">User</th>
-              <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Email</th>
-              <th className="px-4 py-3 text-left font-medium">Role</th>
-              <th className="px-4 py-3 text-left font-medium hidden sm:table-cell">Status</th>
-              <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Joined</th>
-              <th className="px-4 py-3 text-right font-medium">Actions</th>
+              <th className="px-4 py-3 text-left font-medium">उपयोगकर्ता</th>
+              <th className="px-4 py-3 text-left font-medium hidden md:table-cell">ईमेल</th>
+              <th className="px-4 py-3 text-left font-medium">भूमिका</th>
+              <th className="px-4 py-3 text-left font-medium hidden sm:table-cell">स्थिति</th>
+              <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">जुड़े</th>
+              <th className="px-4 py-3 text-right font-medium">क्रियाएं</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
@@ -113,8 +115,8 @@ export default function AdminUsersPage() {
                   <span className="text-sm text-gray-600 dark:text-gray-400">{user.email}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${ROLE_STYLES[user.role]}`}>
-                    {user.role}
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${ROLE_STYLES[user.role]}`}>
+                    {ROLE_HINDI[user.role] || user.role}
                   </span>
                 </td>
                 <td className="px-4 py-3 hidden sm:table-cell">
@@ -123,7 +125,7 @@ export default function AdminUsersPage() {
                       ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                       : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500'
                   }`}>
-                    {user.isActive ? 'Active' : 'Inactive'}
+                    {user.isActive ? 'सक्रिय' : 'निष्क्रिय'}
                   </span>
                 </td>
                 <td className="px-4 py-3 hidden lg:table-cell">

@@ -8,11 +8,11 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 import ArticleCard from '@/components/news/ArticleCard';
 
-const TABS = ['Profile', 'Security', 'Notifications', 'My Articles'];
+const TABS = ['प्रोफाइल', 'सुरक्षा', 'सूचनाएं', 'मेरे लेख'];
 
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
-  const [tab, setTab] = useState('Profile');
+  const [tab, setTab] = useState('प्रोफाइल');
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -51,12 +51,12 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.success) {
         setUser(data.data);
-        toast.success('Profile updated!');
+        toast.success('प्रोफाइल अपडेट हुई!');
       } else {
         toast.error(data.message);
       }
     } catch {
-      toast.error('Failed to update profile');
+      toast.error('प्रोफाइल अपडेट विफल');
     }
     setSaving(false);
   };
@@ -110,36 +110,36 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Tab */}
-        {tab === 'Profile' && (
+        {tab === 'प्रोफाइल' && (
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-            <h2 className="font-bold text-gray-900 dark:text-white mb-5">Personal Information</h2>
+            <h2 className="font-bold text-gray-900 dark:text-white mb-5">व्यक्तिगत जानकारी</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Full Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">पूरा नाम</label>
                 <div className="relative">
                   <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
                     type="text"
                     value={form.name}
                     onChange={(e) => update('name', e.target.value)}
-                    placeholder="Your name"
+                    placeholder="आपका नाम"
                     className={`${inputClass} pl-10`}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">ईमेल</label>
                 <div className="relative">
                   <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input type="email" value={user?.email || ''} disabled className={`${inputClass} pl-10 opacity-60 cursor-not-allowed`} />
                 </div>
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Bio</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">परिचय</label>
                 <textarea
                   value={form.bio}
                   onChange={(e) => update('bio', e.target.value)}
-                  placeholder="Tell readers about yourself..."
+                  placeholder="पाठकों को अपने बारे में बताएं..."
                   rows={3}
                   maxLength={500}
                   className={`${inputClass} resize-none`}
@@ -147,7 +147,7 @@ export default function ProfilePage() {
                 <div className="text-right text-xs text-gray-400 mt-0.5">{form.bio.length}/500</div>
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Avatar URL</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">अवतार URL</label>
                 <input
                   type="url"
                   value={form.avatar}
@@ -158,7 +158,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-3 text-sm">Social Links</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3 text-sm">सोशल लिंक</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { field: 'twitter', icon: FiTwitter, placeholder: '@username' },
@@ -185,46 +185,46 @@ export default function ProfilePage() {
               className="mt-6 flex items-center gap-2 px-6 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 disabled:opacity-50 transition-colors"
             >
               {saving ? <LoadingSpinner size="sm" /> : <FiSave className="w-4 h-4" />}
-              Save Changes
+              बदलाव सहेजें
             </button>
           </div>
         )}
 
         {/* Security Tab */}
-        {tab === 'Security' && (
+        {tab === 'सुरक्षा' && (
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-            <h2 className="font-bold text-gray-900 dark:text-white mb-5">Security Settings</h2>
+            <h2 className="font-bold text-gray-900 dark:text-white mb-5">सुरक्षा सेटिंग्स</h2>
             <div className="space-y-4 max-w-md">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Current Password</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">वर्तमान पासवर्ड</label>
                 <input type="password" placeholder="••••••••" className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">New Password</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">नया पासवर्ड</label>
                 <input type="password" placeholder="••••••••" className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm New Password</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">नया पासवर्ड पुष्टि करें</label>
                 <input type="password" placeholder="••••••••" className={inputClass} />
               </div>
               <button className="flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 transition-colors">
-                <FiLock className="w-4 h-4" /> Update Password
+                <FiLock className="w-4 h-4" /> पासवर्ड अपडेट करें
               </button>
             </div>
           </div>
         )}
 
         {/* Notifications Tab */}
-        {tab === 'Notifications' && (
+        {tab === 'सूचनाएं' && (
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-            <h2 className="font-bold text-gray-900 dark:text-white mb-5">Notification Preferences</h2>
+            <h2 className="font-bold text-gray-900 dark:text-white mb-5">सूचना प्राथमिकताएं</h2>
             <div className="space-y-4">
               {[
-                { label: 'Email notifications', desc: 'Receive updates via email' },
-                { label: 'Push notifications', desc: 'Browser push notifications' },
-                { label: 'Newsletter', desc: 'Weekly newsletter digest' },
-                { label: 'Comment replies', desc: 'When someone replies to your comment' },
-                { label: 'New articles in my categories', desc: 'Get notified about new content' },
+                { label: 'ईमेल सूचनाएं', desc: 'ईमेल द्वारा अपडेट प्राप्त करें' },
+                { label: 'पुश नोटिफिकेशन', desc: 'ब्राउज़र पुश नोटिफिकेशन' },
+                { label: 'न्यूज़लेटर', desc: 'साप्ताहिक न्यूज़लेटर डाइजेस्ट' },
+                { label: 'टिप्पणी उत्तर', desc: 'जब कोई आपकी टिप्पणी का उत्तर दे' },
+                { label: 'मेरी श्रेणियों में नए लेख', desc: 'नई सामग्री के बारे में सूचित हों' },
               ].map(({ label, desc }) => (
                 <label key={label} className="flex items-center justify-between cursor-pointer py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                   <div>
@@ -241,7 +241,7 @@ export default function ProfilePage() {
         )}
 
         {/* My Articles Tab */}
-        {tab === 'My Articles' && (
+        {tab === 'मेरे लेख' && (
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {SAMPLE_ARTICLES.slice(0, 4).map((article, i) => (

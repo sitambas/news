@@ -148,11 +148,11 @@ export default function NewArticlePage() {
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
             <div className="flex items-center justify-between mb-3">
               <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Content
+                सामग्री
               </label>
               <div className="flex items-center gap-3 text-xs text-gray-400">
-                <span>{wordCount} words</span>
-                <span>~{readingTime} min read</span>
+                <span>{wordCount} शब्द</span>
+                <span>~{readingTime} मिनट पढ़ें</span>
               </div>
             </div>
             <RichTextEditor content={form.content} onChange={handleContentChange} />
@@ -163,24 +163,24 @@ export default function NewArticlePage() {
         <div className="space-y-4">
           {/* Status */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">Publish Settings</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">प्रकाशन सेटिंग्स</h3>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Status</label>
+                <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">स्थिति</label>
                 <select
                   value={form.status}
                   onChange={(e) => update('status', e.target.value)}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                  <option value="scheduled">Scheduled</option>
-                  <option value="archived">Archived</option>
+                  <option value="draft">ड्राफ्ट</option>
+                  <option value="published">प्रकाशित</option>
+                  <option value="scheduled">निर्धारित</option>
+                  <option value="archived">संग्रहीत</option>
                 </select>
               </div>
               {form.status === 'scheduled' && (
                 <div>
-                  <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Schedule Date/Time</label>
+                  <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">तारीख/समय निर्धारित करें</label>
                   <input
                     type="datetime-local"
                     value={form.scheduledAt}
@@ -194,7 +194,7 @@ export default function NewArticlePage() {
 
           {/* Cover Image */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">Cover Image</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">कवर छवि</h3>
             <div className="space-y-2">
               {form.coverImage && (
                 <div className="relative aspect-video rounded-lg overflow-hidden">
@@ -211,14 +211,14 @@ export default function NewArticlePage() {
                 type="url"
                 value={form.coverImage}
                 onChange={(e) => update('coverImage', e.target.value)}
-                placeholder="Image URL..."
+                placeholder="छवि URL..."
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               <input
                 type="text"
                 value={form.coverImageAlt}
                 onChange={(e) => update('coverImageAlt', e.target.value)}
-                placeholder="Image alt text..."
+                placeholder="छवि alt टेक्स्ट..."
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
@@ -226,13 +226,13 @@ export default function NewArticlePage() {
 
           {/* Category */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">Category</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">श्रेणी</h3>
             <select
               value={form.category}
               onChange={(e) => update('category', e.target.value)}
               className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
-              <option value="">Select category...</option>
+              <option value="">श्रेणी चुनें...</option>
               {CATEGORIES.map((cat) => (
                 <option key={cat} value={cat.toLowerCase()}>{cat}</option>
               ))}
@@ -241,7 +241,7 @@ export default function NewArticlePage() {
 
           {/* Tags */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">Tags</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">टैग</h3>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {form.tags.map((tag) => (
                 <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full text-xs">
@@ -255,20 +255,20 @@ export default function NewArticlePage() {
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={addTag}
-              placeholder="Add tag + Enter..."
+              placeholder="टैग जोड़ें + Enter..."
               className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
 
           {/* Flags */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">Article Flags</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">लेख फ्लैग</h3>
             <div className="space-y-2">
               {[
-                { key: 'isBreaking', label: 'Breaking News', color: 'red' },
-                { key: 'isFeatured', label: 'Featured Article', color: 'blue' },
-                { key: 'isTrending', label: 'Trending', color: 'orange' },
-                { key: 'allowComments', label: 'Allow Comments', color: 'green' },
+                { key: 'isBreaking', label: 'ब्रेकिंग न्यूज़', color: 'red' },
+                { key: 'isFeatured', label: 'विशेष लेख', color: 'blue' },
+                { key: 'isTrending', label: 'ट्रेंडिंग', color: 'orange' },
+                { key: 'allowComments', label: 'टिप्पणियाँ अनुमति दें', color: 'green' },
               ].map(({ key, label, color }) => (
                 <label key={key} className="flex items-center justify-between cursor-pointer">
                   <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
@@ -286,19 +286,19 @@ export default function NewArticlePage() {
 
           {/* SEO */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">SEO Settings</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">SEO सेटिंग्स</h3>
             <div className="space-y-2">
               <input
                 type="text"
                 value={form.meta.title}
                 onChange={(e) => updateMeta('title', e.target.value)}
-                placeholder="Meta title..."
+                placeholder="मेटा शीर्षक..."
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
               <textarea
                 value={form.meta.description}
                 onChange={(e) => updateMeta('description', e.target.value)}
-                placeholder="Meta description..."
+                placeholder="मेटा विवरण..."
                 rows={2}
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
               />

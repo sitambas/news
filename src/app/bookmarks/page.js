@@ -30,8 +30,8 @@ export default function BookmarksPage() {
               <FiBookmark className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Saved Articles</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{displayBookmarks.length} articles saved</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">सहेजे गए लेख</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{displayBookmarks.length} लेख सहेजे गए</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export default function BookmarksPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search your bookmarks..."
+            placeholder="अपने बुकमार्क खोजें..."
             className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
           />
         </div>
@@ -80,10 +80,10 @@ export default function BookmarksPage() {
           <div className="text-center py-16">
             <FiBookmark className="w-16 h-16 text-gray-200 dark:text-gray-700 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              {search ? 'No matching bookmarks' : 'No saved articles'}
+              {search ? 'कोई मिलता बुकमार्क नहीं' : 'कोई सहेजा लेख नहीं'}
             </h3>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              {search ? 'Try a different search term' : 'Save articles by clicking the bookmark icon'}
+              {search ? 'अलग खोज शब्द आज़माएं' : 'बुकमार्क आइकन क्लिक करके लेख सहेजें'}
             </p>
           </div>
         )}
