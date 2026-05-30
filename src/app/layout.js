@@ -11,27 +11,27 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata = {
   title: {
-    default: 'न्यूज़हब - ब्रेकिंग न्यूज़ और ताज़ा खबरें',
-    template: '%s | न्यूज़हब',
+    default: 'CGFILE - ब्रेकिंग न्यूज़ और ताज़ा खबरें',
+    template: '%s | CGFILE',
   },
   description: 'ब्रेकिंग न्यूज़, गहन विश्लेषण और दुनिया भर की नवीनतम खबरों के लिए आपका विश्वसनीय स्रोत।',
   keywords: ['समाचार', 'ब्रेकिंग न्यूज़', 'ताज़ा खबरें', 'विश्व समाचार', 'तकनीक', 'राजनीति', 'खेल'],
-  authors: [{ name: 'न्यूज़हब' }],
-  creator: 'न्यूज़हब',
-  publisher: 'न्यूज़हब',
+  authors: [{ name: 'CGFILE' }],
+  creator: 'CGFILE',
+  publisher: 'CGFILE',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   openGraph: {
     type: 'website',
     locale: 'hi_IN',
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: 'न्यूज़हब',
-    title: 'न्यूज़हब - ब्रेकिंग न्यूज़ और ताज़ा खबरें',
+    siteName: 'CGFILE',
+    title: 'CGFILE - ब्रेकिंग न्यूज़ और ताज़ा खबरें',
     description: 'ब्रेकिंग न्यूज़, गहन विश्लेषण और नवीनतम खबरों के लिए आपका विश्वसनीय स्रोत।',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'न्यूज़हब' }],
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'CGFILE' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'न्यूज़हब - ब्रेकिंग न्यूज़',
+    title: 'CGFILE - ब्रेकिंग न्यूज़',
     description: 'ब्रेकिंग न्यूज़ और ताज़ा खबरों के लिए आपका विश्वसनीय स्रोत।',
     images: ['/og-image.jpg'],
   },
@@ -65,7 +65,7 @@ export default function RootLayout({ children }) {
                 duration: 3000,
                 style: { borderRadius: '10px', background: '#1f2937', color: '#fff' },
                 success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
-                error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+                error: { iconTheme: { primary: '#dc2626', secondary: '#fff' } },
               }}
             />
           </QueryProvider>

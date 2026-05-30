@@ -5,7 +5,7 @@ import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
 const CATEGORY_META = {
   technology: { label: 'तकनीक', color: '#3B82F6', emoji: '💻' },
-  politics: { label: 'राजनीति', color: '#EF4444', emoji: '🏛️' },
+  politics: { label: 'राजनीति', color: '#dc2626', emoji: '🏛️' },
   business: { label: 'व्यापार', color: '#10B981', emoji: '📈' },
   sports: { label: 'खेल', color: '#F59E0B', emoji: '⚽' },
   health: { label: 'स्वास्थ्य', color: '#06B6D4', emoji: '❤️' },

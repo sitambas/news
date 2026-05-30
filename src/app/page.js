@@ -9,7 +9,7 @@ import SkeletonCard from '@/components/ui/SkeletonCard';
 import { SAMPLE_ARTICLES, BREAKING_NEWS } from '@/utils/sampleData';
 
 export const metadata = {
-  title: 'NewsHub - Breaking News & Latest Stories',
+  title: 'CGFILE - Breaking News & Latest Stories',
   description: 'Stay up to date with the latest breaking news, world events, technology, business, sports, and more.',
 };
 

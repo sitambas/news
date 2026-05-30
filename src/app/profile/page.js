@@ -101,7 +101,7 @@ export default function ProfilePage() {
               className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 tab === t
                   ? 'bg-red-600 text-white'
-                  : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-red-400 hover:text-red-600'
+                  : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-red-500 hover:text-red-600'
               }`}
             >
               {t}

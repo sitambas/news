@@ -5,7 +5,7 @@ import { FiPlus, FiEdit, FiTrash2, FiSave, FiX } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const INITIAL_CATEGORIES = [
-  { _id: '1', name: 'राजनीति', slug: 'politics', color: '#EF4444', icon: '🏛️', description: 'राजनीतिक समाचार और विश्लेषण', order: 1, isActive: true },
+  { _id: '1', name: 'राजनीति', slug: 'politics', color: '#dc2626', icon: '🏛️', description: 'राजनीतिक समाचार और विश्लेषण', order: 1, isActive: true },
   { _id: '2', name: 'तकनीक', slug: 'technology', color: '#3B82F6', icon: '💻', description: 'टेक न्यूज़ और नवाचार', order: 2, isActive: true },
   { _id: '3', name: 'व्यापार', slug: 'business', color: '#10B981', icon: '📈', description: 'व्यापार और वित्त', order: 3, isActive: true },
   { _id: '4', name: 'विज्ञान', slug: 'science', color: '#8B5CF6', icon: '🔬', description: 'वैज्ञानिक खोजें', order: 4, isActive: true },

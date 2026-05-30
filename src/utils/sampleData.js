@@ -1,6 +1,6 @@
 // नमूना डेटा — विकास और प्रदर्शन के लिए
 export const SAMPLE_CATEGORIES = [
-  { name: 'राजनीति', color: '#EF4444', icon: 'FiFlag', description: 'राजनीतिक समाचार और विश्लेषण' },
+  { name: 'राजनीति', color: '#dc2626', icon: 'FiFlag', description: 'राजनीतिक समाचार और विश्लेषण' },
   { name: 'तकनीक', color: '#3B82F6', icon: 'FiCpu', description: 'तकनीकी खबरें और नवाचार' },
   { name: 'व्यापार', color: '#10B981', icon: 'FiBriefcase', description: 'व्यापार और वित्त समाचार' },
   { name: 'विज्ञान', color: '#8B5CF6', icon: 'FiZap', description: 'वैज्ञानिक खोजें' },

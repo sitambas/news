@@ -43,10 +43,10 @@ function LoginForm() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center justify-center space-x-2">
             <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-black text-lg">न</span>
+              <span className="text-white font-black text-sm tracking-tight">CG</span>
             </div>
-            <span className="text-2xl font-black text-gray-900 dark:text-white">
-              न्यूज़<span className="text-red-600">हब</span>
+            <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+              CG<span className="text-red-600">FILE</span>
             </span>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mt-4">वापस स्वागत है</h1>

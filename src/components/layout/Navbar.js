@@ -83,7 +83,7 @@ export default function Navbar() {
       {/* Top Bar */}
       <div className="bg-red-600 text-white py-1 px-4 text-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <span className="font-medium">📰 न्यूज़हब — ब्रेकिंग न्यूज़ का आपका विश्वसनीय स्रोत</span>
+          <span className="font-medium">📰 CG<span className="text-red-300">FILE</span> — ब्रेकिंग न्यूज़ का आपका विश्वसनीय स्रोत</span>
           <span className="hidden sm:block">{new Date().toLocaleDateString('hi-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
         </div>
       </div>
@@ -94,10 +94,10 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
             <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-black text-sm">N</span>
+              <span className="text-white font-black text-xs tracking-tight">CG</span>
             </div>
-            <span className="text-xl font-black text-gray-900 dark:text-white">
-              न्यूज़<span className="text-red-600">हब</span>
+            <span className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
+              CG<span className="text-red-600">FILE</span>
             </span>
           </Link>
 

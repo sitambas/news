@@ -83,7 +83,7 @@ function SearchContent() {
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 py-10">
         <div className="max-w-3xl mx-auto px-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-6">
-            न्यूज़हब पर खोजें
+            CGFILE पर खोजें
           </h1>
           <form onSubmit={handleSearch} className="relative">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -123,7 +123,7 @@ function SearchContent() {
                     className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                       selectedCategory === cat
                         ? 'bg-red-600 text-white'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-red-400'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-red-500'
                     }`}
                   >
                     {cat}

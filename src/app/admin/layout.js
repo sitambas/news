@@ -45,9 +45,9 @@ function AdminSidebar({ isOpen, setIsOpen }) {
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-800">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-7 h-7 bg-red-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-black text-sm">N</span>
+              <span className="text-white font-black text-xs tracking-tight">CG</span>
             </div>
-            <span className="font-bold text-white">न्यूज़हब एडमिन</span>
+            <span className="font-bold text-white tracking-tight">CG<span className="text-red-400">FILE</span> एडमिन</span>
           </Link>
           <button onClick={() => setIsOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
             <FiX className="w-5 h-5" />

@@ -4,7 +4,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
 const CATEGORY_META = {
-  politics: { name: 'राजनीति', description: 'दुनिया भर से नवीनतम राजनीतिक समाचार और विश्लेषण।', color: '#EF4444', emoji: '🏛️' },
+  politics: { name: 'राजनीति', description: 'दुनिया भर से नवीनतम राजनीतिक समाचार और विश्लेषण।', color: '#dc2626', emoji: '🏛️' },
   technology: { name: 'तकनीक', description: 'टेक न्यूज़, नवाचार और डिजिटल रुझान।', color: '#3B82F6', emoji: '💻' },
   business: { name: 'व्यापार', description: 'व्यापार समाचार, बाजार और आर्थिक अपडेट।', color: '#10B981', emoji: '📈' },
   science: { name: 'विज्ञान', description: 'वैज्ञानिक खोजें और शोध सफलताएं।', color: '#8B5CF6', emoji: '🔬' },

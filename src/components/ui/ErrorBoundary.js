@@ -22,7 +22,7 @@ export default class ErrorBoundary extends Component {
       return (
         <div className="min-h-[200px] flex items-center justify-center p-6">
           <div className="text-center">
-            <FiAlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+            <FiAlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Something went wrong</h3>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
               {this.state.error?.message || 'An unexpected error occurred'}

@@ -52,9 +52,9 @@ const CATEGORIES = [
 ];
 
 const USERS = [
-  { name: 'Admin User', username: 'admin', email: 'admin@newshub.com', password: 'admin123', role: 'admin', bio: 'Platform administrator' },
-  { name: 'Sarah Johnson', username: 'sarahjohnson', email: 'sarah@newshub.com', password: 'author123', role: 'author', bio: 'Senior Environmental Correspondent' },
-  { name: 'Mike Chen', username: 'mikechen', email: 'mike@newshub.com', password: 'editor123', role: 'editor', bio: 'Technology editor and journalist' },
+  { name: 'Admin User', username: 'admin', email: 'admin@cgfile.com', password: 'admin123', role: 'admin', bio: 'Platform administrator' },
+  { name: 'Sarah Johnson', username: 'sarahjohnson', email: 'sarah@cgfile.com', password: 'author123', role: 'author', bio: 'Senior Environmental Correspondent' },
+  { name: 'Mike Chen', username: 'mikechen', email: 'mike@cgfile.com', password: 'editor123', role: 'editor', bio: 'Technology editor and journalist' },
 ];
 
 const ARTICLES_CONTENT = [
@@ -130,9 +130,9 @@ async function seed() {
 
     console.log('\n🚀 Seed completed successfully!');
     console.log('\nTest Accounts:');
-    console.log('  Admin:  admin@newshub.com / admin123');
-    console.log('  Author: sarah@newshub.com / author123');
-    console.log('  Editor: mike@newshub.com  / editor123');
+    console.log('  Admin:  admin@cgfile.com / admin123');
+    console.log('  Author: sarah@cgfile.com / author123');
+    console.log('  Editor: mike@cgfile.com  / editor123');
   } catch (err) {
     console.error('❌ Seed failed:', err);
   } finally {

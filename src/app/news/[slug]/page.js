@@ -174,7 +174,7 @@ export default async function ArticlePage({ params }) {
                 </div>
                 <div>
                   <Link href={`/author/${article.author?.username}`} className="font-semibold text-gray-900 dark:text-white hover:text-red-600 text-sm">
-                    {article.author?.name || 'NewsHub Staff'}
+                    {article.author?.name || 'CGFILE Staff'}
                   </Link>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{article.author?.bio || 'Journalist'}</p>
                 </div>
@@ -268,7 +268,7 @@ export default async function ArticlePage({ params }) {
                       {article.author.name}
                     </Link>
                     <p className="text-gray-600 dark:text-gray-400 text-sm mt-1 leading-relaxed">
-                      {article.author.bio || 'न्यूज़हब के स्टाफ पत्रकार, ब्रेकिंग न्यूज़ और गहन विश्लेषण को कवर करते हैं।'}
+                      {article.author.bio || 'CGFILE के स्टाफ पत्रकार, ब्रेकिंग न्यूज़ और गहन विश्लेषण को कवर करते हैं।'}
                     </p>
                     <Link href={`/author/${article.author.username}`} className="mt-2 inline-block text-sm text-red-600 hover:underline font-medium">
                       सभी लेख देखें →

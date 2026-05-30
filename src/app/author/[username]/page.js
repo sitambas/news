@@ -10,7 +10,7 @@ const SAMPLE_AUTHOR = {
   name: 'सारा जॉनसन',
   username: 'sarahjohnson',
   avatar: '',
-  bio: 'न्यूज़हब में वरिष्ठ पर्यावरण संवाददाता। 10 से अधिक वर्षों से जलवायु परिवर्तन, स्थिरता और पर्यावरण नीति को कवर कर रही हैं। रॉयटर्स और बीबीसी में पूर्व पत्रकार।',
+  bio: 'CGFILE में वरिष्ठ पर्यावरण संवाददाता। 10 से अधिक वर्षों से जलवायु परिवर्तन, स्थिरता और पर्यावरण नीति को कवर कर रही हैं। रॉयटर्स और बीबीसी में पूर्व पत्रकार।',
   role: 'लेखक',
   social: {
     twitter: 'https://twitter.com/sarahjohnson',
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }) {
   const author = await getAuthor(username) || (username === 'sarahjohnson' ? SAMPLE_AUTHOR : null);
   if (!author) return { title: 'लेखक नहीं मिला' };
   return {
-    title: `${author.name} - न्यूज़हब लेखक`,
+    title: `${author.name} - CGFILE लेखक`,
     description: author.bio,
   };
 }
@@ -83,7 +83,7 @@ export default async function AuthorPage({ params }) {
               {/* Social Links */}
               <div className="flex items-center gap-3 mt-3">
                 {author.social?.twitter && (
-                  <a href={author.social.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-sky-500 transition-colors">
+                  <a href={author.social.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-red-600 transition-colors">
                     <FiTwitter className="w-4 h-4" />
                   </a>
                 )}

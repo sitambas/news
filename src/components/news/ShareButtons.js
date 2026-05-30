@@ -24,7 +24,7 @@ export default function ShareButtons({ url, title }) {
           href={shareUrls.twitter}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-1.5 bg-sky-500 text-white text-xs font-medium rounded-lg hover:bg-sky-600 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition-colors"
         >
           <FiTwitter className="w-3.5 h-3.5" /> Twitter
         </a>
