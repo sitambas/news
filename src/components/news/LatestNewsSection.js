@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { FiGrid, FiList } from 'react-icons/fi';
 import ArticleCard from './ArticleCard';
 import SectionHeader from '@/components/ui/SectionHeader';
-import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
-export default function LatestNewsSection({ articles = SAMPLE_ARTICLES }) {
+
+export default function LatestNewsSection({ articles = [] }) {
   const [view, setView] = useState('grid');
 
   return (

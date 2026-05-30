@@ -71,8 +71,34 @@ export async function POST(request) {
       return errorResponse('Title, content, and category are required', 400);
     }
 
+    // Resolve category: accept MongoDB ID, English slug, Hindi name, or English name
+    const HINDI_CATEGORY_MAP = {
+      'राजनीति': 'politics',
+      'तकनीक': 'technology',
+      'व्यापार': 'business',
+      'विज्ञान': 'science',
+      'खेल': 'sports',
+      'मनोरंजन': 'entertainment',
+      'स्वास्थ्य': 'health',
+      'विश्व': 'world',
+    };
+    let categoryId = category;
+    const mongoose = (await import('mongoose')).default;
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      const Category = (await import('@/models/Category')).default;
+      const resolvedSlug = HINDI_CATEGORY_MAP[category] || category.toLowerCase();
+      const cat = await Category.findOne({
+        $or: [
+          { slug: resolvedSlug },
+          { name: { $regex: new RegExp(`^${resolvedSlug}$`, 'i') } },
+        ],
+      });
+      if (!cat) return errorResponse(`Category "${category}" not found`, 400);
+      categoryId = cat._id;
+    }
+
     const article = await Article.create({
-      title, content, excerpt, category, tags: tags || [],
+      title, content, excerpt, category: categoryId, tags: tags || [],
       status: status || 'draft', coverImage, coverImageAlt,
       isBreaking: isBreaking || false, isFeatured: isFeatured || false,
       isTrending: isTrending || false, allowComments: allowComments !== false,

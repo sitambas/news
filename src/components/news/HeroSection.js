@@ -5,10 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FiClock, FiEye, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { timeAgo, formatNumber, truncateText } from '@/utils/helpers';
-import { SAMPLE_ARTICLES } from '@/utils/sampleData';
+
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function HeroSection({ articles = SAMPLE_ARTICLES }) {
+export default function HeroSection({ articles = [] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const featured = articles.slice(0, 5);
 

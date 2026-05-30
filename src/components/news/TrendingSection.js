@@ -2,9 +2,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FiTrendingUp, FiClock, FiEye } from 'react-icons/fi';
 import { timeAgo, formatNumber } from '@/utils/helpers';
-import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
-export default function TrendingSection({ articles = SAMPLE_ARTICLES }) {
+
+export default function TrendingSection({ articles = [] }) {
   const trending = articles.slice(0, 5);
 
   return (

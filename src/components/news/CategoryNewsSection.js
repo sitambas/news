@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import ArticleCard from './ArticleCard';
 import SectionHeader from '@/components/ui/SectionHeader';
-import { SAMPLE_ARTICLES } from '@/utils/sampleData';
+
 
 const CATEGORY_META = {
   technology: { label: 'तकनीक', color: '#3B82F6', emoji: '💻' },
@@ -14,7 +14,7 @@ const CATEGORY_META = {
   world: { label: 'विश्व', color: '#6366F1', emoji: '🌍' },
 };
 
-export default function CategoryNewsSection({ category, articles = SAMPLE_ARTICLES }) {
+export default function CategoryNewsSection({ category, articles = [] }) {
   const meta = CATEGORY_META[category] || { label: category, color: '#6B7280', emoji: '📰' };
 
   // Format articles to ensure they have a category field for display

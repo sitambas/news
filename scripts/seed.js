@@ -57,32 +57,7 @@ const USERS = [
   { name: 'Mike Chen', username: 'mikechen', email: 'mike@cgfile.com', password: 'editor123', role: 'editor', bio: 'Technology editor and journalist' },
 ];
 
-const ARTICLES_CONTENT = [
-  {
-    title: 'Global Leaders Reach Historic Climate Agreement at COP30 Summit',
-    excerpt: 'World leaders from 195 countries have signed a landmark climate accord pledging net-zero emissions by 2040.',
-    content: '<p>In a landmark moment for global diplomacy, world leaders from 195 countries gathered in Geneva for the COP30 Climate Summit and emerged with a historic agreement.</p><h2>Key Provisions</h2><p>The accord commits signatory nations to achieving net-zero carbon emissions by 2040 — a full decade earlier than the targets set in the Paris Agreement.</p><blockquote>"This is not just an agreement on paper. This is a binding commitment backed by real financial mechanisms."</blockquote><p>The deal includes a $2 trillion climate finance fund, a phase-out of coal power by 2035, and mandatory annual emissions reporting.</p>',
-    coverImage: 'https://images.unsplash.com/photo-1569163139394-de4e5f43e5ca?w=800',
-    tags: ['climate', 'cop30', 'environment', 'world leaders'],
-    isBreaking: true, isFeatured: true, views: 12450,
-  },
-  {
-    title: 'Apple Unveils Revolutionary AI-Powered MacBook with 72-Hour Battery Life',
-    excerpt: 'The new MacBook features a custom neural processing unit delivering unprecedented performance.',
-    content: '<p>Apple has unveiled its most ambitious MacBook yet, featuring a revolutionary AI chip that promises 72-hour battery life and performance that rivals professional workstations.</p><h2>Technical Specifications</h2><p>The new M4 Ultra chip integrates 120 billion transistors and can process 38 trillion operations per second.</p><p>Available in Space Black and Silver, starting at $1,999.</p>',
-    coverImage: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800',
-    tags: ['apple', 'macbook', 'ai', 'technology'],
-    isTrending: true, views: 8920,
-  },
-  {
-    title: 'Scientists Discover Earth-Like Planet in Habitable Zone Just 12 Light-Years Away',
-    excerpt: 'Astronomers using the James Webb Telescope have identified a planet with strong biosignatures.',
-    content: '<p>Astronomers have made a groundbreaking discovery: an Earth-like planet orbiting a nearby star within the habitable zone, just 12 light-years from our solar system.</p><h2>Discovery Details</h2><p>The planet, designated Proxima Centauri c-2, has a mass approximately 1.2 times that of Earth and orbits in the habitable zone of its parent star.</p><p>Most excitingly, spectroscopic analysis has revealed the presence of oxygen, water vapor, and methane in the atmosphere.</p>',
-    coverImage: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=800',
-    tags: ['science', 'space', 'exoplanet', 'astronomy'],
-    isFeatured: true, views: 15320,
-  },
-];
+const ARTICLES_CONTENT = [];
 
 async function seed() {
   try {
@@ -109,24 +84,7 @@ async function seed() {
     const users = await User.insertMany(hashedUsers);
     console.log(`✅ Created ${users.length} users`);
 
-    // Seed articles
-    const techCat = categories.find((c) => c.name === 'Technology');
-    const worldCat = categories.find((c) => c.name === 'World');
-    const sciCat = categories.find((c) => c.name === 'Science');
-    const authorUser = users.find((u) => u.username === 'sarahjohnson');
-
-    const articleData = ARTICLES_CONTENT.map((a, i) => ({
-      ...a,
-      slug: slugify(a.title),
-      author: authorUser._id,
-      category: [worldCat, techCat, sciCat][i]._id,
-      status: 'published',
-      publishedAt: new Date(Date.now() - (i + 1) * 3600000),
-      readingTime: Math.ceil(a.content.split(' ').length / 200),
-    }));
-
-    const articles = await Article.insertMany(articleData);
-    console.log(`✅ Created ${articles.length} articles`);
+    console.log('✅ No dummy articles — clean start!');
 
     console.log('\n🚀 Seed completed successfully!');
     console.log('\nTest Accounts:');

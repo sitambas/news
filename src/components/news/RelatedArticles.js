@@ -2,10 +2,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FiClock } from 'react-icons/fi';
 import { timeAgo } from '@/utils/helpers';
-import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
-export default function RelatedArticles({ currentSlug, category }) {
-  const related = SAMPLE_ARTICLES.filter((a) => a.slug !== currentSlug).slice(0, 4);
+export default function RelatedArticles({ articles = [], currentSlug }) {
+  const related = articles.filter((a) => a.slug !== currentSlug).slice(0, 4);
 
   if (!related.length) return null;
 
@@ -18,17 +17,23 @@ export default function RelatedArticles({ currentSlug, category }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {related.map((article, i) => (
           <Link
-            key={article.slug || i}
-            href={`/news/${article.slug || 'sample-1'}`}
+            key={article._id || article.slug || i}
+            href={`/news/${article.slug}`}
             className="group flex gap-3 p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:shadow-md transition-all"
           >
-            <div className="relative w-20 h-16 rounded-lg overflow-hidden flex-shrink-0">
-              <Image
-                src={article.coverImage || `https://picsum.photos/seed/${i + 30}/200/150`}
-                alt={article.title}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform"
-              />
+            <div className="relative w-20 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+              {article.coverImage ? (
+                <Image
+                  src={article.coverImage}
+                  alt={article.title || ''}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600 text-xs">
+                  No Image
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 line-clamp-2 transition-colors">

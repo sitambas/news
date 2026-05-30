@@ -6,25 +6,22 @@ import TrendingSection from '@/components/news/TrendingSection';
 import CategoryNewsSection from '@/components/news/CategoryNewsSection';
 import Sidebar from '@/components/layout/Sidebar';
 import SkeletonCard from '@/components/ui/SkeletonCard';
-import { SAMPLE_ARTICLES, BREAKING_NEWS } from '@/utils/sampleData';
-
 export const metadata = {
   title: 'CGFILE - Breaking News & Latest Stories',
   description: 'Stay up to date with the latest breaking news, world events, technology, business, sports, and more.',
 };
 
-// Server-side data fetching (falls back to sample data)
 async function getArticles() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/articles?status=published&limit=12`, {
       next: { revalidate: 60 },
     });
-    if (!res.ok) return SAMPLE_ARTICLES;
+    if (!res.ok) return [];
     const data = await res.json();
-    return data.data || SAMPLE_ARTICLES;
+    return data.data || [];
   } catch {
-    return SAMPLE_ARTICLES;
+    return [];
   }
 }
 
@@ -33,8 +30,8 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Breaking News Ticker */}
-      <BreakingNewsTicker news={BREAKING_NEWS} />
+      {/* Breaking News Ticker - only shows real breaking news from DB */}
+      <BreakingNewsTicker news={articles.filter(a => a.isBreaking)} />
 
       {/* Hero Section */}
       <HeroSection articles={articles} />
