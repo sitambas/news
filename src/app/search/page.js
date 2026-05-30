@@ -10,11 +10,11 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 import { debounce } from '@/utils/helpers';
 
-const CATEGORIES = ['All', 'Politics', 'Technology', 'Business', 'Science', 'Sports', 'Health', 'World'];
+const CATEGORIES = ['सभी', 'राजनीति', 'तकनीक', 'व्यापार', 'विज्ञान', 'खेल', 'स्वास्थ्य', 'विश्व'];
 const SORT_OPTIONS = [
-  { value: 'relevance', label: 'Most Relevant' },
-  { value: 'date', label: 'Most Recent' },
-  { value: 'views', label: 'Most Viewed' },
+  { value: 'relevance', label: 'सबसे प्रासंगिक' },
+  { value: 'date', label: 'सबसे नया' },
+  { value: 'views', label: 'सर्वाधिक देखा' },
 ];
 
 function SearchContent() {
@@ -25,7 +25,7 @@ function SearchContent() {
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('सभी');
   const [sortBy, setSortBy] = useState('relevance');
   const [total, setTotal] = useState(0);
   const [searched, setSearched] = useState(false);
@@ -40,7 +40,7 @@ function SearchContent() {
     setSearched(true);
     try {
       const params = new URLSearchParams({ q, sort });
-      if (cat && cat !== 'All') params.set('category', cat.toLowerCase());
+      if (cat && cat !== 'सभी') params.set('category', cat.toLowerCase());
       const res = await fetch(`/api/search?${params}`);
       const data = await res.json();
       if (data.success) {
@@ -83,7 +83,7 @@ function SearchContent() {
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 py-10">
         <div className="max-w-3xl mx-auto px-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-6">
-            Search NewsHub
+            न्यूज़हब पर खोजें
           </h1>
           <form onSubmit={handleSearch} className="relative">
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -94,7 +94,7 @@ function SearchContent() {
                 setQuery(e.target.value);
                 debouncedSearch(e.target.value, selectedCategory, sortBy);
               }}
-              placeholder="Search for news, topics, people..."
+              placeholder="खबरें, विषय, लोग खोजें..."
               className="w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg"
             />
             {query && (
@@ -148,8 +148,8 @@ function SearchContent() {
             {searched && !loading && (
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 {total > 0
-                  ? `Found ${total} result${total !== 1 ? 's' : ''} for "${query}"`
-                  : `No results found for "${query}"`}
+                  ? `"${query}" के लिए ${total} परिणाम मिले`
+                  : `"${query}" के लिए कोई परिणाम नहीं मिला`}
               </p>
             )}
 
@@ -173,9 +173,9 @@ function SearchContent() {
             {!loading && searched && results.length === 0 && (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No results found</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">कोई परिणाम नहीं मिला</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  Try different keywords or browse our categories
+                  अलग कीवर्ड आज़माएं या हमारी श्रेणियां ब्राउज़ करें
                 </p>
               </div>
             )}
@@ -184,9 +184,9 @@ function SearchContent() {
             {!searched && !loading && (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">📰</div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Start Searching</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">खोजना शुरू करें</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  Enter a keyword to search our news database
+                  हमारे न्यूज़ डेटाबेस को खोजने के लिए कीवर्ड दर्ज करें
                 </p>
               </div>
             )}

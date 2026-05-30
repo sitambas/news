@@ -12,13 +12,13 @@ import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/admin', icon: FiHome },
-  { label: 'Articles', href: '/admin/articles', icon: FiFileText },
-  { label: 'New Article', href: '/admin/articles/new', icon: FiPlusCircle },
-  { label: 'Categories', href: '/admin/categories', icon: FiTag },
-  { label: 'Users', href: '/admin/users', icon: FiUsers },
-  { label: 'Analytics', href: '/admin/analytics', icon: FiBarChart2 },
-  { label: 'Settings', href: '/admin/settings', icon: FiSettings },
+  { label: 'डैशबोर्ड', href: '/admin', icon: FiHome },
+  { label: 'लेख', href: '/admin/articles', icon: FiFileText },
+  { label: 'नया लेख', href: '/admin/articles/new', icon: FiPlusCircle },
+  { label: 'श्रेणियाँ', href: '/admin/categories', icon: FiTag },
+  { label: 'उपयोगकर्ता', href: '/admin/users', icon: FiUsers },
+  { label: 'विश्लेषण', href: '/admin/analytics', icon: FiBarChart2 },
+  { label: 'सेटिंग्स', href: '/admin/settings', icon: FiSettings },
 ];
 
 function AdminSidebar({ isOpen, setIsOpen }) {
@@ -47,7 +47,7 @@ function AdminSidebar({ isOpen, setIsOpen }) {
             <div className="w-7 h-7 bg-red-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-black text-sm">N</span>
             </div>
-            <span className="font-bold text-white">NewsHub Admin</span>
+            <span className="font-bold text-white">न्यूज़हब एडमिन</span>
           </Link>
           <button onClick={() => setIsOpen(false)} className="lg:hidden text-gray-400 hover:text-white">
             <FiX className="w-5 h-5" />
@@ -75,7 +75,7 @@ function AdminSidebar({ isOpen, setIsOpen }) {
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800">
           <Link href="/" className="flex items-center gap-2 text-xs text-gray-500 hover:text-white transition-colors">
             <FiHome className="w-4 h-4" />
-            Back to Website
+            वेबसाइट पर वापस
           </Link>
         </div>
       </aside>
@@ -96,7 +96,7 @@ export default function AdminLayout({ children }) {
 
   const handleLogout = async () => {
     await logout();
-    toast.success('Logged out');
+    toast.success('लॉगआउट हो गए');
     router.push('/auth/login');
   };
 
@@ -116,7 +116,7 @@ export default function AdminLayout({ children }) {
               <FiMenu className="w-5 h-5" />
             </button>
             <h1 className="font-semibold text-gray-900 dark:text-white text-sm hidden sm:block">
-              Admin Dashboard
+              एडमिन डैशबोर्ड
             </h1>
           </div>
 
@@ -125,7 +125,7 @@ export default function AdminLayout({ children }) {
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Quick search..."
+                placeholder="त्वरित खोज..."
                 className="w-48 pl-9 pr-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-gray-600 dark:text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>

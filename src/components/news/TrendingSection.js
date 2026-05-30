@@ -11,8 +11,8 @@ export default function TrendingSection({ articles = SAMPLE_ARTICLES }) {
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
       <div className="flex items-center gap-2 p-4 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20">
         <FiTrendingUp className="w-5 h-5 text-red-600" />
-        <h3 className="font-bold text-gray-900 dark:text-white">Trending Stories</h3>
-        <span className="ml-auto text-xs bg-red-600 text-white px-2 py-0.5 rounded-full animate-pulse">LIVE</span>
+        <h3 className="font-bold text-gray-900 dark:text-white">ट्रेंडिंग खबरें</h3>
+        <span className="ml-auto text-xs bg-red-600 text-white px-2 py-0.5 rounded-full animate-pulse">लाइव</span>
       </div>
       <div className="divide-y divide-gray-100 dark:divide-gray-800">
         {trending.map((article, i) => (

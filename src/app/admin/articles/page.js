@@ -7,14 +7,16 @@ import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 import { timeAgo, formatNumber, truncateText } from '@/utils/helpers';
 import toast from 'react-hot-toast';
 
-const STATUSES = ['All', 'published', 'draft', 'scheduled', 'archived'];
+const STATUSES = ['सभी', 'published', 'draft', 'scheduled', 'archived'];
+
+const STATUS_HINDI = { published: 'प्रकाशित', draft: 'ड्राफ्ट', scheduled: 'निर्धारित', archived: 'संग्रहीत' };
 
 const articles = SAMPLE_ARTICLES.map((a, i) => ({
   ...a,
   _id: String(i + 1),
   status: ['published', 'published', 'draft', 'draft', 'scheduled', 'published'][i] || 'published',
-  author: { name: ['Sarah J.', 'Mike C.', 'Emma D.', 'Alex T.', 'Lisa P.', 'Tom B.'][i] || 'Staff' },
-  category: { name: ['World', 'Tech', 'Business', 'Science', 'Sports', 'Health'][i] || 'News', slug: 'world' },
+  author: { name: ['सारा ज.', 'माइक च.', 'एम्मा ड.', 'अलेक्स ट.', 'लिसा प.', 'टॉम ब.'][i] || 'स्टाफ' },
+  category: { name: ['विश्व', 'तकनीक', 'व्यापार', 'विज्ञान', 'खेल', 'स्वास्थ्य'][i] || 'समाचार', slug: 'world' },
 }));
 
 const STATUS_STYLES = {
@@ -31,7 +33,7 @@ export default function AdminArticlesPage() {
 
   const filtered = articles.filter((a) => {
     const matchSearch = a.title.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === 'All' || a.status === statusFilter;
+    const matchStatus = statusFilter === 'सभी' || a.status === statusFilter;
     return matchSearch && matchStatus;
   });
 
@@ -40,8 +42,8 @@ export default function AdminArticlesPage() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this article?')) {
-      toast.success('Article deleted');
+    if (window.confirm('क्या आप वाकई इस लेख को हटाना चाहते हैं?')) {
+      toast.success('लेख हटाया गया');
     }
   };
 
@@ -49,12 +51,12 @@ export default function AdminArticlesPage() {
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Articles</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">लेख</h1>
         <Link
           href="/admin/articles/new"
           className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors"
         >
-          <FiPlus className="w-4 h-4" /> New Article
+          <FiPlus className="w-4 h-4" /> नया लेख
         </Link>
       </div>
 
@@ -67,7 +69,7 @@ export default function AdminArticlesPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search articles..."
+              placeholder="लेख खोजें..."
               className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
@@ -90,10 +92,10 @@ export default function AdminArticlesPage() {
 
         {selected.length > 0 && (
           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
-            <span className="text-sm text-gray-600 dark:text-gray-400">{selected.length} selected</span>
-            <button className="text-xs text-red-600 hover:underline">Delete Selected</button>
-            <button className="text-xs text-blue-600 hover:underline">Publish Selected</button>
-            <button onClick={() => setSelected([])} className="text-xs text-gray-500 hover:underline">Clear</button>
+            <span className="text-sm text-gray-600 dark:text-gray-400">{selected.length} चुने गए</span>
+            <button className="text-xs text-red-600 hover:underline">चुने हटाएं</button>
+            <button className="text-xs text-blue-600 hover:underline">चुने प्रकाशित करें</button>
+            <button onClick={() => setSelected([])} className="text-xs text-gray-500 hover:underline">साफ़ करें</button>
           </div>
         )}
       </div>
@@ -112,13 +114,13 @@ export default function AdminArticlesPage() {
                     className="rounded border-gray-300"
                   />
                 </th>
-                <th className="px-4 py-3 text-left font-medium">Article</th>
-                <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Author</th>
-                <th className="px-4 py-3 text-left font-medium hidden sm:table-cell">Category</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Views</th>
-                <th className="px-4 py-3 text-left font-medium hidden xl:table-cell">Date</th>
-                <th className="px-4 py-3 text-right font-medium">Actions</th>
+                <th className="px-4 py-3 text-left font-medium">लेख</th>
+                <th className="px-4 py-3 text-left font-medium hidden md:table-cell">लेखक</th>
+                <th className="px-4 py-3 text-left font-medium hidden sm:table-cell">श्रेणी</th>
+                <th className="px-4 py-3 text-left font-medium">स्थिति</th>
+                <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">दृश्य</th>
+                <th className="px-4 py-3 text-left font-medium hidden xl:table-cell">तारीख</th>
+                <th className="px-4 py-3 text-right font-medium">क्रियाएं</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
@@ -146,7 +148,7 @@ export default function AdminArticlesPage() {
                           {article.title}
                         </p>
                         {article.isBreaking && (
-                          <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-1.5 py-0.5 rounded font-medium">Breaking</span>
+                          <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-1.5 py-0.5 rounded font-medium">ब्रेकिंग</span>
                         )}
                       </div>
                     </div>
@@ -160,8 +162,8 @@ export default function AdminArticlesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STATUS_STYLES[article.status] || STATUS_STYLES.draft}`}>
-                      {article.status}
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_STYLES[article.status] || STATUS_STYLES.draft}`}>
+                      {STATUS_HINDI[article.status] || article.status}
                     </span>
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell">

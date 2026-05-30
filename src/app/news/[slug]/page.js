@@ -124,8 +124,8 @@ export default async function ArticlePage({ params }) {
           {/* Article Main Content */}
           <article className="lg:col-span-2">
             {/* Breadcrumb */}
-            <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
-              <Link href="/" className="hover:text-red-600">Home</Link>
+              <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+              <Link href="/" className="hover:text-red-600">होम</Link>
               <span>/</span>
               {article.category && (
                 <>
@@ -140,7 +140,7 @@ export default async function ArticlePage({ params }) {
             <header className="mb-6">
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 {article.isBreaking && (
-                  <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">BREAKING NEWS</span>
+                  <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">ब्रेकिंग न्यूज़</span>
                 )}
                 {article.category && (
                   <Link
@@ -199,7 +199,7 @@ export default async function ArticlePage({ params }) {
             {article.aiSummary && (
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm">🤖 AI Summary</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm">🤖 AI सारांश</span>
                 </div>
                 <p className="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">{article.aiSummary}</p>
               </div>
@@ -254,7 +254,7 @@ export default async function ArticlePage({ params }) {
             {/* Author Bio */}
             {article.author && (
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 mt-8">
-                <h3 className="font-bold text-gray-900 dark:text-white mb-4">About the Author</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white mb-4">लेखक के बारे में</h3>
                 <div className="flex items-start gap-4">
                   <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 font-bold text-xl flex-shrink-0 overflow-hidden">
                     {article.author.avatar ? (
@@ -268,10 +268,10 @@ export default async function ArticlePage({ params }) {
                       {article.author.name}
                     </Link>
                     <p className="text-gray-600 dark:text-gray-400 text-sm mt-1 leading-relaxed">
-                      {article.author.bio || 'Staff journalist at NewsHub, covering breaking news and in-depth analysis.'}
+                      {article.author.bio || 'न्यूज़हब के स्टाफ पत्रकार, ब्रेकिंग न्यूज़ और गहन विश्लेषण को कवर करते हैं।'}
                     </p>
                     <Link href={`/author/${article.author.username}`} className="mt-2 inline-block text-sm text-red-600 hover:underline font-medium">
-                      View all articles →
+                      सभी लेख देखें →
                     </Link>
                   </div>
                 </div>

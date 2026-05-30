@@ -4,22 +4,22 @@ import Sidebar from '@/components/layout/Sidebar';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
 const CATEGORY_META = {
-  politics: { name: 'Politics', description: 'Latest political news and analysis from around the world.', color: '#EF4444', emoji: '🏛️' },
-  technology: { name: 'Technology', description: 'Tech news, innovations, and digital trends.', color: '#3B82F6', emoji: '💻' },
-  business: { name: 'Business', description: 'Business news, markets, and economic updates.', color: '#10B981', emoji: '📈' },
-  science: { name: 'Science', description: 'Scientific discoveries and research breakthroughs.', color: '#8B5CF6', emoji: '🔬' },
-  sports: { name: 'Sports', description: 'Sports news, results, and athlete profiles.', color: '#F59E0B', emoji: '⚽' },
-  entertainment: { name: 'Entertainment', description: 'Celebrity news, movies, music, and pop culture.', color: '#EC4899', emoji: '🎬' },
-  health: { name: 'Health', description: 'Health tips, medical news, and wellness advice.', color: '#06B6D4', emoji: '❤️' },
-  world: { name: 'World', description: 'International news and global events.', color: '#6366F1', emoji: '🌍' },
+  politics: { name: 'राजनीति', description: 'दुनिया भर से नवीनतम राजनीतिक समाचार और विश्लेषण।', color: '#EF4444', emoji: '🏛️' },
+  technology: { name: 'तकनीक', description: 'टेक न्यूज़, नवाचार और डिजिटल रुझान।', color: '#3B82F6', emoji: '💻' },
+  business: { name: 'व्यापार', description: 'व्यापार समाचार, बाजार और आर्थिक अपडेट।', color: '#10B981', emoji: '📈' },
+  science: { name: 'विज्ञान', description: 'वैज्ञानिक खोजें और शोध सफलताएं।', color: '#8B5CF6', emoji: '🔬' },
+  sports: { name: 'खेल', description: 'खेल समाचार, परिणाम और खिलाड़ी प्रोफाइल।', color: '#F59E0B', emoji: '⚽' },
+  entertainment: { name: 'मनोरंजन', description: 'सेलेब्रिटी खबरें, फिल्में, संगीत और पॉप संस्कृति।', color: '#EC4899', emoji: '🎬' },
+  health: { name: 'स्वास्थ्य', description: 'स्वास्थ्य सुझाव, चिकित्सा समाचार और तंदुरुस्ती सलाह।', color: '#06B6D4', emoji: '❤️' },
+  world: { name: 'विश्व', description: 'अंतर्राष्ट्रीय समाचार और वैश्विक घटनाएं।', color: '#6366F1', emoji: '🌍' },
 };
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const meta = CATEGORY_META[slug];
-  if (!meta) return { title: 'Category Not Found' };
+  if (!meta) return { title: 'श्रेणी नहीं मिली' };
   return {
-    title: `${meta.name} News - Latest Updates`,
+    title: `${meta.name} समाचार - नवीनतम अपडेट`,
     description: meta.description,
   };
 }
@@ -44,7 +44,7 @@ export default async function CategoryPage({ params, searchParams }) {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <span className="text-xs font-semibold uppercase tracking-wider px-2 py-1 rounded-md" style={{ backgroundColor: `${meta.color}20`, color: meta.color }}>
-                  Category
+                  श्रेणी
                 </span>
               </div>
               <h1 className="text-3xl font-black text-gray-900 dark:text-white">{meta.name}</h1>
@@ -56,15 +56,15 @@ export default async function CategoryPage({ params, searchParams }) {
           <div className="flex items-center gap-6 mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{articles.length}+</div>
-              <div className="text-xs text-gray-500">Articles</div>
+              <div className="text-xs text-gray-500">लेख</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">24K</div>
-              <div className="text-xs text-gray-500">Readers</div>
+              <div className="text-xs text-gray-500">पाठक</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">Daily</div>
-              <div className="text-xs text-gray-500">Updates</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">प्रतिदिन</div>
+              <div className="text-xs text-gray-500">अपडेट</div>
             </div>
           </div>
         </div>
@@ -76,15 +76,15 @@ export default async function CategoryPage({ params, searchParams }) {
           <div className="lg:col-span-2">
             {/* Filters */}
             <div className="flex items-center gap-3 mb-6 flex-wrap">
-              {['Latest', 'Trending', 'Most Read', 'This Week'].map((filter) => (
+              {['नवीनतम', 'ट्रेंडिंग', 'सर्वाधिक पढ़ा', 'इस सप्ताह'].map((filter, i) => (
                 <button
                   key={filter}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    filter === 'Latest'
+                    i === 0
                       ? 'text-white'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
-                  style={filter === 'Latest' ? { backgroundColor: meta.color } : {}}
+                  style={i === 0 ? { backgroundColor: meta.color } : {}}
                 >
                   {filter}
                 </button>
@@ -99,7 +99,7 @@ export default async function CategoryPage({ params, searchParams }) {
 
             <div className="mt-8 text-center">
               <button className="px-6 py-3 border-2 text-sm font-semibold rounded-xl transition-all hover:text-white" style={{ borderColor: meta.color, color: meta.color }}>
-                Load More {meta.name} News
+                और {meta.name} समाचार लोड करें
               </button>
             </div>
           </div>

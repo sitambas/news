@@ -7,11 +7,11 @@ import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 import { formatDate, formatNumber } from '@/utils/helpers';
 
 const SAMPLE_AUTHOR = {
-  name: 'Sarah Johnson',
+  name: 'सारा जॉनसन',
   username: 'sarahjohnson',
   avatar: '',
-  bio: 'Senior Environmental Correspondent at NewsHub. Covering climate change, sustainability, and environmental policy for over 10 years. Former journalist at Reuters and BBC.',
-  role: 'author',
+  bio: 'न्यूज़हब में वरिष्ठ पर्यावरण संवाददाता। 10 से अधिक वर्षों से जलवायु परिवर्तन, स्थिरता और पर्यावरण नीति को कवर कर रही हैं। रॉयटर्स और बीबीसी में पूर्व पत्रकार।',
+  role: 'लेखक',
   social: {
     twitter: 'https://twitter.com/sarahjohnson',
     linkedin: 'https://linkedin.com/in/sarahjohnson',
@@ -35,9 +35,9 @@ async function getAuthor(username) {
 export async function generateMetadata({ params }) {
   const { username } = await params;
   const author = await getAuthor(username) || (username === 'sarahjohnson' ? SAMPLE_AUTHOR : null);
-  if (!author) return { title: 'Author Not Found' };
+  if (!author) return { title: 'लेखक नहीं मिला' };
   return {
-    title: `${author.name} - NewsHub Author`,
+    title: `${author.name} - न्यूज़हब लेखक`,
     description: author.bio,
   };
 }
@@ -104,19 +104,19 @@ export default async function AuthorPage({ params }) {
             <div className="flex gap-6 text-center">
               <div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">{articles.length}</div>
-                <div className="text-xs text-gray-500">Articles</div>
+                <div className="text-xs text-gray-500">लेख</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
                   {formatNumber(articles.reduce((sum, a) => sum + (a.views || 0), 0))}
                 </div>
-                <div className="text-xs text-gray-500">Total Views</div>
+                <div className="text-xs text-gray-500">कुल दृश्य</div>
               </div>
               <div>
                 <div className="text-sm font-bold text-gray-900 dark:text-white">
                   {formatDate(author.createdAt, 'MMM yyyy')}
                 </div>
-                <div className="text-xs text-gray-500">Member Since</div>
+                <div className="text-xs text-gray-500">सदस्य बने</div>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default async function AuthorPage({ params }) {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-1 h-7 bg-red-600 rounded-full" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Articles by {author.name}</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{author.name} के लेख</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {articles.map((article, i) => (

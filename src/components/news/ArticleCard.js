@@ -34,7 +34,7 @@ export default function ArticleCard({ article, variant = 'default', priority = f
           <div className="absolute bottom-0 left-0 right-0 p-6">
             {article.isBreaking && (
               <span className="inline-block bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded mb-2 animate-pulse">
-                BREAKING
+                ब्रेकिंग
               </span>
             )}
             {article.category && (
@@ -50,7 +50,7 @@ export default function ArticleCard({ article, variant = 'default', priority = f
             </p>
             <div className="flex items-center gap-4 text-white/70 text-xs">
               {article.author && <span className="font-medium text-white/90">{article.author.name}</span>}
-              <span className="flex items-center gap-1"><FiClock className="w-3 h-3" /> {article.readingTime} min read</span>
+              <span className="flex items-center gap-1"><FiClock className="w-3 h-3" /> {article.readingTime} मिनट पढ़ें</span>
               <span className="flex items-center gap-1"><FiEye className="w-3 h-3" /> {formatNumber(article.views)}</span>
               <span>{timeAgo(article.publishedAt)}</span>
             </div>
@@ -113,12 +113,12 @@ export default function ArticleCard({ article, variant = 'default', priority = f
         />
         {article.isBreaking && (
           <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded animate-pulse">
-            BREAKING
+            ब्रेकिंग
           </span>
         )}
         {article.isTrending && !article.isBreaking && (
           <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded">
-            TRENDING
+            ट्रेंडिंग
           </span>
         )}
       </Link>
@@ -150,7 +150,7 @@ export default function ArticleCard({ article, variant = 'default', priority = f
             <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{article.author?.name}</span>
           </div>
           <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
-            <span className="flex items-center gap-1"><FiClock className="w-3 h-3" /> {article.readingTime}m</span>
+              <span className="flex items-center gap-1"><FiClock className="w-3 h-3" /> {article.readingTime} मिनट</span>
             <span className="flex items-center gap-1"><FiEye className="w-3 h-3" /> {formatNumber(article.views)}</span>
           </div>
         </div>

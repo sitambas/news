@@ -15,7 +15,7 @@ export default function ArticleActions({ article, articleUrl }) {
 
   const handleLike = async () => {
     if (!isAuthenticated()) {
-      toast.error('Please login to like articles');
+        toast.error('लेख पसंद करने के लिए लॉगिन करें');
       return;
     }
     setLoading(true);
@@ -25,7 +25,7 @@ export default function ArticleActions({ article, articleUrl }) {
       if (data.success) {
         setLiked(data.data.liked);
         setLikeCount(data.data.likeCount);
-        toast.success(data.data.liked ? 'Article liked!' : 'Like removed');
+        toast.success(data.data.liked ? 'लेख पसंद किया!' : 'पसंद हटाई');
       }
     } catch {
       toast.error('Failed to like article');
@@ -35,7 +35,7 @@ export default function ArticleActions({ article, articleUrl }) {
 
   const handleBookmark = async () => {
     if (!isAuthenticated()) {
-      toast.error('Please login to bookmark articles');
+        toast.error('बुकमार्क करने के लिए लॉगिन करें');
       return;
     }
     try {
@@ -43,7 +43,7 @@ export default function ArticleActions({ article, articleUrl }) {
       const data = await res.json();
       if (data.success) {
         setBookmarked(data.data.bookmarked);
-        toast.success(data.data.bookmarked ? 'Article bookmarked!' : 'Bookmark removed');
+        toast.success(data.data.bookmarked ? 'लेख बुकमार्क हुआ!' : 'बुकमार्क हटाया');
       }
     } catch {
       toast.error('Failed to bookmark article');
@@ -56,7 +56,7 @@ export default function ArticleActions({ article, articleUrl }) {
         await navigator.share({ title: article.title, url: articleUrl });
       } else {
         await navigator.clipboard.writeText(articleUrl);
-        toast.success('Link copied to clipboard!');
+        toast.success('लिंक कॉपी हुआ!');
       }
     } catch {
       toast.error('Failed to share');
@@ -88,21 +88,21 @@ export default function ArticleActions({ article, articleUrl }) {
           }`}
         >
           <FiBookmark className={`w-4 h-4 ${bookmarked ? 'fill-current' : ''}`} />
-          <span>{bookmarked ? 'Saved' : 'Save'}</span>
+          <span>{bookmarked ? 'सहेजा' : 'सहेजें'}</span>
         </button>
 
         <a href="#comments" className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-gray-400 transition-all">
           <FiMessageSquare className="w-4 h-4" />
-          <span>Comments</span>
+          <span>टिप्पणियाँ</span>
         </a>
       </div>
 
-      <button
+        <button
         onClick={handleShare}
         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:opacity-90 transition-opacity"
       >
         <FiShare2 className="w-4 h-4" />
-        Share
+        शेयर
       </button>
     </div>
   );

@@ -4,14 +4,14 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
 const CATEGORY_META = {
-  technology: { label: 'Technology', color: '#3B82F6', emoji: '💻' },
-  politics: { label: 'Politics', color: '#EF4444', emoji: '🏛️' },
-  business: { label: 'Business', color: '#10B981', emoji: '📈' },
-  sports: { label: 'Sports', color: '#F59E0B', emoji: '⚽' },
-  health: { label: 'Health', color: '#06B6D4', emoji: '❤️' },
-  science: { label: 'Science', color: '#8B5CF6', emoji: '🔬' },
-  entertainment: { label: 'Entertainment', color: '#EC4899', emoji: '🎬' },
-  world: { label: 'World', color: '#6366F1', emoji: '🌍' },
+  technology: { label: 'तकनीक', color: '#3B82F6', emoji: '💻' },
+  politics: { label: 'राजनीति', color: '#EF4444', emoji: '🏛️' },
+  business: { label: 'व्यापार', color: '#10B981', emoji: '📈' },
+  sports: { label: 'खेल', color: '#F59E0B', emoji: '⚽' },
+  health: { label: 'स्वास्थ्य', color: '#06B6D4', emoji: '❤️' },
+  science: { label: 'विज्ञान', color: '#8B5CF6', emoji: '🔬' },
+  entertainment: { label: 'मनोरंजन', color: '#EC4899', emoji: '🎬' },
+  world: { label: 'विश्व', color: '#6366F1', emoji: '🌍' },
 };
 
 export default function CategoryNewsSection({ category, articles = SAMPLE_ARTICLES }) {
@@ -40,7 +40,7 @@ export default function CategoryNewsSection({ category, articles = SAMPLE_ARTICL
           className="text-sm font-medium hover:underline"
           style={{ color: meta.color }}
         >
-          View All →
+          सभी देखें →
         </Link>
       </div>
 

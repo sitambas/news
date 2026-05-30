@@ -31,7 +31,7 @@ export default function BreakingNewsTicker({ news = BREAKING_NEWS }) {
           {/* Label */}
           <div className="flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-md flex-shrink-0">
             <FiAlertCircle className="w-3.5 h-3.5 animate-pulse" />
-            <span className="text-xs font-bold tracking-wider uppercase">Breaking</span>
+            <span className="text-xs font-bold tracking-wider uppercase">ब्रेकिंग</span>
           </div>
 
           {/* Ticker Content */}

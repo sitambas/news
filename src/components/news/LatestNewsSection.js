@@ -14,7 +14,7 @@ export default function LatestNewsSection({ articles = SAMPLE_ARTICLES }) {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-1 h-7 bg-red-600 rounded-full" />
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Latest News</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">ताज़ा खबरें</h2>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -48,7 +48,7 @@ export default function LatestNewsSection({ articles = SAMPLE_ARTICLES }) {
 
       <div className="mt-6 text-center">
         <button className="px-6 py-2.5 border-2 border-red-600 text-red-600 font-semibold rounded-xl hover:bg-red-600 hover:text-white transition-all text-sm">
-          Load More Articles
+          और लेख लोड करें
         </button>
       </div>
     </section>

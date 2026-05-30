@@ -15,7 +15,7 @@ const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor')
   loading: () => <div className="h-64 bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><LoadingSpinner /></div>,
 });
 
-const CATEGORIES = ['Politics', 'Technology', 'Business', 'Science', 'Sports', 'Entertainment', 'Health', 'World'];
+const CATEGORIES = ['राजनीति', 'तकनीक', 'व्यापार', 'विज्ञान', 'खेल', 'मनोरंजन', 'स्वास्थ्य', 'विश्व'];
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -64,9 +64,9 @@ export default function NewArticlePage() {
   const removeTag = (tag) => update('tags', form.tags.filter((t) => t !== tag));
 
   const handleSave = async (publishStatus) => {
-    if (!form.title.trim()) { toast.error('Title is required'); return; }
-    if (!form.content.trim()) { toast.error('Content is required'); return; }
-    if (!form.category) { toast.error('Category is required'); return; }
+    if (!form.title.trim()) { toast.error('शीर्षक आवश्यक है'); return; }
+    if (!form.content.trim()) { toast.error('सामग्री आवश्यक है'); return; }
+    if (!form.category) { toast.error('श्रेणी आवश्यक है'); return; }
 
     setSaving(true);
     const payload = { ...form, status: publishStatus || form.status };
@@ -79,13 +79,13 @@ export default function NewArticlePage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(publishStatus === 'published' ? 'Article published!' : 'Article saved!');
+        toast.success(publishStatus === 'published' ? 'लेख प्रकाशित हुआ!' : 'लेख सहेजा गया!');
         router.push('/admin/articles');
       } else {
-        toast.error(data.message || 'Failed to save article');
+        toast.error(data.message || 'लेख सहेजने में विफल');
       }
     } catch {
-      toast.error('Failed to save article');
+      toast.error('लेख सहेजने में विफल');
     }
     setSaving(false);
   };
@@ -93,7 +93,7 @@ export default function NewArticlePage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create New Article</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">नया लेख बनाएं</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleSave('draft')}
@@ -101,7 +101,7 @@ export default function NewArticlePage() {
             className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             <FiSave className="w-4 h-4" />
-            Save Draft
+            ड्राफ्ट सहेजें
           </button>
           <button
             onClick={() => handleSave('published')}
@@ -109,7 +109,7 @@ export default function NewArticlePage() {
             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors disabled:opacity-50"
           >
             {saving ? <LoadingSpinner size="sm" /> : <FiSend className="w-4 h-4" />}
-            Publish
+            प्रकाशित करें
           </button>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function NewArticlePage() {
               type="text"
               value={form.title}
               onChange={(e) => update('title', e.target.value)}
-              placeholder="Enter article title..."
+              placeholder="लेख का शीर्षक दर्ज करें..."
               className="w-full text-2xl font-bold text-gray-900 dark:text-white bg-transparent border-0 focus:outline-none placeholder-gray-300 dark:placeholder-gray-700"
             />
           </div>
@@ -131,12 +131,12 @@ export default function NewArticlePage() {
           {/* Excerpt */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
             <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">
-              Article Excerpt / Summary
+              लेख का सारांश
             </label>
             <textarea
               value={form.excerpt}
               onChange={(e) => update('excerpt', e.target.value)}
-              placeholder="Brief summary of the article (shown in previews)..."
+              placeholder="लेख का संक्षिप्त सारांश (पूर्वावलोकन में दिखाया जाएगा)..."
               rows={2}
               maxLength={500}
               className="w-full text-sm text-gray-700 dark:text-gray-300 bg-transparent border-0 focus:outline-none placeholder-gray-400 resize-none"

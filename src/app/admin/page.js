@@ -11,17 +11,17 @@ import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 import { formatDate, timeAgo, formatNumber } from '@/utils/helpers';
 
 const STATS = [
-  { label: 'Total Articles', value: '1,284', change: '+12%', up: true, icon: FiFileText, color: 'blue' },
-  { label: 'Total Users', value: '48,320', change: '+8.2%', up: true, icon: FiUsers, color: 'green' },
-  { label: 'Total Views', value: '2.4M', change: '+24%', up: true, icon: FiEye, color: 'purple' },
-  { label: 'Published Today', value: '18', change: '-3', up: false, icon: FiActivity, color: 'orange' },
+  { label: 'कुल लेख', value: '1,284', change: '+12%', up: true, icon: FiFileText, color: 'blue' },
+  { label: 'कुल उपयोगकर्ता', value: '48,320', change: '+8.2%', up: true, icon: FiUsers, color: 'green' },
+  { label: 'कुल दृश्य', value: '2.4M', change: '+24%', up: true, icon: FiEye, color: 'purple' },
+  { label: 'आज प्रकाशित', value: '18', change: '-3', up: false, icon: FiActivity, color: 'orange' },
 ];
 
 const RECENT_ARTICLES = SAMPLE_ARTICLES.map((a, i) => ({
   ...a,
   status: i < 2 ? 'published' : i < 4 ? 'draft' : 'scheduled',
-  author: { name: ['Sarah Johnson', 'Mike Chen', 'Emma Davis', 'Alex Turner', 'Lisa Park', 'Tom Brown'][i] || 'Staff' },
-  category: { name: ['World', 'Technology', 'Business', 'Science', 'Sports', 'Health'][i] || 'News' },
+  author: { name: ['सारा जॉनसन', 'माइक चेन', 'एम्मा डेविस', 'अलेक्स टर्नर', 'लिसा पार्क', 'टॉम ब्राउन'][i] || 'स्टाफ' },
+  category: { name: ['विश्व', 'तकनीक', 'व्यापार', 'विज्ञान', 'खेल', 'स्वास्थ्य'][i] || 'समाचार' },
 }));
 
 const STATUS_COLORS = {
@@ -29,6 +29,13 @@ const STATUS_COLORS = {
   draft: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   scheduled: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   archived: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+};
+
+const STATUS_HINDI = {
+  published: 'प्रकाशित',
+  draft: 'ड्राफ्ट',
+  scheduled: 'निर्धारित',
+  archived: 'संग्रहीत',
 };
 
 function BarChart({ data }) {
@@ -51,13 +58,13 @@ function BarChart({ data }) {
 
 export default function AdminDashboard() {
   const chartData = [
-    { label: 'Mon', value: 4200 },
-    { label: 'Tue', value: 6800 },
-    { label: 'Wed', value: 5400 },
-    { label: 'Thu', value: 8900 },
-    { label: 'Fri', value: 7300 },
-    { label: 'Sat', value: 3100 },
-    { label: 'Sun', value: 2800 },
+    { label: 'सोम', value: 4200 },
+    { label: 'मंगल', value: 6800 },
+    { label: 'बुध', value: 5400 },
+    { label: 'गुरु', value: 8900 },
+    { label: 'शुक्र', value: 7300 },
+    { label: 'शनि', value: 3100 },
+    { label: 'रवि', value: 2800 },
   ];
 
   return (
@@ -65,7 +72,7 @@ export default function AdminDashboard() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">डैशबोर्ड</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
             {formatDate(new Date(), 'EEEE, MMMM d, yyyy')}
           </p>
@@ -74,7 +81,7 @@ export default function AdminDashboard() {
           href="/admin/articles/new"
           className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 transition-colors"
         >
-          <FiPlus className="w-4 h-4" /> New Article
+          <FiPlus className="w-4 h-4" /> नया लेख
         </Link>
       </div>
 
@@ -109,29 +116,29 @@ export default function AdminDashboard() {
         {/* Traffic Chart */}
         <div className="xl:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-gray-900 dark:text-white">Weekly Traffic</h2>
+            <h2 className="font-bold text-gray-900 dark:text-white">साप्ताहिक ट्रैफिक</h2>
             <select className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-0 rounded-lg px-2 py-1 focus:outline-none">
-              <option>This Week</option>
-              <option>Last Week</option>
-              <option>Last Month</option>
+              <option>इस सप्ताह</option>
+              <option>पिछला सप्ताह</option>
+              <option>पिछला महीना</option>
             </select>
           </div>
           <BarChart data={chartData} />
           <div className="flex items-center justify-center gap-6 mt-3 text-xs text-gray-500">
-            <span className="flex items-center gap-1"><span className="w-3 h-2 bg-red-500 rounded-sm inline-block"></span>Page Views</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-2 bg-red-500 rounded-sm inline-block"></span>पृष्ठ दृश्य</span>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
-          <h2 className="font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
+          <h2 className="font-bold text-gray-900 dark:text-white mb-4">त्वरित क्रियाएं</h2>
           <div className="space-y-2">
             {[
-              { label: 'Write New Article', href: '/admin/articles/new', icon: FiEdit, color: 'red' },
-              { label: 'Manage Categories', href: '/admin/categories', icon: FiFileText, color: 'blue' },
-              { label: 'View Analytics', href: '/admin/analytics', icon: FiBarChart2, color: 'purple' },
-              { label: 'Manage Users', href: '/admin/users', icon: FiUsers, color: 'green' },
-              { label: 'View Website', href: '/', icon: FiEye, color: 'gray' },
+              { label: 'नया लेख लिखें', href: '/admin/articles/new', icon: FiEdit, color: 'red' },
+              { label: 'श्रेणियाँ प्रबंधित करें', href: '/admin/categories', icon: FiFileText, color: 'blue' },
+              { label: 'विश्लेषण देखें', href: '/admin/analytics', icon: FiBarChart2, color: 'purple' },
+              { label: 'उपयोगकर्ता प्रबंधित करें', href: '/admin/users', icon: FiUsers, color: 'green' },
+              { label: 'वेबसाइट देखें', href: '/', icon: FiEye, color: 'gray' },
             ].map((action) => {
               const colors = {
                 red: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400',
@@ -162,20 +169,20 @@ export default function AdminDashboard() {
       {/* Recent Articles */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
-          <h2 className="font-bold text-gray-900 dark:text-white">Recent Articles</h2>
-          <Link href="/admin/articles" className="text-sm text-red-600 hover:underline">View All</Link>
+          <h2 className="font-bold text-gray-900 dark:text-white">हालिया लेख</h2>
+          <Link href="/admin/articles" className="text-sm text-red-600 hover:underline">सभी देखें</Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
-                <th className="text-left px-5 py-3 font-medium">Article</th>
-                <th className="text-left px-5 py-3 font-medium hidden md:table-cell">Author</th>
-                <th className="text-left px-5 py-3 font-medium hidden sm:table-cell">Category</th>
-                <th className="text-left px-5 py-3 font-medium">Status</th>
-                <th className="text-left px-5 py-3 font-medium hidden lg:table-cell">Views</th>
-                <th className="text-left px-5 py-3 font-medium hidden xl:table-cell">Date</th>
-                <th className="text-left px-5 py-3 font-medium">Actions</th>
+                <th className="text-left px-5 py-3 font-medium">लेख</th>
+                <th className="text-left px-5 py-3 font-medium hidden md:table-cell">लेखक</th>
+                <th className="text-left px-5 py-3 font-medium hidden sm:table-cell">श्रेणी</th>
+                <th className="text-left px-5 py-3 font-medium">स्थिति</th>
+                <th className="text-left px-5 py-3 font-medium hidden lg:table-cell">दृश्य</th>
+                <th className="text-left px-5 py-3 font-medium hidden xl:table-cell">तारीख</th>
+                <th className="text-left px-5 py-3 font-medium">क्रियाएं</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
@@ -204,8 +211,8 @@ export default function AdminDashboard() {
                     </span>
                   </td>
                   <td className="px-5 py-3">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STATUS_COLORS[article.status] || STATUS_COLORS.draft}`}>
-                      {article.status}
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[article.status] || STATUS_COLORS.draft}`}>
+                      {STATUS_HINDI[article.status] || article.status}
                     </span>
                   </td>
                   <td className="px-5 py-3 hidden lg:table-cell">

@@ -56,10 +56,10 @@ export default function HeroSection({ articles = SAMPLE_ARTICLES }) {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       {featured[currentSlide].isBreaking && (
-                        <span className="bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded animate-pulse">BREAKING</span>
+                        <span className="bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded animate-pulse">ब्रेकिंग</span>
                       )}
                       <span className="bg-white/20 text-white text-xs font-semibold px-2 py-0.5 rounded backdrop-blur-sm">
-                        {featured[currentSlide].category?.name || 'Featured'}
+                        {featured[currentSlide].category?.name || 'विशेष'}
                       </span>
                     </div>
                     <Link href={`/news/${featured[currentSlide].slug || 'sample-1'}`}>
@@ -143,9 +143,9 @@ export default function HeroSection({ articles = SAMPLE_ARTICLES }) {
                 </div>
               </Link>
             ))}
-            <Link href="/search?sort=trending" className="mt-auto bg-gray-900 dark:bg-gray-800 text-white rounded-xl p-4 text-center hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
-              <div className="text-lg font-black">📈 Trending</div>
-              <p className="text-gray-400 text-xs mt-1">See what's trending now</p>
+                    <Link href="/search?sort=trending" className="mt-auto bg-gray-900 dark:bg-gray-800 text-white rounded-xl p-4 text-center hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+              <div className="text-lg font-black">📈 ट्रेंडिंग</div>
+              <p className="text-gray-400 text-xs mt-1">अभी क्या ट्रेंड हो रहा है देखें</p>
             </Link>
           </div>
         </div>

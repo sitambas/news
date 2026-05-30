@@ -96,23 +96,23 @@ export default function CommentSection({ articleId }) {
   const demoComments = [
     {
       _id: 'c1',
-      author: { name: 'John Smith', username: 'johnsmith', avatar: '' },
-      content: 'This is a historic moment. The question is whether countries will actually follow through on their commitments.',
+      author: { name: 'राहुल शर्मा', username: 'rahulsharma', avatar: '' },
+      content: 'यह एक ऐतिहासिक क्षण है। सवाल यह है कि क्या देश वास्तव में अपनी प्रतिबद्धताओं को पूरा करेंगे।',
       createdAt: new Date(Date.now() - 1000 * 60 * 15),
       likeCount: 12,
       replies: [
         {
           _id: 'r1',
-          author: { name: 'Emma Davis', username: 'emmadavis' },
-          content: 'Exactly. Track records have not been encouraging, but the verification mechanism this time seems more robust.',
+          author: { name: 'प्रिया पाटिल', username: 'priyapatil' },
+          content: 'बिल्कुल सही। पिछले रिकॉर्ड उत्साहजनक नहीं रहे, लेकिन इस बार सत्यापन तंत्र अधिक मजबूत लगता है।',
           createdAt: new Date(Date.now() - 1000 * 60 * 10),
         }
       ],
     },
     {
       _id: 'c2',
-      author: { name: 'Michael Chen', username: 'michaelchen', avatar: '' },
-      content: 'The $2 trillion climate fund is the most significant part of this deal. That is real money that can drive actual change.',
+      author: { name: 'अमित कुमार', username: 'amitkumar', avatar: '' },
+      content: '$2 ट्रिलियन जलवायु कोष इस समझौते का सबसे महत्वपूर्ण हिस्सा है। यह असली पैसा है जो वास्तविक बदलाव ला सकता है।',
       createdAt: new Date(Date.now() - 1000 * 60 * 45),
       likeCount: 8,
       replies: [],
@@ -145,7 +145,7 @@ export default function CommentSection({ articleId }) {
         setComments((prev) => [data.data, ...prev]);
         setNewComment('');
         setReplyTo(null);
-        toast.success('Comment posted!');
+        toast.success('टिप्पणी पोस्ट हुई!');
       } else {
         toast.error(data.message);
       }
@@ -161,7 +161,7 @@ export default function CommentSection({ articleId }) {
       const data = await res.json();
       if (data.success) {
         setComments((prev) => prev.filter((c) => c._id !== commentId));
-        toast.success('Comment deleted');
+        toast.success('टिप्पणी हटाई गई');
       }
     } catch {
       toast.error('Failed to delete comment');
@@ -173,7 +173,7 @@ export default function CommentSection({ articleId }) {
       <div className="flex items-center gap-2 mb-6">
         <FiMessageSquare className="w-5 h-5 text-red-600" />
         <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-          Comments ({displayComments.length})
+          टिप्पणियाँ ({displayComments.length})
         </h3>
       </div>
 
@@ -195,7 +195,7 @@ export default function CommentSection({ articleId }) {
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Share your thoughts..."
+                placeholder="अपने विचार साझा करें..."
                 rows={2}
                 className="flex-1 resize-none bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
@@ -210,13 +210,13 @@ export default function CommentSection({ articleId }) {
           </form>
         ) : (
           <div className="text-center py-4">
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">Join the conversation</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">बातचीत में शामिल हों</p>
             <div className="flex justify-center gap-3">
               <Link href="/auth/login" className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                Login to Comment
+                टिप्पणी के लिए लॉगिन करें
               </Link>
               <Link href="/auth/register" className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                Sign Up
+                साइन अप
               </Link>
             </div>
           </div>

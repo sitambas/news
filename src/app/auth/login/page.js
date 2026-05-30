@@ -22,16 +22,16 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      toast.error('Please fill in all fields');
+      toast.error('कृपया सभी फ़ील्ड भरें');
       return;
     }
     setLoading(true);
     const result = await login(email, password);
     if (result.success) {
-      toast.success('Welcome back!');
+      toast.success('आपका स्वागत है!');
       router.push(callbackUrl);
     } else {
-      toast.error(result.error || 'Login failed');
+      toast.error(result.error || 'लॉगिन विफल');
     }
     setLoading(false);
   };
@@ -43,14 +43,14 @@ function LoginForm() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center justify-center space-x-2">
             <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-black text-lg">N</span>
+              <span className="text-white font-black text-lg">न</span>
             </div>
             <span className="text-2xl font-black text-gray-900 dark:text-white">
-              News<span className="text-red-600">Hub</span>
+              न्यूज़<span className="text-red-600">हब</span>
             </span>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mt-4">Welcome back</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">Sign in to your account to continue</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mt-4">वापस स्वागत है</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">जारी रखने के लिए अपने खाते में साइन इन करें</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-8">
@@ -58,7 +58,7 @@ function LoginForm() {
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Email Address
+                ईमेल पता
               </label>
               <div className="relative">
                 <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -76,9 +76,9 @@ function LoginForm() {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">पासवर्ड</label>
                 <Link href="/auth/forgot-password" className="text-xs text-red-600 hover:underline">
-                  Forgot password?
+                  पासवर्ड भूल गए?
                 </Link>
               </div>
               <div className="relative">
@@ -87,7 +87,7 @@ function LoginForm() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="अपना पासवर्ड दर्ज करें"
                   required
                   className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                 />
@@ -110,7 +110,7 @@ function LoginForm() {
               {loading ? (
                 <LoadingSpinner size="sm" />
               ) : (
-                <>Sign In <FiArrowRight className="w-4 h-4" /></>
+                <>साइन इन करें <FiArrowRight className="w-4 h-4" /></>
               )}
             </button>
           </form>
@@ -121,7 +121,7 @@ function LoginForm() {
               <div className="w-full border-t border-gray-200 dark:border-gray-700" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white dark:bg-gray-900 text-gray-400">or continue with</span>
+              <span className="px-2 bg-white dark:bg-gray-900 text-gray-400">या इनसे जारी रखें</span>
             </div>
           </div>
 
@@ -139,9 +139,9 @@ function LoginForm() {
         </div>
 
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-          Don&apos;t have an account?{' '}
+          खाता नहीं है?{' '}
           <Link href="/auth/register" className="text-red-600 font-semibold hover:underline">
-            Sign up free
+            मुफ़्त साइन अप करें
           </Link>
         </p>
       </div>

@@ -10,7 +10,7 @@ export default function ShareButtons({ url, title }) {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success('Link copied!');
+      toast.success('लिंक कॉपी हुआ!');
     } catch {
       toast.error('Failed to copy');
     }
@@ -18,7 +18,7 @@ export default function ShareButtons({ url, title }) {
 
   return (
     <div className="mt-6">
-      <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Share this article:</p>
+      <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">यह लेख शेयर करें:</p>
       <div className="flex items-center gap-2 flex-wrap">
         <a
           href={shareUrls.twitter}
@@ -56,7 +56,7 @@ export default function ShareButtons({ url, title }) {
           onClick={copyLink}
           className="flex items-center gap-2 px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
-          <FiLink className="w-3.5 h-3.5" /> Copy Link
+          <FiLink className="w-3.5 h-3.5" /> लिंक कॉपी करें
         </button>
       </div>
     </div>

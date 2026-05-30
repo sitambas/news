@@ -13,7 +13,7 @@ export default function RelatedArticles({ currentSlug, category }) {
     <div className="mt-10">
       <div className="flex items-center gap-3 mb-5">
         <div className="w-1 h-6 bg-red-600 rounded-full" />
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">Related Articles</h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white">संबंधित लेख</h3>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {related.map((article, i) => (
