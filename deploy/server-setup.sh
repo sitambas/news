@@ -54,6 +54,24 @@ sudo nginx -t
 sudo systemctl enable nginx
 sudo systemctl restart nginx
 
+echo "==> Adding 2GB swap (needed for npm ci / next build on small instances)..."
+if [ "$(swapon --show | wc -l)" -eq 0 ]; then
+  if sudo fallocate -l 2G /swapfile 2>/dev/null; then
+    :
+  else
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=2048 status=progress
+  fi
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  if ! grep -q '/swapfile' /etc/fstab; then
+    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+  fi
+  echo "Swap enabled: $(free -h | awk '/Swap:/ {print $2}')"
+else
+  echo "Swap already active."
+fi
+
 echo "==> Creating app directory..."
 mkdir -p "$APP_DIR/public/uploads"
 

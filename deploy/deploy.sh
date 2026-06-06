@@ -19,8 +19,9 @@ Usage:
   ./deploy/deploy.sh setup     Run first-time server setup over SSH
   ./deploy/deploy.sh sync      Sync project files to EC2 (excludes node_modules/.next)
   ./deploy/deploy.sh env       Copy local .env.local to EC2
-  ./deploy/deploy.sh build     Install deps, build, and restart PM2 on EC2
-  ./deploy/deploy.sh all       sync + env + build
+  ./deploy/deploy.sh build       Install deps, build, and restart PM2 on EC2
+  ./deploy/deploy.sh build-local Build on your Mac, sync .next, prod deps on EC2
+  ./deploy/deploy.sh all         sync + env + build
   ./deploy/deploy.sh ssh       Open SSH session to EC2
 
 Environment overrides:
@@ -74,14 +75,31 @@ run_env() {
   scp "${SSH_OPTS[@]}" "$PROJECT_ROOT/.env.local" "$SSH_TARGET:$APP_DIR/.env.local"
 }
 
-run_build() {
-  require_key
-  echo "==> Building and restarting app on EC2..."
+ensure_swap_remote() {
+  ssh "${SSH_OPTS[@]}" "$SSH_TARGET" bash -s <<'SWAP_CMD'
+set -euo pipefail
+if [ "$(swapon --show | wc -l)" -eq 0 ]; then
+  echo "==> Enabling 2GB swap..."
+  if sudo fallocate -l 2G /swapfile 2>/dev/null; then
+    :
+  else
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=2048 status=none
+  fi
+  sudo chmod 600 /swapfile
+  sudo mkswap /swapfile
+  sudo swapon /swapfile
+  if ! grep -q '/swapfile' /etc/fstab; then
+    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+  fi
+fi
+free -h
+SWAP_CMD
+}
+
+restart_pm2_remote() {
   ssh "${SSH_OPTS[@]}" "$SSH_TARGET" bash -s <<REMOTE_CMD
 set -euo pipefail
 cd "$APP_DIR"
-npm ci
-npm run build
 mkdir -p public/uploads
 if pm2 describe news >/dev/null 2>&1; then
   pm2 restart deploy/ecosystem.config.cjs
@@ -90,6 +108,50 @@ else
 fi
 pm2 save
 REMOTE_CMD
+}
+
+run_build() {
+  require_key
+  echo "==> Building and restarting app on EC2..."
+  ensure_swap_remote
+  ssh "${SSH_OPTS[@]}" "$SSH_TARGET" bash -s <<REMOTE_CMD
+set -euo pipefail
+cd "$APP_DIR"
+export NODE_OPTIONS="--max-old-space-size=768"
+npm ci --no-audit --no-fund
+npm run build
+REMOTE_CMD
+  restart_pm2_remote
+}
+
+run_build_local() {
+  require_key
+  echo "==> Building locally (avoids OOM on small EC2)..."
+  cd "$PROJECT_ROOT"
+  npm ci --no-audit --no-fund
+  npm run build
+
+  echo "==> Syncing build output to EC2..."
+  ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "mkdir -p '$APP_DIR'"
+  rsync -avz --delete \
+    --exclude node_modules \
+    --exclude '.next/cache' \
+    --exclude .git \
+    --exclude keypair \
+    --exclude '.env*' \
+    -e "ssh ${SSH_OPTS[*]}" \
+    "$PROJECT_ROOT/" "$REMOTE/"
+
+  echo "==> Installing production dependencies on EC2..."
+  ensure_swap_remote
+  ssh "${SSH_OPTS[@]}" "$SSH_TARGET" bash -s <<REMOTE_CMD
+set -euo pipefail
+cd "$APP_DIR"
+export NODE_OPTIONS="--max-old-space-size=512"
+npm ci --omit=dev --no-audit --no-fund
+REMOTE_CMD
+  restart_pm2_remote
+  echo "==> Deploy complete: http://${EC2_HOST}"
 }
 
 run_ssh() {
@@ -102,6 +164,7 @@ case "${1:-}" in
   sync) run_sync ;;
   env) run_env ;;
   build) run_build ;;
+  build-local) run_build_local ;;
   all)
     run_sync
     run_env
