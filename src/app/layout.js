@@ -6,6 +6,8 @@ import Footer from '@/components/layout/Footer';
 import { Toaster } from 'react-hot-toast';
 import QueryProvider from '@/components/common/QueryProvider';
 import AuthInitializer from '@/components/common/AuthInitializer';
+import { IndicTypingProvider } from '@/components/ui/IndicTypingProvider';
+import GlobalIndicTyping from '@/components/ui/GlobalIndicTyping';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -53,8 +55,10 @@ export default function RootLayout({ children }) {
       <body className={`${inter.variable} font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen`}>
         <ThemeProvider>
           <QueryProvider>
-            <AuthInitializer />
-            <Navbar />
+            <IndicTypingProvider>
+              <AuthInitializer />
+              <GlobalIndicTyping />
+              <Navbar />
             <main className="pt-[88px] min-h-screen">
               {children}
             </main>
@@ -68,6 +72,7 @@ export default function RootLayout({ children }) {
                 error: { iconTheme: { primary: '#dc2626', secondary: '#fff' } },
               }}
             />
+            </IndicTypingProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

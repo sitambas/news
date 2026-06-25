@@ -13,6 +13,7 @@ import { isValidYouTubeUrl } from '@/utils/youtube';
 import { getReporterLocations } from '@/utils/reporter';
 import IndicInput from '@/components/ui/IndicInput';
 import IndicTextarea from '@/components/ui/IndicTextarea';
+import AiWriteButton, { FieldLabelWithAi } from '@/components/ui/AiWriteButton';
 
 const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor'), {
   ssr: false,
@@ -364,9 +365,17 @@ function ArticleEditor() {
 
           {/* Excerpt */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">
-              लेख का सारांश
-            </label>
+            <FieldLabelWithAi
+              label="लेख का सारांश"
+              aiButton={
+                <AiWriteButton
+                  type="article_excerpt"
+                  context={{ title: form.title, category: form.category }}
+                  onResult={(text) => update('excerpt', text)}
+                  disabled={!form.title?.trim()}
+                />
+              }
+            />
             <IndicTextarea
               value={form.excerpt}
               onChange={(val) => update('excerpt', val)}
@@ -380,13 +389,26 @@ function ArticleEditor() {
 
           {/* Rich Text Editor */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
               <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 सामग्री
               </label>
-              <div className="flex items-center gap-3 text-xs text-gray-400">
-                <span>{wordCount} शब्द</span>
-                <span>~{readingTime} मिनट पढ़ें</span>
+              <div className="flex items-center gap-2">
+                <AiWriteButton
+                  type="article_content"
+                  context={{
+                    title: form.title,
+                    category: form.category,
+                    location: form.location,
+                  }}
+                  onResult={(text, data) => update('content', data?.html || text)}
+                  disabled={!form.title?.trim()}
+                  label="AI से लेख लिखें"
+                />
+                <div className="flex items-center gap-3 text-xs text-gray-400">
+                  <span>{wordCount} शब्द</span>
+                  <span>~{readingTime} मिनट पढ़ें</span>
+                </div>
               </div>
             </div>
             <RichTextEditor key={editSlug || 'new'} content={form.content} onChange={handleContentChange} />
@@ -634,6 +656,17 @@ function ArticleEditor() {
                 onChange={(val) => updateMeta('title', val)}
                 placeholder="मेटा शीर्षक..."
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+              <FieldLabelWithAi
+                label="मेटा विवरण"
+                aiButton={
+                  <AiWriteButton
+                    type="article_meta"
+                    context={{ title: form.title || form.meta.title, excerpt: form.excerpt }}
+                    onResult={(text) => updateMeta('description', text)}
+                    disabled={!form.title?.trim() && !form.meta.title?.trim()}
+                  />
+                }
               />
               <IndicTextarea
                 value={form.meta.description}

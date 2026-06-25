@@ -24,7 +24,13 @@ export async function PUT(request, { params }) {
     await connectDB();
     const { slug } = await params;
     const body = await request.json();
-    const category = await Category.findOneAndUpdate({ slug }, body, { new: true, runValidators: true });
+    const allowed = ['name', 'description', 'color', 'icon', 'image', 'order', 'isActive', 'meta'];
+    const updates = {};
+    allowed.forEach((key) => {
+      if (body[key] !== undefined) updates[key] = body[key];
+    });
+
+    const category = await Category.findOneAndUpdate({ slug }, updates, { new: true, runValidators: true });
     if (!category) return errorResponse('Category not found', 404);
     return successResponse(category, 'Category updated');
   } catch (error) {

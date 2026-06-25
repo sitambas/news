@@ -101,6 +101,7 @@ export default function RegisterPage() {
                 <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="email" name="email" value={formData.email} onChange={handleChange}
+                  data-no-indic="true"
                   placeholder="your@email.com" required
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                 />
@@ -114,6 +115,7 @@ export default function RegisterPage() {
                 <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange}
+                  data-no-indic="true"
                   placeholder="मजबूत पासवर्ड बनाएं" required
                   className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                 />

@@ -11,6 +11,7 @@ import { useTheme } from '@/context/ThemeContext';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import IndicTypingToggle from '@/components/ui/IndicTypingToggle';
 
 const NAV_LINKS = [
   { label: 'होम', href: '/' },
@@ -145,7 +146,7 @@ export default function Navbar() {
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          placeholder="खबर खोजें..."
+                          placeholder="खबर खोजें... (English → हिंदी)"
                           className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none"
                         />
                         <button type="submit" className="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">
@@ -157,6 +158,9 @@ export default function Navbar() {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Hindi typing toggle */}
+            <IndicTypingToggle compact />
 
             {/* Theme Toggle */}
             <button

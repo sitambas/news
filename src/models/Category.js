@@ -28,8 +28,11 @@ categorySchema.virtual('articleCount', {
 });
 
 categorySchema.pre('save', function () {
-  if (this.isModified('name')) {
-    this.slug = slugify(this.name, { lower: true, strict: true });
+  if (!this.isNew && this.slug) return;
+  if (!this.slug) {
+    let baseSlug = slugify(this.name, { lower: true, strict: true });
+    if (!baseSlug) return;
+    this.slug = baseSlug;
   }
 });
 

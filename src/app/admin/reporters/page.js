@@ -6,7 +6,9 @@ import { FiPlus, FiEdit, FiTrash2, FiSave, FiX, FiRefreshCw } from 'react-icons/
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 import { getReporterLocations } from '@/utils/reporter';
-import IndicInput from '@/components/ui/IndicInput';
+import IndicInput, { INDIC_TRIGGER_KEYS_NO_ENTER } from '@/components/ui/IndicInput';
+import IndicTextarea from '@/components/ui/IndicTextarea';
+import AiWriteButton, { FieldLabelWithAi } from '@/components/ui/AiWriteButton';
 
 async function fetchReporters() {
   const res = await fetch('/api/reporters?all=1');
@@ -26,14 +28,19 @@ function ReporterForm({ reporter, onSave, onCancel }) {
   const [locationInput, setLocationInput] = useState('');
   const update = (f, v) => setForm((p) => ({ ...p, [f]: v }));
 
+  const commitLocation = () => {
+    const loc = locationInput.trim();
+    if (!loc) return;
+    if (!form.locations.includes(loc) && form.locations.length < 20) {
+      update('locations', [...form.locations, loc]);
+    }
+    setLocationInput('');
+  };
+
   const addLocation = (e) => {
-    if (e.key === 'Enter' && locationInput.trim()) {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      const loc = locationInput.trim();
-      if (!form.locations.includes(loc) && form.locations.length < 20) {
-        update('locations', [...form.locations, loc]);
-      }
-      setLocationInput('');
+      commitLocation();
     }
   };
 
@@ -57,7 +64,7 @@ function ReporterForm({ reporter, onSave, onCancel }) {
         </div>
         <div className="sm:col-span-2">
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            लोकेशन (Enter दबाएं)
+            लोकेशन (Space = हिंदी, Enter = जोड़ें)
           </label>
           <div className="flex flex-wrap gap-1.5 mb-2">
             {form.locations.map((loc) => (
@@ -72,14 +79,25 @@ function ReporterForm({ reporter, onSave, onCancel }) {
               </span>
             ))}
           </div>
-          <IndicInput
-            type="text"
-            value={locationInput}
-            onChange={setLocationInput}
-            onKeyDown={addLocation}
-            placeholder="मनेन्द्रगढ़, रायपुर... (Enter दबाएं)"
-            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-          />
+          <div className="flex gap-2">
+            <IndicInput
+              type="text"
+              value={locationInput}
+              onChange={setLocationInput}
+              onKeyDown={addLocation}
+              triggerKeys={INDIC_TRIGGER_KEYS_NO_ENTER}
+              placeholder="मनेन्द्रगढ़, रायपुर..."
+              className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+            />
+            <button
+              type="button"
+              onClick={commitLocation}
+              className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              title="लोकेशन जोड़ें"
+            >
+              <FiPlus className="w-4 h-4" />
+            </button>
+          </div>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">क्रम</label>
@@ -91,12 +109,23 @@ function ReporterForm({ reporter, onSave, onCancel }) {
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">विवरण</label>
-          <IndicInput
-            type="text"
+          <FieldLabelWithAi
+            label="विवरण (हिंदी)"
+            aiButton={
+              <AiWriteButton
+                type="reporter_bio"
+                context={{ name: form.name, locations: form.locations }}
+                onResult={(text) => update('bio', text)}
+                disabled={!form.name?.trim()}
+              />
+            }
+          />
+          <IndicTextarea
             value={form.bio}
             onChange={(val) => update('bio', val)}
-            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+            placeholder="रिपोर्टर का संक्षिप्त परिचय..."
+            rows={3}
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
           />
         </div>
         <div className="sm:col-span-2">
