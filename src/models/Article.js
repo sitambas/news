@@ -5,10 +5,13 @@ const articleSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true, maxlength: 200 },
     slug: { type: String, unique: true, lowercase: true },
+    location: { type: String, default: '', trim: true, maxlength: 100 },
+    reporter: { type: String, default: '', trim: true, maxlength: 100 },
     excerpt: { type: String, maxlength: 500, default: '' },
     content: { type: String, required: true },
     coverImage: { type: String, default: '' },
     coverImageAlt: { type: String, default: '' },
+    youtubeUrl: { type: String, default: '' },
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     tags: [{ type: String, trim: true, lowercase: true }],

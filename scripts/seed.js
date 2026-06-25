@@ -52,9 +52,9 @@ const CATEGORIES = [
 ];
 
 const USERS = [
-  { name: 'Admin User', username: 'admin', email: 'admin@cgfile.com', password: 'admin123', role: 'admin', bio: 'Platform administrator' },
-  { name: 'Sarah Johnson', username: 'sarahjohnson', email: 'sarah@cgfile.com', password: 'author123', role: 'author', bio: 'Senior Environmental Correspondent' },
-  { name: 'Mike Chen', username: 'mikechen', email: 'mike@cgfile.com', password: 'editor123', role: 'editor', bio: 'Technology editor and journalist' },
+  { name: 'Admin User', username: 'admin', email: 'admin@cgfile.in', password: 'Cgfile@Admin9xK2mL7p', role: 'admin', bio: 'Platform administrator' },
+  { name: 'Amit', username: 'amit', email: 'amit@cgfile.in', password: 'Cgfile@Amit8nR4wQ3v', role: 'author', bio: 'News author and correspondent' },
+  { name: 'Editor', username: 'editor', email: 'editor@cgfile.in', password: 'Cgfile@Edit6tY5zP2j', role: 'editor', bio: 'Platform editor' },
 ];
 
 const ARTICLES_CONTENT = [];
@@ -88,9 +88,9 @@ async function seed() {
 
     console.log('\n🚀 Seed completed successfully!');
     console.log('\nTest Accounts:');
-    console.log('  Admin:  admin@cgfile.com / admin123');
-    console.log('  Author: sarah@cgfile.com / author123');
-    console.log('  Editor: mike@cgfile.com  / editor123');
+    console.log('  Admin:  admin@cgfile.in / Cgfile@Admin9xK2mL7p');
+    console.log('  Author: amit@cgfile.in / Cgfile@Amit8nR4wQ3v');
+    console.log('  Editor: editor@cgfile.in / Cgfile@Edit6tY5zP2j');
   } catch (err) {
     console.error('❌ Seed failed:', err);
   } finally {

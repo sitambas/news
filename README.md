@@ -88,9 +88,9 @@ NEXT_PUBLIC_APP_NAME=NewsHub
 node scripts/seed.js
 ```
 This creates test accounts:
-- **Admin:** admin@newshub.com / admin123
-- **Author:** sarah@newshub.com / author123
-- **Editor:** mike@newshub.com / editor123
+- **Admin:** admin@cgfile.in / (see seed output — strong password)
+- **Author:** amit@cgfile.in / (see seed output — strong password)
+- **Editor:** editor@cgfile.in / (see seed output — strong password)
 
 ### 4. Start Development Server
 ```bash

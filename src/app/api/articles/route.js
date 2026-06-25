@@ -2,6 +2,7 @@ import connectDB from '@/lib/db';
 import Article from '@/models/Article';
 import { getServerUser } from '@/lib/auth';
 import { errorResponse, paginatedResponse, successResponse } from '@/utils/apiResponse';
+import { isValidYouTubeUrl } from '@/utils/youtube';
 
 export async function GET(request) {
   try {
@@ -13,14 +14,21 @@ export async function GET(request) {
     const category = searchParams.get('category');
     const tag = searchParams.get('tag');
     const author = searchParams.get('author');
-    const status = searchParams.get('status') || 'published';
+    let status = searchParams.get('status') || 'published';
     const featured = searchParams.get('featured');
     const breaking = searchParams.get('breaking');
     const trending = searchParams.get('trending');
     const sort = searchParams.get('sort') || '-publishedAt';
 
+    if (status === 'all') {
+      const user = await getServerUser();
+      if (!user || !['admin', 'editor', 'author'].includes(user.role)) {
+        status = 'published';
+      }
+    }
+
     const query = {};
-    if (status) query.status = status;
+    if (status !== 'all') query.status = status;
     if (category) query.category = category;
     if (tag) query.tags = tag;
     if (author) query.author = author;
@@ -64,11 +72,16 @@ export async function POST(request) {
 
     await connectDB();
     const body = await request.json();
-    const { title, content, excerpt, category, tags, status, coverImage, coverImageAlt,
+    const { title, content, excerpt, category, tags, status, coverImage, coverImageAlt, youtubeUrl,
+      location, reporter,
       isBreaking, isFeatured, isTrending, allowComments, meta, scheduledAt } = body;
 
     if (!title || !content || !category) {
       return errorResponse('Title, content, and category are required', 400);
+    }
+
+    if (youtubeUrl && !isValidYouTubeUrl(youtubeUrl)) {
+      return errorResponse('Invalid YouTube URL', 400);
     }
 
     // Resolve category: accept MongoDB ID, English slug, Hindi name, or English name
@@ -99,7 +112,8 @@ export async function POST(request) {
 
     const article = await Article.create({
       title, content, excerpt, category: categoryId, tags: tags || [],
-      status: status || 'draft', coverImage, coverImageAlt,
+      status: status || 'draft', coverImage, coverImageAlt, youtubeUrl: youtubeUrl || '',
+      location: location || '', reporter: reporter || '',
       isBreaking: isBreaking || false, isFeatured: isFeatured || false,
       isTrending: isTrending || false, allowComments: allowComments !== false,
       meta: meta || {}, scheduledAt, author: user.id,

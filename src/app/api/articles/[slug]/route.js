@@ -1,14 +1,51 @@
 import connectDB from '@/lib/db';
 import Article from '@/models/Article';
+import Category from '@/models/Category';
 import { getServerUser } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/utils/apiResponse';
+import { isValidYouTubeUrl } from '@/utils/youtube';
+import mongoose from 'mongoose';
+
+const HINDI_CATEGORY_MAP = {
+  'राजनीति': 'politics',
+  'तकनीक': 'technology',
+  'व्यापार': 'business',
+  'विज्ञान': 'science',
+  'खेल': 'sports',
+  'मनोरंजन': 'entertainment',
+  'स्वास्थ्य': 'health',
+  'विश्व': 'world',
+};
+
+async function resolveCategoryId(category) {
+  if (!category) return null;
+  if (mongoose.Types.ObjectId.isValid(category)) return category;
+
+  const resolvedSlug = HINDI_CATEGORY_MAP[category] || category.toLowerCase();
+  const cat = await Category.findOne({
+    $or: [
+      { slug: resolvedSlug },
+      { name: { $regex: new RegExp(`^${resolvedSlug}$`, 'i') } },
+    ],
+  });
+  return cat?._id || null;
+}
 
 export async function GET(request, { params }) {
   try {
     await connectDB();
     const { slug } = await params;
+    const { searchParams } = new URL(request.url);
+    const adminView = searchParams.get('admin') === '1';
+    const user = adminView ? await getServerUser() : null;
+    const canEdit = user && ['admin', 'editor', 'author'].includes(user.role);
 
-    const article = await Article.findOne({ slug, status: 'published' })
+    const query = { slug };
+    if (!adminView || !canEdit) {
+      query.status = 'published';
+    }
+
+    const article = await Article.findOne(query)
       .populate('author', 'name username avatar bio social')
       .populate('category', 'name slug color')
       .populate('relatedArticles', 'title slug coverImage publishedAt readingTime')
@@ -16,8 +53,9 @@ export async function GET(request, { params }) {
 
     if (!article) return errorResponse('Article not found', 404);
 
-    // Increment views (fire-and-forget)
-    Article.findByIdAndUpdate(article._id, { $inc: { views: 1 } }).exec();
+    if (!adminView) {
+      Article.findByIdAndUpdate(article._id, { $inc: { views: 1 } }).exec();
+    }
 
     return successResponse(article);
   } catch (error) {
@@ -43,10 +81,22 @@ export async function PUT(request, { params }) {
     if (!isOwner && !isAdmin) return errorResponse('Forbidden', 403);
 
     const allowedFields = ['title', 'content', 'excerpt', 'category', 'tags', 'status',
-      'coverImage', 'coverImageAlt', 'isBreaking', 'isFeatured', 'isTrending',
+      'coverImage', 'coverImageAlt', 'youtubeUrl', 'location', 'reporter',
+      'isBreaking', 'isFeatured', 'isTrending',
       'allowComments', 'meta', 'scheduledAt', 'relatedArticles', 'aiSummary'];
 
+    if (body.youtubeUrl !== undefined && body.youtubeUrl && !isValidYouTubeUrl(body.youtubeUrl)) {
+      return errorResponse('Invalid YouTube URL', 400);
+    }
+
+    if (body.category !== undefined) {
+      const categoryId = await resolveCategoryId(body.category);
+      if (!categoryId) return errorResponse(`Category "${body.category}" not found`, 400);
+      article.category = categoryId;
+    }
+
     allowedFields.forEach((field) => {
+      if (field === 'category') return;
       if (body[field] !== undefined) article[field] = body[field];
     });
 

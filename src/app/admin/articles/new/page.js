@@ -1,23 +1,47 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {
-  FiSave, FiSend, FiImage, FiUpload, FiX, FiLink
+  FiSave, FiSend, FiImage, FiUpload, FiX, FiLink, FiPlay
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import YouTubePlayer from '@/components/news/YouTubePlayer';
+import { isValidYouTubeUrl } from '@/utils/youtube';
 
 const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor'), {
   ssr: false,
   loading: () => <div className="h-64 bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><LoadingSpinner /></div>,
 });
 
-const CATEGORIES = ['राजनीति', 'तकनीक', 'व्यापार', 'विज्ञान', 'खेल', 'मनोरंजन', 'स्वास्थ्य', 'विश्व'];
+const CATEGORIES = [
+  { label: 'राजनीति', value: 'politics' },
+  { label: 'तकनीक', value: 'technology' },
+  { label: 'व्यापार', value: 'business' },
+  { label: 'विज्ञान', value: 'science' },
+  { label: 'खेल', value: 'sports' },
+  { label: 'मनोरंजन', value: 'entertainment' },
+  { label: 'स्वास्थ्य', value: 'health' },
+  { label: 'विश्व', value: 'world' },
+];
 
-export default function NewArticlePage() {
+function toDatetimeLocal(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function ArticleEditor() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editSlug = searchParams.get('edit');
+  const isEditing = Boolean(editSlug);
+
+  const [loadingArticle, setLoadingArticle] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -25,6 +49,8 @@ export default function NewArticlePage() {
   const fileInputRef = useRef(null);
   const [form, setForm] = useState({
     title: '',
+    location: '',
+    reporter: '',
     excerpt: '',
     content: '',
     category: '',
@@ -32,6 +58,7 @@ export default function NewArticlePage() {
     status: 'draft',
     coverImage: '',
     coverImageAlt: '',
+    youtubeUrl: '',
     isBreaking: false,
     isFeatured: false,
     isTrending: false,
@@ -42,6 +69,55 @@ export default function NewArticlePage() {
   const [tagInput, setTagInput] = useState('');
   const [wordCount, setWordCount] = useState(0);
   const [readingTime, setReadingTime] = useState(0);
+
+  useEffect(() => {
+    if (!editSlug) return;
+
+    setLoadingArticle(true);
+    fetch(`/api/articles/${editSlug}?admin=1`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success) {
+          toast.error(data.message || 'लेख लोड करने में विफल');
+          router.push('/admin/articles');
+          return;
+        }
+
+        const article = data.data;
+        const text = (article.content || '').replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean);
+
+        setForm({
+          title: article.title || '',
+          location: article.location || '',
+          reporter: article.reporter || '',
+          excerpt: article.excerpt || '',
+          content: article.content || '',
+          category: article.category?.slug || '',
+          tags: article.tags || [],
+          status: article.status || 'draft',
+          coverImage: article.coverImage || '',
+          coverImageAlt: article.coverImageAlt || '',
+          youtubeUrl: article.youtubeUrl || '',
+          isBreaking: article.isBreaking || false,
+          isFeatured: article.isFeatured || false,
+          isTrending: article.isTrending || false,
+          allowComments: article.allowComments !== false,
+          scheduledAt: toDatetimeLocal(article.scheduledAt),
+          meta: {
+            title: article.meta?.title || '',
+            description: article.meta?.description || '',
+          },
+        });
+        setWordCount(text.length);
+        setReadingTime(article.readingTime || Math.ceil(text.length / 200));
+        if (article.coverImage?.startsWith('http')) setCoverTab('url');
+      })
+      .catch(() => {
+        toast.error('लेख लोड करने में विफल');
+        router.push('/admin/articles');
+      })
+      .finally(() => setLoadingArticle(false));
+  }, [editSlug, router]);
 
   const update = (field, val) => setForm((p) => ({ ...p, [field]: val }));
   const updateMeta = (field, val) => setForm((p) => ({ ...p, meta: { ...p.meta, [field]: val } }));
@@ -110,19 +186,32 @@ export default function NewArticlePage() {
     if (!form.title.trim()) { toast.error('शीर्षक आवश्यक है'); return; }
     if (!form.content.trim()) { toast.error('सामग्री आवश्यक है'); return; }
     if (!form.category) { toast.error('श्रेणी आवश्यक है'); return; }
+    if (form.youtubeUrl.trim() && !isValidYouTubeUrl(form.youtubeUrl)) {
+      toast.error('मान्य YouTube URL दर्ज करें');
+      return;
+    }
 
     setSaving(true);
-    const payload = { ...form, status: publishStatus || form.status };
+    const payload = { ...form, status: publishStatus || form.status, youtubeUrl: form.youtubeUrl.trim() };
 
     try {
-      const res = await fetch('/api/articles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        isEditing ? `/api/articles/${editSlug}` : '/api/articles',
+        {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      );
       const data = await res.json();
       if (data.success) {
-        toast.success(publishStatus === 'published' ? 'लेख प्रकाशित हुआ!' : 'लेख सहेजा गया!');
+        toast.success(
+          isEditing
+            ? 'लेख अपडेट हुआ!'
+            : publishStatus === 'published'
+              ? 'लेख प्रकाशित हुआ!'
+              : 'लेख सहेजा गया!'
+        );
         router.push('/admin/articles');
       } else {
         toast.error(data.message || 'लेख सहेजने में विफल');
@@ -133,10 +222,20 @@ export default function NewArticlePage() {
     setSaving(false);
   };
 
+  if (loadingArticle) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">नया लेख बनाएं</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          {isEditing ? 'लेख संपादित करें' : 'नया लेख बनाएं'}
+        </h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleSave('draft')}
@@ -171,6 +270,38 @@ export default function NewArticlePage() {
             />
           </div>
 
+          {/* Location & reporter */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5 block">
+                  लोकेशन
+                </label>
+                <input
+                  type="text"
+                  value={form.location}
+                  onChange={(e) => update('location', e.target.value)}
+                  placeholder="मनेन्द्रगढ़"
+                  maxLength={100}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5 block">
+                  रिपोर्टर
+                </label>
+                <input
+                  type="text"
+                  value={form.reporter}
+                  onChange={(e) => update('reporter', e.target.value)}
+                  placeholder="अमित श्रीवास्तव"
+                  maxLength={100}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Excerpt */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
             <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">
@@ -198,7 +329,7 @@ export default function NewArticlePage() {
                 <span>~{readingTime} मिनट पढ़ें</span>
               </div>
             </div>
-            <RichTextEditor content={form.content} onChange={handleContentChange} />
+            <RichTextEditor key={editSlug || 'new'} content={form.content} onChange={handleContentChange} />
           </div>
         </div>
 
@@ -346,6 +477,33 @@ export default function NewArticlePage() {
             />
           </div>
 
+          {/* YouTube Video */}
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3 flex items-center gap-2">
+              <FiPlay className="w-4 h-4 text-red-600" />
+              YouTube वीडियो
+            </h3>
+            <input
+              type="url"
+              value={form.youtubeUrl}
+              onChange={(e) => update('youtubeUrl', e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
+            />
+            <p className="text-xs text-gray-400 mt-2">
+              YouTube, youtu.be, Shorts या embed लिंक समर्थित हैं
+            </p>
+            {form.youtubeUrl.trim() && (
+              <div className="mt-3">
+                {isValidYouTubeUrl(form.youtubeUrl) ? (
+                  <YouTubePlayer url={form.youtubeUrl} title="YouTube preview" />
+                ) : (
+                  <p className="text-xs text-red-500">अमान्य YouTube URL</p>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Category */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">श्रेणी</h3>
@@ -356,7 +514,7 @@ export default function NewArticlePage() {
             >
               <option value="">श्रेणी चुनें...</option>
               {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat.toLowerCase()}>{cat}</option>
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
               ))}
             </select>
           </div>
@@ -429,5 +587,17 @@ export default function NewArticlePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function NewArticlePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <LoadingSpinner size="lg" />
+      </div>
+    }>
+      <ArticleEditor />
+    </Suspense>
   );
 }

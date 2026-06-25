@@ -121,8 +121,8 @@ export default function Footer() {
             <h4 className="font-bold text-white mb-4">जुड़ें</h4>
             <ul className="space-y-3">
               <li>
-                <a href="mailto:news@cgfile.com" className="flex items-center gap-2 text-gray-400 hover:text-red-400 text-sm transition-colors">
-                  <FiMail className="w-4 h-4" /> news@cgfile.com
+                <a href="mailto:news@cgfile.in" className="flex items-center gap-2 text-gray-400 hover:text-red-400 text-sm transition-colors">
+                  <FiMail className="w-4 h-4" /> news@cgfile.in
                 </a>
               </li>
               <li>

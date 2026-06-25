@@ -13,6 +13,14 @@ const nextConfig = {
   experimental: {
     serverActions: { allowedOrigins: ['localhost:3000'] },
   },
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:filename',
+        destination: '/api/uploads/:filename',
+      },
+    ];
+  },
   async headers() {
     return [
       {

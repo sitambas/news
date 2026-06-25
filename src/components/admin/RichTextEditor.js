@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -43,6 +44,14 @@ export default function RichTextEditor({ content, onChange }) {
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (!editor || content === undefined) return;
+    const current = editor.getHTML();
+    if (content !== current) {
+      editor.commands.setContent(content || '', false);
+    }
+  }, [content, editor]);
 
   if (!editor) return null;
 

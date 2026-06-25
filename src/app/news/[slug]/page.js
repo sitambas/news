@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiClock, FiEye, FiCalendar, FiTag, FiShare2 } from 'react-icons/fi';
+import { FiClock, FiEye, FiCalendar, FiTag, FiShare2, FiMapPin, FiUser } from 'react-icons/fi';
 import { formatDate, timeAgo, formatNumber } from '@/utils/helpers';
 import ArticleActions from '@/components/news/ArticleActions';
 import CommentSection from '@/components/news/CommentSection';
 import RelatedArticles from '@/components/news/RelatedArticles';
 import ShareButtons from '@/components/news/ShareButtons';
+import YouTubePlayer from '@/components/news/YouTubePlayer';
 import Sidebar from '@/components/layout/Sidebar';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
@@ -155,6 +156,22 @@ export default async function ArticlePage({ params }) {
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white leading-tight mb-4">
                 {article.title}
               </h1>
+              {(article.location || article.reporter) && (
+                <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4 text-sm text-gray-600 dark:text-gray-400">
+                  {article.location && (
+                    <span className="flex items-center gap-1">
+                      <FiMapPin className="w-3.5 h-3.5" />
+                      {article.location}
+                    </span>
+                  )}
+                  {article.reporter && (
+                    <span className="flex items-center gap-1">
+                      <FiUser className="w-3.5 h-3.5" />
+                      रिपोर्टर: {article.reporter}
+                    </span>
+                  )}
+                </div>
+              )}
               {article.excerpt && (
                 <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed border-l-4 border-red-600 pl-4">
                   {article.excerpt}
@@ -221,6 +238,11 @@ export default async function ArticlePage({ params }) {
                   </p>
                 )}
               </div>
+            )}
+
+            {/* YouTube Video */}
+            {article.youtubeUrl && (
+              <YouTubePlayer url={article.youtubeUrl} title={article.title} />
             )}
 
             {/* Article Content */}

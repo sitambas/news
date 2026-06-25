@@ -22,7 +22,9 @@ Usage:
   ./deploy/deploy.sh build       Install deps, build, and restart PM2 on EC2
   ./deploy/deploy.sh build-local Build on your Mac, sync .next, prod deps on EC2
   ./deploy/deploy.sh all         sync + env + build
-  ./deploy/deploy.sh ssh       Open SSH session to EC2
+  ./deploy/deploy.sh ssh           Open SSH session to EC2
+  ./deploy/deploy.sh ssl           Let's Encrypt SSL (requires DOMAIN DNS → EC2)
+  ./deploy/deploy.sh ssl-selfsigned Self-signed SSL for IP (browser warning)
 
 Environment overrides:
   EC2_HOST, EC2_USER, KEY_PATH, APP_DIR, AWS_REGION
@@ -159,6 +161,25 @@ run_ssh() {
   exec ssh "${SSH_OPTS[@]}" "$SSH_TARGET"
 }
 
+run_ssl() {
+  require_key
+  if [ -z "${DOMAIN:-}" ]; then
+    echo "ERROR: Set DOMAIN in deploy/config.sh or: DOMAIN=cgfile.in ./deploy/deploy.sh ssl"
+    exit 1
+  fi
+  echo "==> Setting up Let's Encrypt SSL for $DOMAIN on $SSH_TARGET..."
+  scp "${SSH_OPTS[@]}" "$SCRIPT_DIR/ssl-setup.sh" "$SSH_TARGET:/tmp/ssl-setup.sh"
+  ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "DOMAIN='$DOMAIN' SSL_EMAIL='$SSL_EMAIL' bash /tmp/ssl-setup.sh"
+}
+
+run_ssl_selfsigned() {
+  require_key
+  echo "==> Setting up self-signed SSL on $SSH_TARGET..."
+  scp "${SSH_OPTS[@]}" "$SCRIPT_DIR/ssl-selfsigned.sh" "$SSH_TARGET:/tmp/ssl-selfsigned.sh"
+  ssh "${SSH_OPTS[@]}" "$SSH_TARGET" "bash /tmp/ssl-selfsigned.sh"
+  echo "==> HTTPS: https://${EC2_HOST}"
+}
+
 case "${1:-}" in
   setup) run_setup ;;
   sync) run_sync ;;
@@ -172,6 +193,8 @@ case "${1:-}" in
     echo "==> Deploy complete: http://${EC2_HOST}"
     ;;
   ssh) run_ssh ;;
+  ssl) run_ssl ;;
+  ssl-selfsigned) run_ssl_selfsigned ;;
   *)
     usage
     exit 1
