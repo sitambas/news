@@ -17,6 +17,21 @@ const HINDI_CATEGORY_MAP = {
   'विश्व': 'world',
 };
 
+async function findArticleByIdentifier(identifier) {
+  if (mongoose.Types.ObjectId.isValid(identifier)) {
+    return Article.findOne({ _id: identifier });
+  }
+  return Article.findOne({ slug: identifier });
+}
+
+async function resolveReporterId(reporter) {
+  if (!reporter) return null;
+  if (!mongoose.Types.ObjectId.isValid(reporter)) return null;
+  const Reporter = (await import('@/models/Reporter')).default;
+  const found = await Reporter.findById(reporter);
+  return found ? found._id : null;
+}
+
 async function resolveCategoryId(category) {
   if (!category) return null;
   if (mongoose.Types.ObjectId.isValid(category)) return category;
@@ -40,7 +55,10 @@ export async function GET(request, { params }) {
     const user = adminView ? await getServerUser() : null;
     const canEdit = user && ['admin', 'editor', 'author'].includes(user.role);
 
-    const query = { slug };
+    const baseQuery = mongoose.Types.ObjectId.isValid(slug)
+      ? { _id: slug }
+      : { slug };
+    const query = { ...baseQuery };
     if (!adminView || !canEdit) {
       query.status = 'published';
     }
@@ -48,6 +66,7 @@ export async function GET(request, { params }) {
     const article = await Article.findOne(query)
       .populate('author', 'name username avatar bio social')
       .populate('category', 'name slug color')
+      .populate('reporter', 'name defaultLocation locations slug bio')
       .populate('relatedArticles', 'title slug coverImage publishedAt readingTime')
       .lean();
 
@@ -73,7 +92,7 @@ export async function PUT(request, { params }) {
     const { slug } = await params;
     const body = await request.json();
 
-    const article = await Article.findOne({ slug });
+    const article = await findArticleByIdentifier(slug);
     if (!article) return errorResponse('Article not found', 404);
 
     const isOwner = article.author.toString() === user.id;
@@ -81,7 +100,7 @@ export async function PUT(request, { params }) {
     if (!isOwner && !isAdmin) return errorResponse('Forbidden', 403);
 
     const allowedFields = ['title', 'content', 'excerpt', 'category', 'tags', 'status',
-      'coverImage', 'coverImageAlt', 'youtubeUrl', 'location', 'reporter',
+      'coverImage', 'coverImageAlt', 'youtubeUrl', 'location',
       'isBreaking', 'isFeatured', 'isTrending',
       'allowComments', 'meta', 'scheduledAt', 'relatedArticles', 'aiSummary'];
 
@@ -95,6 +114,16 @@ export async function PUT(request, { params }) {
       article.category = categoryId;
     }
 
+    if (body.reporter !== undefined) {
+      if (!body.reporter) {
+        article.reporter = null;
+      } else {
+        const reporterId = await resolveReporterId(body.reporter);
+        if (!reporterId) return errorResponse('Reporter not found', 400);
+        article.reporter = reporterId;
+      }
+    }
+
     allowedFields.forEach((field) => {
       if (field === 'category') return;
       if (body[field] !== undefined) article[field] = body[field];
@@ -103,6 +132,7 @@ export async function PUT(request, { params }) {
     await article.save();
     await article.populate('author', 'name username avatar');
     await article.populate('category', 'name slug color');
+    await article.populate('reporter', 'name defaultLocation locations slug');
 
     return successResponse(article, 'Article updated successfully');
   } catch (error) {
@@ -119,7 +149,7 @@ export async function DELETE(request, { params }) {
     await connectDB();
     const { slug } = await params;
 
-    const article = await Article.findOne({ slug });
+    const article = await findArticleByIdentifier(slug);
     if (!article) return errorResponse('Article not found', 404);
 
     const isOwner = article.author.toString() === user.id;

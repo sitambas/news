@@ -6,16 +6,18 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   FiHome, FiFileText, FiUsers, FiTag, FiBarChart2, FiSettings,
   FiMenu, FiX, FiLogOut, FiBell, FiSearch, FiChevronDown, FiEdit,
-  FiPlusCircle, FiTrendingUp, FiAlertCircle
+  FiPlusCircle, FiTrendingUp, FiAlertCircle, FiMic, FiType
 } from 'react-icons/fi';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
+import { IndicTypingProvider, useIndicTyping } from '@/components/ui/IndicTypingProvider';
 
 const NAV_ITEMS = [
   { label: 'डैशबोर्ड', href: '/admin', icon: FiHome },
   { label: 'लेख', href: '/admin/articles', icon: FiFileText },
   { label: 'नया लेख', href: '/admin/articles/new', icon: FiPlusCircle },
   { label: 'श्रेणियाँ', href: '/admin/categories', icon: FiTag },
+  { label: 'रिपोर्टर', href: '/admin/reporters', icon: FiMic },
   { label: 'उपयोगकर्ता', href: '/admin/users', icon: FiUsers },
   { label: 'विश्लेषण', href: '/admin/analytics', icon: FiBarChart2 },
   { label: 'सेटिंग्स', href: '/admin/settings', icon: FiSettings },
@@ -83,6 +85,25 @@ function AdminSidebar({ isOpen, setIsOpen }) {
   );
 }
 
+function IndicTypingToggle() {
+  const { enabled, toggle } = useIndicTyping();
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      title={enabled ? 'हिंदी टाइपिंग बंद करें' : 'हिंदी टाइपिंग चालू करें'}
+      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+        enabled
+          ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+          : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+      }`}
+    >
+      <FiType className="w-3.5 h-3.5" />
+      {enabled ? 'हिंदी ⌨' : 'EN ⌨'}
+    </button>
+  );
+}
+
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuthStore();
@@ -101,6 +122,7 @@ export default function AdminLayout({ children }) {
   };
 
   return (
+    <IndicTypingProvider>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <AdminSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
@@ -121,6 +143,7 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-3">
+            <IndicTypingToggle />
             <div className="relative hidden md:block">
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -156,5 +179,6 @@ export default function AdminLayout({ children }) {
         </main>
       </div>
     </div>
+    </IndicTypingProvider>
   );
 }

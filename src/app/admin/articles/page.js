@@ -56,9 +56,15 @@ export default function AdminArticlesPage() {
   const handleDelete = async (article) => {
     if (!window.confirm(`क्या आप वाकई "${article.title}" हटाना चाहते हैं?`)) return;
 
+    const identifier = article.slug || article._id;
+    if (!identifier) {
+      toast.error('लेख पहचान नहीं मिली');
+      return;
+    }
+
     setDeletingId(article._id);
     try {
-      const res = await fetch(`/api/articles/${article.slug}`, { method: 'DELETE' });
+      const res = await fetch(`/api/articles/${identifier}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         toast.success('लेख हटाया गया');
@@ -228,7 +234,7 @@ export default function AdminArticlesPage() {
                           </Link>
                         )}
                         <Link
-                          href={`/admin/articles/new?edit=${article.slug}`}
+                          href={`/admin/articles/new?edit=${article.slug || article._id}`}
                           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                           title="Edit"
                         >

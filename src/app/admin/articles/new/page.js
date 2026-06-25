@@ -10,6 +10,9 @@ import toast from 'react-hot-toast';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import YouTubePlayer from '@/components/news/YouTubePlayer';
 import { isValidYouTubeUrl } from '@/utils/youtube';
+import { getReporterLocations } from '@/utils/reporter';
+import IndicInput from '@/components/ui/IndicInput';
+import IndicTextarea from '@/components/ui/IndicTextarea';
 
 const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor'), {
   ssr: false,
@@ -69,6 +72,16 @@ function ArticleEditor() {
   const [tagInput, setTagInput] = useState('');
   const [wordCount, setWordCount] = useState(0);
   const [readingTime, setReadingTime] = useState(0);
+  const [reporters, setReporters] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/reporters?all=1')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setReporters(data.data || []);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!editSlug) return;
@@ -89,7 +102,7 @@ function ArticleEditor() {
         setForm({
           title: article.title || '',
           location: article.location || '',
-          reporter: article.reporter || '',
+          reporter: article.reporter?._id || article.reporter || '',
           excerpt: article.excerpt || '',
           content: article.content || '',
           category: article.category?.slug || '',
@@ -121,6 +134,24 @@ function ArticleEditor() {
 
   const update = (field, val) => setForm((p) => ({ ...p, [field]: val }));
   const updateMeta = (field, val) => setForm((p) => ({ ...p, meta: { ...p.meta, [field]: val } }));
+
+  const handleReporterChange = (reporterId) => {
+    setForm((p) => {
+      const selected = reporters.find((r) => r._id === reporterId);
+      const options = getReporterLocations(selected);
+      const nextLocation = options.includes(p.location) ? p.location : (options[0] || '');
+      return { ...p, reporter: reporterId, location: nextLocation };
+    });
+  };
+
+  const selectedReporter = reporters.find((r) => r._id === form.reporter);
+  const locationOptions = (() => {
+    const options = getReporterLocations(selectedReporter);
+    if (form.location && !options.includes(form.location)) {
+      return [...options, form.location];
+    }
+    return options;
+  })();
 
   const uploadImage = useCallback(async (file) => {
     if (!file) return;
@@ -192,7 +223,12 @@ function ArticleEditor() {
     }
 
     setSaving(true);
-    const payload = { ...form, status: publishStatus || form.status, youtubeUrl: form.youtubeUrl.trim() };
+    const payload = {
+      ...form,
+      status: publishStatus || form.status,
+      youtubeUrl: form.youtubeUrl.trim(),
+      reporter: form.reporter || null,
+    };
 
     try {
       const res = await fetch(
@@ -261,43 +297,67 @@ function ArticleEditor() {
         <div className="xl:col-span-2 space-y-4">
           {/* Title */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
-            <input
+            <IndicInput
               type="text"
               value={form.title}
-              onChange={(e) => update('title', e.target.value)}
-              placeholder="लेख का शीर्षक दर्ज करें..."
+              onChange={(val) => update('title', val)}
+              placeholder="लेख का शीर्षक दर्ज करें... (English में टाइप करें → हिंदी)"
               className="w-full text-2xl font-bold text-gray-900 dark:text-white bg-transparent border-0 focus:outline-none placeholder-gray-300 dark:placeholder-gray-700"
             />
           </div>
 
-          {/* Location & reporter */}
+          {/* Reporter & location */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5 block">
-                  लोकेशन
+                  रिपोर्टर
                 </label>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={(e) => update('location', e.target.value)}
-                  placeholder="मनेन्द्रगढ़"
-                  maxLength={100}
+                <select
+                  value={form.reporter}
+                  onChange={(e) => handleReporterChange(e.target.value)}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
-                />
+                >
+                  <option value="">रिपोर्टर चुनें...</option>
+                  {reporters.map((r) => (
+                    <option key={r._id} value={r._id}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+                {reporters.length === 0 && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    कोई रिपोर्टर नहीं।{' '}
+                    <a href="/admin/reporters" className="text-red-600 hover:underline">रिपोर्टर जोड़ें</a>
+                  </p>
+                )}
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5 block">
-                  रिपोर्टर
+                  लोकेशन
                 </label>
-                <input
-                  type="text"
-                  value={form.reporter}
-                  onChange={(e) => update('reporter', e.target.value)}
-                  placeholder="अमित श्रीवास्तव"
-                  maxLength={100}
-                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
-                />
+                <select
+                  value={form.location}
+                  onChange={(e) => update('location', e.target.value)}
+                  disabled={!form.reporter || locationOptions.length === 0}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {!form.reporter
+                      ? 'पहले रिपोर्टर चुनें'
+                      : locationOptions.length === 0
+                        ? 'इस रिपोर्टर की कोई लोकेशन नहीं'
+                        : 'लोकेशन चुनें...'}
+                  </option>
+                  {locationOptions.map((loc) => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
+                {form.reporter && locationOptions.length === 0 && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    <a href="/admin/reporters" className="text-red-600 hover:underline">रिपोर्टर में लोकेशन जोड़ें</a>
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -307,10 +367,10 @@ function ArticleEditor() {
             <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">
               लेख का सारांश
             </label>
-            <textarea
+            <IndicTextarea
               value={form.excerpt}
-              onChange={(e) => update('excerpt', e.target.value)}
-              placeholder="लेख का संक्षिप्त सारांश (पूर्वावलोकन में दिखाया जाएगा)..."
+              onChange={(val) => update('excerpt', val)}
+              placeholder="लेख का संक्षिप्त सारांश..."
               rows={2}
               maxLength={500}
               className="w-full text-sm text-gray-700 dark:text-gray-300 bg-transparent border-0 focus:outline-none placeholder-gray-400 resize-none"
@@ -568,16 +628,16 @@ function ArticleEditor() {
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">SEO सेटिंग्स</h3>
             <div className="space-y-2">
-              <input
+              <IndicInput
                 type="text"
                 value={form.meta.title}
-                onChange={(e) => updateMeta('title', e.target.value)}
+                onChange={(val) => updateMeta('title', val)}
                 placeholder="मेटा शीर्षक..."
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
-              <textarea
+              <IndicTextarea
                 value={form.meta.description}
-                onChange={(e) => updateMeta('description', e.target.value)}
+                onChange={(val) => updateMeta('description', val)}
                 placeholder="मेटा विवरण..."
                 rows={2}
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"

@@ -3,6 +3,17 @@ import Article from '@/models/Article';
 import { getServerUser } from '@/lib/auth';
 import { errorResponse, paginatedResponse, successResponse } from '@/utils/apiResponse';
 import { isValidYouTubeUrl } from '@/utils/youtube';
+import mongoose from 'mongoose';
+
+async function resolveReporterId(reporter) {
+  if (!reporter) return null;
+  if (!mongoose.Types.ObjectId.isValid(reporter)) {
+    return null;
+  }
+  const Reporter = (await import('@/models/Reporter')).default;
+  const found = await Reporter.findById(reporter);
+  return found ? found._id : null;
+}
 
 export async function GET(request) {
   try {
@@ -14,6 +25,7 @@ export async function GET(request) {
     const category = searchParams.get('category');
     const tag = searchParams.get('tag');
     const author = searchParams.get('author');
+    const reporter = searchParams.get('reporter');
     let status = searchParams.get('status') || 'published';
     const featured = searchParams.get('featured');
     const breaking = searchParams.get('breaking');
@@ -32,6 +44,7 @@ export async function GET(request) {
     if (category) query.category = category;
     if (tag) query.tags = tag;
     if (author) query.author = author;
+    if (reporter) query.reporter = reporter;
     if (featured === 'true') query.isFeatured = true;
     if (breaking === 'true') query.isBreaking = true;
     if (trending === 'true') query.isTrending = true;
@@ -42,6 +55,7 @@ export async function GET(request) {
     const articles = await Article.find(query)
       .populate('author', 'name username avatar')
       .populate('category', 'name slug color')
+      .populate('reporter', 'name defaultLocation locations slug')
       .select('-content -likes -bookmarks')
       .sort(sort)
       .skip(skip)
@@ -96,7 +110,6 @@ export async function POST(request) {
       'विश्व': 'world',
     };
     let categoryId = category;
-    const mongoose = (await import('mongoose')).default;
     if (!mongoose.Types.ObjectId.isValid(category)) {
       const Category = (await import('@/models/Category')).default;
       const resolvedSlug = HINDI_CATEGORY_MAP[category] || category.toLowerCase();
@@ -110,10 +123,16 @@ export async function POST(request) {
       categoryId = cat._id;
     }
 
+    let reporterId = null;
+    if (reporter) {
+      reporterId = await resolveReporterId(reporter);
+      if (!reporterId) return errorResponse('Reporter not found', 400);
+    }
+
     const article = await Article.create({
       title, content, excerpt, category: categoryId, tags: tags || [],
       status: status || 'draft', coverImage, coverImageAlt, youtubeUrl: youtubeUrl || '',
-      location: location || '', reporter: reporter || '',
+      location: location || '', reporter: reporterId,
       isBreaking: isBreaking || false, isFeatured: isFeatured || false,
       isTrending: isTrending || false, allowComments: allowComments !== false,
       meta: meta || {}, scheduledAt, author: user.id,
@@ -121,6 +140,7 @@ export async function POST(request) {
 
     await article.populate('author', 'name username avatar');
     await article.populate('category', 'name slug color');
+    await article.populate('reporter', 'name defaultLocation locations slug');
 
     return successResponse(article, 'Article created successfully', 201);
   } catch (error) {

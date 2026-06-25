@@ -6,7 +6,7 @@ const articleSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true, maxlength: 200 },
     slug: { type: String, unique: true, lowercase: true },
     location: { type: String, default: '', trim: true, maxlength: 100 },
-    reporter: { type: String, default: '', trim: true, maxlength: 100 },
+    reporter: { type: mongoose.Schema.Types.ObjectId, ref: 'Reporter', default: null },
     excerpt: { type: String, maxlength: 500, default: '' },
     content: { type: String, required: true },
     coverImage: { type: String, default: '' },
@@ -62,8 +62,11 @@ articleSchema.virtual('commentCount', {
 });
 
 articleSchema.pre('save', async function () {
-  if (this.isModified('title') && !this.slug) {
+  if (!this.slug || (this.isModified('title') && !this.slug)) {
     let baseSlug = slugify(this.title, { lower: true, strict: true });
+    if (!baseSlug) {
+      baseSlug = `article-${this._id || Date.now()}`;
+    }
     let slug = baseSlug;
     let count = 0;
     while (await mongoose.models.Article.findOne({ slug, _id: { $ne: this._id } })) {
@@ -87,7 +90,7 @@ articleSchema.index({ slug: 1 });
 articleSchema.index({ status: 1, publishedAt: -1 });
 articleSchema.index({ category: 1, status: 1 });
 articleSchema.index({ author: 1, status: 1 });
-articleSchema.index({ tags: 1 });
+articleSchema.index({ reporter: 1, status: 1 });
 articleSchema.index({ views: -1 });
 articleSchema.index({ title: 'text', excerpt: 'text', content: 'text', tags: 'text' });
 

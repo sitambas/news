@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FiClock, FiEye, FiCalendar, FiTag, FiShare2, FiMapPin, FiUser } from 'react-icons/fi';
 import { formatDate, timeAgo, formatNumber } from '@/utils/helpers';
+import { getReporterName, getReporterId } from '@/utils/reporter';
 import ArticleActions from '@/components/news/ArticleActions';
 import CommentSection from '@/components/news/CommentSection';
 import RelatedArticles from '@/components/news/RelatedArticles';
@@ -115,6 +116,8 @@ export default async function ArticlePage({ params }) {
   }
   if (!article) notFound();
 
+  const reporterName = getReporterName(article.reporter);
+  const reporterId = getReporterId(article.reporter);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const articleUrl = `${appUrl}/news/${article.slug}`;
 
@@ -156,22 +159,6 @@ export default async function ArticlePage({ params }) {
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white leading-tight mb-4">
                 {article.title}
               </h1>
-              {(article.location || article.reporter) && (
-                <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4 text-sm text-gray-600 dark:text-gray-400">
-                  {article.location && (
-                    <span className="flex items-center gap-1">
-                      <FiMapPin className="w-3.5 h-3.5" />
-                      {article.location}
-                    </span>
-                  )}
-                  {article.reporter && (
-                    <span className="flex items-center gap-1">
-                      <FiUser className="w-3.5 h-3.5" />
-                      रिपोर्टर: {article.reporter}
-                    </span>
-                  )}
-                </div>
-              )}
               {article.excerpt && (
                 <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed border-l-4 border-red-600 pl-4">
                   {article.excerpt}
@@ -179,21 +166,31 @@ export default async function ArticlePage({ params }) {
               )}
             </header>
 
-            {/* Author & Meta */}
+            {/* Location, reporter & meta */}
             <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-y border-gray-200 dark:border-gray-800 mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 font-bold overflow-hidden">
-                  {article.author?.avatar ? (
-                    <img src={article.author.avatar} alt={article.author.name} className="w-full h-full object-cover" />
-                  ) : (
-                    article.author?.name?.[0] || 'A'
-                  )}
+                <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 font-bold overflow-hidden flex-shrink-0">
+                  <FiUser className="w-5 h-5" />
                 </div>
                 <div>
-                  <Link href={`/author/${article.author?.username}`} className="font-semibold text-gray-900 dark:text-white hover:text-red-600 text-sm">
-                    {article.author?.name || 'CGFILE Staff'}
-                  </Link>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{article.author?.bio || 'Journalist'}</p>
+                  {reporterName ? (
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                      रिपोर्टर: {reporterName}
+                    </p>
+                  ) : (
+                    <p className="font-semibold text-gray-400 text-sm">रिपोर्टर: —</p>
+                  )}
+                  {article.location ? (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <FiMapPin className="w-3 h-3" />
+                      लोकेशन: {article.location}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <FiMapPin className="w-3 h-3" />
+                      लोकेशन: —
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
@@ -273,28 +270,41 @@ export default async function ArticlePage({ params }) {
             {/* Share Buttons */}
             <ShareButtons url={articleUrl} title={article.title} />
 
-            {/* Author Bio */}
-            {article.author && (
+            {/* Reporter Bio */}
+            {(reporterName || article.location) && (
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 mt-8">
-                <h3 className="font-bold text-gray-900 dark:text-white mb-4">लेखक के बारे में</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white mb-4">रिपोर्टर के बारे में</h3>
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 font-bold text-xl flex-shrink-0 overflow-hidden">
-                    {article.author.avatar ? (
-                      <img src={article.author.avatar} alt={article.author.name} className="w-full h-full object-cover" />
-                    ) : (
-                      article.author.name?.[0] || 'A'
-                    )}
+                  <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 flex-shrink-0">
+                    <FiUser className="w-8 h-8" />
                   </div>
                   <div>
-                    <Link href={`/author/${article.author.username}`} className="font-semibold text-gray-900 dark:text-white hover:text-red-600 text-lg">
-                      {article.author.name}
-                    </Link>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1 leading-relaxed">
-                      {article.author.bio || 'CGFILE के स्टाफ पत्रकार, ब्रेकिंग न्यूज़ और गहन विश्लेषण को कवर करते हैं।'}
-                    </p>
-                    <Link href={`/author/${article.author.username}`} className="mt-2 inline-block text-sm text-red-600 hover:underline font-medium">
-                      सभी लेख देखें →
-                    </Link>
+                    {reporterName ? (
+                      <p className="font-semibold text-gray-900 dark:text-white text-lg">
+                        रिपोर्टर: {reporterName}
+                      </p>
+                    ) : (
+                      <p className="font-semibold text-gray-400 text-lg">रिपोर्टर: —</p>
+                    )}
+                    {article.location ? (
+                      <p className="text-gray-600 dark:text-gray-400 text-sm mt-1 flex items-center gap-1">
+                        <FiMapPin className="w-3.5 h-3.5" />
+                        लोकेशन: {article.location}
+                      </p>
+                    ) : (
+                      <p className="text-gray-400 text-sm mt-1 flex items-center gap-1">
+                        <FiMapPin className="w-3.5 h-3.5" />
+                        लोकेशन: —
+                      </p>
+                    )}
+                    {reporterId && (
+                      <Link
+                        href={`/reporter/${reporterId}`}
+                        className="mt-2 inline-block text-sm text-red-600 hover:underline font-medium"
+                      >
+                        सभी लेख देखें →
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
