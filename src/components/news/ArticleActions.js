@@ -6,7 +6,7 @@ import { formatNumber } from '@/utils/helpers';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 
-export default function ArticleActions({ article, articleUrl }) {
+export default function ArticleActions({ article, articleUrl, commentsEnabled = false }) {
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [likeCount, setLikeCount] = useState(article?.likes?.length || 0);
@@ -91,10 +91,12 @@ export default function ArticleActions({ article, articleUrl }) {
           <span>{bookmarked ? 'सहेजा' : 'सहेजें'}</span>
         </button>
 
-        <a href="#comments" className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-gray-400 transition-all">
-          <FiMessageSquare className="w-4 h-4" />
-          <span>टिप्पणियाँ</span>
-        </a>
+        {commentsEnabled && (
+          <a href="#comments" className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-gray-400 transition-all">
+            <FiMessageSquare className="w-4 h-4" />
+            <span>टिप्पणियाँ</span>
+          </a>
+        )}
       </div>
 
         <button

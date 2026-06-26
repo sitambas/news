@@ -19,3 +19,13 @@ export function getReporterId(reporter) {
   if (typeof reporter === 'object' && reporter._id) return String(reporter._id);
   return '';
 }
+
+/** Public byline: prefer assigned reporter over CMS author (admin). */
+export function getArticleBylineName(article) {
+  return getReporterName(article?.reporter);
+}
+
+export function getArticleBylineInitial(article) {
+  const name = getArticleBylineName(article);
+  return name?.[0] || 'र';
+}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FiClock, FiEye, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { timeAgo, formatNumber, truncateText } from '@/utils/helpers';
+import { getArticleBylineName } from '@/utils/reporter';
 
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -71,8 +72,10 @@ export default function HeroSection({ articles = [] }) {
                       {truncateText(featured[currentSlide].excerpt, 130)}
                     </p>
                     <div className="flex items-center gap-4 mt-2 text-white/70 text-xs">
-                      {featured[currentSlide].author?.name && (
-                        <span className="font-medium text-white/90">{featured[currentSlide].author.name}</span>
+                      {getArticleBylineName(featured[currentSlide]) && (
+                        <span className="font-medium text-white/90">
+                          {getArticleBylineName(featured[currentSlide])}
+                        </span>
                       )}
                       <span className="flex items-center gap-1">
                         <FiClock className="w-3 h-3" />

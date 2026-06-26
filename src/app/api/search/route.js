@@ -1,6 +1,8 @@
 import connectDB from '@/lib/db';
+import Category from '@/models/Category';
 import Article from '@/models/Article';
 import { errorResponse, paginatedResponse } from '@/utils/apiResponse';
+import { resolveCategoryId } from '@/lib/categoryQueries';
 
 export async function GET(request) {
   try {
@@ -17,7 +19,10 @@ export async function GET(request) {
     }
 
     const query = { status: 'published', $text: { $search: q } };
-    if (category) query.category = category;
+    if (category) {
+      const categoryId = await resolveCategoryId(category);
+      if (categoryId) query.category = categoryId;
+    }
 
     const sortOption =
       sort === 'relevance'
@@ -29,6 +34,7 @@ export async function GET(request) {
     const total = await Article.countDocuments(query);
     const articles = await Article.find(query, { score: { $meta: 'textScore' } })
       .populate('author', 'name username avatar')
+      .populate('reporter', 'name defaultLocation locations slug')
       .populate('category', 'name slug color')
       .select('-content -likes -bookmarks')
       .sort(sortOption)

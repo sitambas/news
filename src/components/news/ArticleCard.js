@@ -4,10 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FiClock, FiEye, FiBookmark, FiHeart, FiShare2 } from 'react-icons/fi';
 import { timeAgo, formatNumber, truncateText } from '@/utils/helpers';
+import { getArticleBylineInitial, getArticleBylineName, getReporterId } from '@/utils/reporter';
 import { motion } from 'framer-motion';
 
 export default function ArticleCard({ article, variant = 'default', priority = false }) {
   if (!article) return null;
+
+  const bylineName = getArticleBylineName(article);
+  const reporterId = getReporterId(article.reporter);
 
   const categoryStyle = article.category?.color
     ? { backgroundColor: article.category.color + '20', color: article.category.color }
@@ -49,7 +53,9 @@ export default function ArticleCard({ article, variant = 'default', priority = f
               {truncateText(article.excerpt, 120)}
             </p>
             <div className="flex items-center gap-4 text-white/70 text-xs">
-              {article.author && <span className="font-medium text-white/90">{article.author.name}</span>}
+              {bylineName && (
+                <span className="font-medium text-white/90">{bylineName}</span>
+              )}
               <span className="flex items-center gap-1"><FiClock className="w-3 h-3" /> {article.readingTime} मिनट पढ़ें</span>
               <span className="flex items-center gap-1"><FiEye className="w-3 h-3" /> {formatNumber(article.views)}</span>
               <span>{timeAgo(article.publishedAt)}</span>
@@ -139,16 +145,21 @@ export default function ArticleCard({ article, variant = 'default', priority = f
           {truncateText(article.excerpt, 100)}
         </p>
         <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {article.author?.avatar ? (
-              <img src={article.author.avatar} alt={article.author.name} className="w-6 h-6 rounded-full object-cover" />
-            ) : (
+          {bylineName && (
+            <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 text-xs font-bold">
-                {article.author?.name?.[0] || 'A'}
+                {getArticleBylineInitial(article)}
               </div>
-            )}
-            <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{article.author?.name}</span>
-          </div>
+              {reporterId ? (
+                <Link href={`/reporter/${reporterId}`} className="text-xs text-gray-600 dark:text-gray-400 font-medium hover:text-red-600">
+                  {bylineName}
+                </Link>
+              ) : (
+                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">{bylineName}</span>
+              )}
+            </div>
+          )}
+          {!bylineName && <div />}
           <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
               <span className="flex items-center gap-1"><FiClock className="w-3 h-3" /> {article.readingTime} मिनट</span>
             <span className="flex items-center gap-1"><FiEye className="w-3 h-3" /> {formatNumber(article.views)}</span>

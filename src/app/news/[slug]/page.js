@@ -10,6 +10,7 @@ import RelatedArticles from '@/components/news/RelatedArticles';
 import ShareButtons from '@/components/news/ShareButtons';
 import YouTubePlayer from '@/components/news/YouTubePlayer';
 import Sidebar from '@/components/layout/Sidebar';
+import { getSiteSettings } from '@/lib/siteSettings';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
 // Sample article for demo (used when DB article not found)
@@ -115,6 +116,9 @@ export default async function ArticlePage({ params }) {
     article = SAMPLE_ARTICLE;
   }
   if (!article) notFound();
+
+  const siteSettings = await getSiteSettings();
+  const showComments = siteSettings.commentsEnabled && article.allowComments !== false;
 
   const reporterName = getReporterName(article.reporter);
   const reporterId = getReporterId(article.reporter);
@@ -265,7 +269,7 @@ export default async function ArticlePage({ params }) {
             )}
 
             {/* Article Actions (Like, Bookmark, Share) */}
-            <ArticleActions article={article} articleUrl={articleUrl} />
+            <ArticleActions article={article} articleUrl={articleUrl} commentsEnabled={showComments} />
 
             {/* Share Buttons */}
             <ShareButtons url={articleUrl} title={article.title} />
@@ -314,7 +318,7 @@ export default async function ArticlePage({ params }) {
             <RelatedArticles currentSlug={article.slug} category={article.category} />
 
             {/* Comments */}
-            {article.allowComments !== false && (
+            {showComments && (
               <CommentSection articleId={article._id} />
             )}
           </article>

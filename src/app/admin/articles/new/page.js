@@ -20,17 +20,6 @@ const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor')
   loading: () => <div className="h-64 bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-center"><LoadingSpinner /></div>,
 });
 
-const CATEGORIES = [
-  { label: 'राजनीति', value: 'politics' },
-  { label: 'तकनीक', value: 'technology' },
-  { label: 'व्यापार', value: 'business' },
-  { label: 'विज्ञान', value: 'science' },
-  { label: 'खेल', value: 'sports' },
-  { label: 'मनोरंजन', value: 'entertainment' },
-  { label: 'स्वास्थ्य', value: 'health' },
-  { label: 'विश्व', value: 'world' },
-];
-
 function toDatetimeLocal(value) {
   if (!value) return '';
   const d = new Date(value);
@@ -74,12 +63,23 @@ function ArticleEditor() {
   const [wordCount, setWordCount] = useState(0);
   const [readingTime, setReadingTime] = useState(0);
   const [reporters, setReporters] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     fetch('/api/reporters?all=1')
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setReporters(data.data || []);
+      })
+      .catch(() => {});
+
+    fetch('/api/categories?all=1')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          const active = (data.data || []).filter((c) => c.isActive !== false);
+          setCategories(active.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
+        }
       })
       .catch(() => {});
   }, []);
@@ -588,17 +588,27 @@ function ArticleEditor() {
 
           {/* Category */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">श्रेणी</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-gray-900 dark:text-white text-sm">श्रेणी</h3>
+              <a href="/admin/categories" className="text-xs text-red-600 hover:underline">+ नई श्रेणी</a>
+            </div>
             <select
               value={form.category}
               onChange={(e) => update('category', e.target.value)}
               className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               <option value="">श्रेणी चुनें...</option>
-              {CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
+              {categories.map((cat) => (
+                <option key={cat._id || cat.slug} value={cat.slug}>
+                  {cat.icon ? `${cat.icon} ` : ''}{cat.name}
+                </option>
               ))}
             </select>
+            {categories.length === 0 && (
+              <p className="text-xs text-gray-400 mt-2">
+                कोई श्रेणी नहीं — <a href="/admin/categories" className="text-red-600 hover:underline">पहली श्रेणी बनाएं</a>
+              </p>
+            )}
           </div>
 
           {/* Tags */}

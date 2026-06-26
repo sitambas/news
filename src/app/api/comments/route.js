@@ -2,10 +2,16 @@ import connectDB from '@/lib/db';
 import Comment from '@/models/Comment';
 import Article from '@/models/Article';
 import { getServerUser } from '@/lib/auth';
+import { getSiteSettings } from '@/lib/siteSettings';
 import { errorResponse, paginatedResponse, successResponse } from '@/utils/apiResponse';
 
 export async function GET(request) {
   try {
+    const settings = await getSiteSettings();
+    if (!settings.commentsEnabled) {
+      return paginatedResponse([], { page: 1, limit: 20, total: 0, pages: 0 });
+    }
+
     await connectDB();
     const { searchParams } = new URL(request.url);
     const articleId = searchParams.get('articleId');
@@ -41,6 +47,11 @@ export async function POST(request) {
   try {
     const user = await getServerUser();
     if (!user) return errorResponse('Unauthorized', 401);
+
+    const settings = await getSiteSettings();
+    if (!settings.commentsEnabled) {
+      return errorResponse('साइट पर टिप्पणियाँ बंद हैं', 403);
+    }
 
     await connectDB();
     const { articleId, content, parentId } = await request.json();

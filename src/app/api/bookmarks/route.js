@@ -20,6 +20,7 @@ export async function GET(request) {
         select: 'title slug excerpt coverImage publishedAt readingTime',
         populate: [
           { path: 'author', select: 'name username avatar' },
+          { path: 'reporter', select: 'name defaultLocation locations slug' },
           { path: 'category', select: 'name slug color' },
         ],
       })

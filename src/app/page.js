@@ -14,7 +14,21 @@ export const metadata = {
 async function getArticles() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/articles?status=published&limit=12`, {
+    const res = await fetch(`${baseUrl}/api/articles?status=published&limit=24`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.data || [];
+  } catch {
+    return [];
+  }
+}
+
+async function getCategories() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/categories`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return [];
@@ -26,7 +40,8 @@ async function getArticles() {
 }
 
 export default async function HomePage() {
-  const articles = await getArticles();
+  const [articles, categories] = await Promise.all([getArticles(), getCategories()]);
+  const featuredCategories = categories.slice(0, 2);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -46,11 +61,13 @@ export default async function HomePage() {
             </Suspense>
 
             <Suspense fallback={<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}</div>}>
-              <CategoryNewsSection category="technology" articles={articles.slice(0, 4)} />
-            </Suspense>
-
-            <Suspense fallback={<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}</div>}>
-              <CategoryNewsSection category="politics" articles={articles.slice(2, 6)} />
+              {featuredCategories.map((cat) => (
+                <CategoryNewsSection
+                  key={cat.slug}
+                  category={cat}
+                  articles={articles}
+                />
+              ))}
             </Suspense>
           </div>
 

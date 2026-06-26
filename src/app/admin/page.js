@@ -8,6 +8,7 @@ import {
   FiBarChart2, FiRefreshCw,
 } from 'react-icons/fi';
 import { formatDate, timeAgo, formatNumber } from '@/utils/helpers';
+import { getArticleBylineName } from '@/utils/reporter';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const STATUS_COLORS = {
@@ -239,7 +240,7 @@ export default function AdminDashboard() {
                   <thead>
                     <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
                       <th className="text-left px-5 py-3 font-medium">लेख</th>
-                      <th className="text-left px-5 py-3 font-medium hidden md:table-cell">लेखक</th>
+                      <th className="text-left px-5 py-3 font-medium hidden md:table-cell">रिपोर्टर</th>
                       <th className="text-left px-5 py-3 font-medium hidden sm:table-cell">श्रेणी</th>
                       <th className="text-left px-5 py-3 font-medium">स्थिति</th>
                       <th className="text-left px-5 py-3 font-medium hidden lg:table-cell">दृश्य</th>
@@ -265,7 +266,7 @@ export default function AdminDashboard() {
                           </div>
                         </td>
                         <td className="px-5 py-3 hidden md:table-cell">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">{article.author?.name || '—'}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{getArticleBylineName(article) || '—'}</span>
                         </td>
                         <td className="px-5 py-3 hidden sm:table-cell">
                           <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded">

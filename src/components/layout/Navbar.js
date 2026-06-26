@@ -13,16 +13,7 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import IndicTypingToggle from '@/components/ui/IndicTypingToggle';
 
-const NAV_LINKS = [
-  { label: 'होम', href: '/' },
-  { label: 'राजनीति', href: '/category/politics' },
-  { label: 'तकनीक', href: '/category/technology' },
-  { label: 'व्यापार', href: '/category/business' },
-  { label: 'विज्ञान', href: '/category/science' },
-  { label: 'खेल', href: '/category/sports' },
-  { label: 'स्वास्थ्य', href: '/category/health' },
-  { label: 'विश्व', href: '/category/world' },
-];
+const HOME_LINK = { label: 'होम', href: '/' };
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,6 +23,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [notifCount, setNotifCount] = useState(3);
   const [mounted, setMounted] = useState(false);
+  const [navCategories, setNavCategories] = useState([]);
   const searchRef = useRef(null);
   const userMenuRef = useRef(null);
   const router = useRouter();
@@ -40,6 +32,23 @@ export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuthStore();
 
   useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setNavCategories(data.data || []);
+      })
+      .catch(() => {});
+  }, []);
+
+  const navLinks = [
+    HOME_LINK,
+    ...navCategories.map((cat) => ({
+      label: cat.name,
+      href: `/category/${cat.slug}`,
+    })),
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -104,7 +113,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -267,7 +276,7 @@ export default function Navbar() {
             className="lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 overflow-hidden"
           >
             <div className="px-4 py-3 space-y-1">
-              {NAV_LINKS.map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

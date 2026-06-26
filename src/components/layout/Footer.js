@@ -1,16 +1,6 @@
 import Link from 'next/link';
 import { FiTwitter, FiFacebook, FiInstagram, FiYoutube, FiLinkedin, FiMail, FiRss } from 'react-icons/fi';
-
-const CATEGORIES = [
-  { label: 'राजनीति', href: '/category/politics' },
-  { label: 'तकनीक', href: '/category/technology' },
-  { label: 'व्यापार', href: '/category/business' },
-  { label: 'विज्ञान', href: '/category/science' },
-  { label: 'खेल', href: '/category/sports' },
-  { label: 'मनोरंजन', href: '/category/entertainment' },
-  { label: 'स्वास्थ्य', href: '/category/health' },
-  { label: 'विश्व', href: '/category/world' },
-];
+import { FooterCategoryLinks } from '@/components/layout/CategoryNavLinks';
 
 const COMPANY_LINKS = [
   { label: 'हमारे बारे में', href: '/about' },
@@ -91,15 +81,7 @@ export default function Footer() {
           {/* Categories */}
           <div>
             <h4 className="font-bold text-white mb-4">श्रेणियाँ</h4>
-            <ul className="space-y-2">
-              {CATEGORIES.map((cat) => (
-                <li key={cat.href}>
-                  <Link href={cat.href} className="text-gray-400 hover:text-red-400 text-sm transition-colors">
-                    {cat.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <FooterCategoryLinks />
           </div>
 
           {/* Company */}

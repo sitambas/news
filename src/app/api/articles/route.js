@@ -4,6 +4,7 @@ import { getServerUser } from '@/lib/auth';
 import { errorResponse, paginatedResponse, successResponse } from '@/utils/apiResponse';
 import { isValidYouTubeUrl } from '@/utils/youtube';
 import mongoose from 'mongoose';
+import { resolveCategoryId } from '@/lib/categoryQueries';
 
 async function resolveReporterId(reporter) {
   if (!reporter) return null;
@@ -41,7 +42,13 @@ export async function GET(request) {
 
     const query = {};
     if (status !== 'all') query.status = status;
-    if (category) query.category = category;
+    if (category) {
+      const categoryId = await resolveCategoryId(category);
+      if (!categoryId) {
+        return paginatedResponse([], { page, limit, total: 0, pages: 0, hasNext: false, hasPrev: false });
+      }
+      query.category = categoryId;
+    }
     if (tag) query.tags = tag;
     if (author) query.author = author;
     if (reporter) query.reporter = reporter;
@@ -98,29 +105,11 @@ export async function POST(request) {
       return errorResponse('Invalid YouTube URL', 400);
     }
 
-    // Resolve category: accept MongoDB ID, English slug, Hindi name, or English name
-    const HINDI_CATEGORY_MAP = {
-      'राजनीति': 'politics',
-      'तकनीक': 'technology',
-      'व्यापार': 'business',
-      'विज्ञान': 'science',
-      'खेल': 'sports',
-      'मनोरंजन': 'entertainment',
-      'स्वास्थ्य': 'health',
-      'विश्व': 'world',
-    };
+    // Resolve category: accept MongoDB ID, slug, or Hindi name
     let categoryId = category;
     if (!mongoose.Types.ObjectId.isValid(category)) {
-      const Category = (await import('@/models/Category')).default;
-      const resolvedSlug = HINDI_CATEGORY_MAP[category] || category.toLowerCase();
-      const cat = await Category.findOne({
-        $or: [
-          { slug: resolvedSlug },
-          { name: { $regex: new RegExp(`^${resolvedSlug}$`, 'i') } },
-        ],
-      });
-      if (!cat) return errorResponse(`Category "${category}" not found`, 400);
-      categoryId = cat._id;
+      categoryId = await resolveCategoryId(category);
+      if (!categoryId) return errorResponse(`Category "${category}" not found`, 400);
     }
 
     let reporterId = null;

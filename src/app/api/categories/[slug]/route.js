@@ -2,12 +2,12 @@ import connectDB from '@/lib/db';
 import Category from '@/models/Category';
 import { getServerUser } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/utils/apiResponse';
+import { findCategoryBySlug, normalizeCategorySlug } from '@/lib/categoryQueries';
 
 export async function GET(request, { params }) {
   try {
-    await connectDB();
     const { slug } = await params;
-    const category = await Category.findOne({ slug }).lean();
+    const category = await findCategoryBySlug(slug);
     if (!category) return errorResponse('Category not found', 404);
     return successResponse(category);
   } catch (error) {
@@ -30,7 +30,8 @@ export async function PUT(request, { params }) {
       if (body[key] !== undefined) updates[key] = body[key];
     });
 
-    const category = await Category.findOneAndUpdate({ slug }, updates, { new: true, runValidators: true });
+    const lookupSlug = normalizeCategorySlug(slug);
+    const category = await Category.findOneAndUpdate({ slug: lookupSlug }, updates, { new: true, runValidators: true });
     if (!category) return errorResponse('Category not found', 404);
     return successResponse(category, 'Category updated');
   } catch (error) {
@@ -44,7 +45,7 @@ export async function DELETE(request, { params }) {
     if (!user || user.role !== 'admin') return errorResponse('Forbidden', 403);
     await connectDB();
     const { slug } = await params;
-    const category = await Category.findOneAndDelete({ slug });
+    const category = await Category.findOneAndDelete({ slug: normalizeCategorySlug(slug) });
     if (!category) return errorResponse('Category not found', 404);
     return successResponse(null, 'Category deleted');
   } catch (error) {

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { FiPlus, FiEdit, FiTrash2, FiEye, FiSearch, FiRefreshCw } from 'react-icons/fi';
 import { timeAgo, formatNumber } from '@/utils/helpers';
+import { getArticleBylineName } from '@/utils/reporter';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -161,7 +162,7 @@ export default function AdminArticlesPage() {
                     />
                   </th>
                   <th className="px-4 py-3 text-left font-medium">लेख</th>
-                  <th className="px-4 py-3 text-left font-medium hidden md:table-cell">लेखक</th>
+                  <th className="px-4 py-3 text-left font-medium hidden md:table-cell">रिपोर्टर</th>
                   <th className="px-4 py-3 text-left font-medium hidden sm:table-cell">श्रेणी</th>
                   <th className="px-4 py-3 text-left font-medium">स्थिति</th>
                   <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">दृश्य</th>
@@ -203,7 +204,7 @@ export default function AdminArticlesPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">{article.author?.name || '—'}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{getArticleBylineName(article) || '—'}</span>
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded font-medium">
