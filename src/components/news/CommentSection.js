@@ -1,15 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiMessageSquare, FiThumbsUp, FiCornerUpLeft, FiSend, FiTrash2 } from 'react-icons/fi';
 import { timeAgo } from '@/utils/helpers';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 function CommentItem({ comment, onReply, onDelete, currentUser }) {
-  const [showReplies, setShowReplies] = useState(true);
   const isOwner = currentUser?.id === comment.author?._id;
 
   return (
@@ -30,10 +29,10 @@ function CommentItem({ comment, onReply, onDelete, currentUser }) {
           <div className="bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-3">
             <div className="flex items-center gap-2 mb-1">
               <Link href={`/author/${comment.author?.username}`} className="font-semibold text-sm text-gray-900 dark:text-white hover:text-red-600">
-                {comment.author?.name || 'Anonymous'}
+                {comment.author?.name || 'अज्ञात'}
               </Link>
               <span className="text-xs text-gray-400">{timeAgo(comment.createdAt)}</span>
-              {comment.isEdited && <span className="text-xs text-gray-400">(edited)</span>}
+              {comment.isEdited && <span className="text-xs text-gray-400">(संपादित)</span>}
             </div>
             <p className="text-sm text-gray-700 dark:text-gray-300">{comment.content}</p>
           </div>
@@ -47,7 +46,7 @@ function CommentItem({ comment, onReply, onDelete, currentUser }) {
               className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-600 transition-colors"
             >
               <FiCornerUpLeft className="w-3 h-3" />
-              Reply
+              जवाब दें
             </button>
             {isOwner && (
               <button
@@ -61,7 +60,6 @@ function CommentItem({ comment, onReply, onDelete, currentUser }) {
         </div>
       </div>
 
-      {/* Replies */}
       {comment.replies?.length > 0 && (
         <div className="ml-11 mt-2 space-y-3 pl-3 border-l-2 border-gray-100 dark:border-gray-800">
           {comment.replies.map((reply) => (
@@ -88,43 +86,30 @@ export default function CommentSection({ articleId }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [replyTo, setReplyTo] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const { user, isAuthenticated } = useAuthStore();
 
-  // Sample comments for demo
-  const demoComments = [
-    {
-      _id: 'c1',
-      author: { name: 'राहुल शर्मा', username: 'rahulsharma', avatar: '' },
-      content: 'यह एक ऐतिहासिक क्षण है। सवाल यह है कि क्या देश वास्तव में अपनी प्रतिबद्धताओं को पूरा करेंगे।',
-      createdAt: new Date(Date.now() - 1000 * 60 * 15),
-      likeCount: 12,
-      replies: [
-        {
-          _id: 'r1',
-          author: { name: 'प्रिया पाटिल', username: 'priyapatil' },
-          content: 'बिल्कुल सही। पिछले रिकॉर्ड उत्साहजनक नहीं रहे, लेकिन इस बार सत्यापन तंत्र अधिक मजबूत लगता है।',
-          createdAt: new Date(Date.now() - 1000 * 60 * 10),
-        }
-      ],
-    },
-    {
-      _id: 'c2',
-      author: { name: 'अमित कुमार', username: 'amitkumar', avatar: '' },
-      content: '$2 ट्रिलियन जलवायु कोष इस समझौते का सबसे महत्वपूर्ण हिस्सा है। यह असली पैसा है जो वास्तविक बदलाव ला सकता है।',
-      createdAt: new Date(Date.now() - 1000 * 60 * 45),
-      likeCount: 8,
-      replies: [],
-    },
-  ];
+  useEffect(() => {
+    if (!articleId) {
+      setLoading(false);
+      return;
+    }
 
-  const displayComments = comments.length > 0 ? comments : demoComments;
+    setLoading(true);
+    fetch(`/api/comments?articleId=${articleId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setComments(data.data || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [articleId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated()) {
-      toast.error('Please login to comment');
+      toast.error('टिप्पणी के लिए लॉगिन करें');
       return;
     }
     if (!newComment.trim()) return;
@@ -142,7 +127,17 @@ export default function CommentSection({ articleId }) {
       });
       const data = await res.json();
       if (data.success) {
-        setComments((prev) => [data.data, ...prev]);
+        if (replyTo) {
+          setComments((prev) =>
+            prev.map((c) =>
+              c._id === replyTo._id
+                ? { ...c, replies: [...(c.replies || []), data.data] }
+                : c
+            )
+          );
+        } else {
+          setComments((prev) => [data.data, ...prev]);
+        }
         setNewComment('');
         setReplyTo(null);
         toast.success('टिप्पणी पोस्ट हुई!');
@@ -150,7 +145,7 @@ export default function CommentSection({ articleId }) {
         toast.error(data.message);
       }
     } catch {
-      toast.error('Failed to post comment');
+      toast.error('टिप्पणी पोस्ट करने में विफल');
     }
     setSubmitting(false);
   };
@@ -164,7 +159,7 @@ export default function CommentSection({ articleId }) {
         toast.success('टिप्पणी हटाई गई');
       }
     } catch {
-      toast.error('Failed to delete comment');
+      toast.error('टिप्पणी हटाने में विफल');
     }
   };
 
@@ -173,15 +168,14 @@ export default function CommentSection({ articleId }) {
       <div className="flex items-center gap-2 mb-6">
         <FiMessageSquare className="w-5 h-5 text-red-600" />
         <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-          टिप्पणियाँ ({displayComments.length})
+          टिप्पणियाँ ({comments.length})
         </h3>
       </div>
 
-      {/* Comment Form */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 mb-6">
         {replyTo && (
           <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm">
-            <span className="text-gray-500">Replying to</span>
+            <span className="text-gray-500">जवाब दें</span>
             <span className="font-semibold text-gray-900 dark:text-white">{replyTo.author?.name}</span>
             <button onClick={() => setReplyTo(null)} className="ml-auto text-gray-400 hover:text-red-600">✕</button>
           </div>
@@ -223,18 +217,23 @@ export default function CommentSection({ articleId }) {
         )}
       </div>
 
-      {/* Comment List */}
-      <div className="space-y-5">
-        {displayComments.map((comment) => (
-          <CommentItem
-            key={comment._id}
-            comment={comment}
-            onReply={setReplyTo}
-            onDelete={handleDelete}
-            currentUser={user}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <p className="text-sm text-gray-400 text-center py-6">टिप्पणियाँ लोड हो रही हैं...</p>
+      ) : comments.length > 0 ? (
+        <div className="space-y-5">
+          {comments.map((comment) => (
+            <CommentItem
+              key={comment._id}
+              comment={comment}
+              onReply={setReplyTo}
+              onDelete={handleDelete}
+              currentUser={user}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-gray-400 text-center py-6">अभी कोई टिप्पणी नहीं — पहली टिप्पणी करें</p>
+      )}
     </section>
   );
 }
