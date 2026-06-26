@@ -30,7 +30,8 @@ export async function POST(request) {
     }
 
     await connectDB();
-    const { name, slug, description, color, icon, image, parent, order, meta, isActive } = await request.json();
+    const body = await request.json();
+    const { name, slug, color, icon, image, parent, order, meta, isActive } = body;
 
     if (!name?.trim()) return errorResponse('Category name is required', 400);
 
@@ -43,15 +44,28 @@ export async function POST(request) {
       return errorResponse('Slug is required for Hindi names (e.g. politics, local-news)', 400);
     }
 
+    const description =
+      typeof body.description === 'string' && body.description.length > 500
+        ? body.description.slice(0, 500)
+        : (body.description || '');
+
     const category = await Category.create({
       name: name.trim(),
       slug: categorySlug,
-      description, color, icon, image, parent, order, meta, isActive,
+      description,
+      color,
+      icon,
+      image,
+      parent,
+      order,
+      meta,
+      isActive,
     });
-    return successResponse(category, 'Category created successfully', 201);
+    return successResponse(category, 'श्रेणी बनाई गई', 201);
   } catch (error) {
-    if (error.code === 11000) return errorResponse('Category already exists', 409);
+    if (error.code === 11000) return errorResponse('यह श्रेणी पहले से मौजूद है', 409);
     console.error('Category POST error:', error);
-    return errorResponse('Failed to create category', 500);
+    const msg = error?.name === 'ValidationError' ? 'विवरण बहुत लंबा है (अधिकतम 500 अक्षर)' : 'श्रेणी बनाने में विफल';
+    return errorResponse(msg, 500);
   }
 }

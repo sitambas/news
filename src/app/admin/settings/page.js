@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiSave, FiMessageSquare, FiRefreshCw } from 'react-icons/fi';
+import { FiSave, FiMessageSquare, FiRefreshCw, FiSmartphone } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
@@ -9,6 +9,7 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [commentsEnabled, setCommentsEnabled] = useState(false);
+  const [appDownloadEnabled, setAppDownloadEnabled] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -17,6 +18,7 @@ export default function AdminSettingsPage() {
       const data = await res.json();
       if (data.success) {
         setCommentsEnabled(data.data?.commentsEnabled === true);
+        setAppDownloadEnabled(data.data?.appDownloadEnabled === true);
       } else {
         toast.error(data.message || 'सेटिंग्स लोड करने में विफल');
       }
@@ -36,7 +38,7 @@ export default function AdminSettingsPage() {
       const res = await fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ commentsEnabled }),
+        body: JSON.stringify({ commentsEnabled, appDownloadEnabled }),
       });
       const data = await res.json();
       if (data.success) {
@@ -105,9 +107,44 @@ export default function AdminSettingsPage() {
           </button>
         </div>
 
-        <p className="text-xs text-gray-400">
-          स्थिति: <span className={commentsEnabled ? 'text-green-600' : 'text-gray-500'}>
-            {commentsEnabled ? 'टिप्पणियाँ चालू' : 'टिप्पणियाँ बंद (छिपी)'}
+        <div className="flex items-start justify-between gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+          <div className="flex gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 flex-shrink-0">
+              <FiSmartphone className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900 dark:text-white text-sm">ऐप डाउनलोड (Footer)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                चालू करने पर फ़ुटर में App Store और Google Play बटन दिखेंगे।
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAppDownloadEnabled((v) => !v)}
+            className={`w-11 h-6 rounded-full transition-colors relative flex-shrink-0 mt-1 ${
+              appDownloadEnabled ? 'bg-red-600' : 'bg-gray-300 dark:bg-gray-600'
+            }`}
+            aria-pressed={appDownloadEnabled}
+          >
+            <span
+              className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                appDownloadEnabled ? 'translate-x-5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </div>
+
+        <p className="text-xs text-gray-400 space-y-0.5">
+          <span className="block">
+            टिप्पणियाँ: <span className={commentsEnabled ? 'text-green-600' : 'text-gray-500'}>
+              {commentsEnabled ? 'चालू' : 'बंद (छिपी)'}
+            </span>
+          </span>
+          <span className="block">
+            ऐप डाउनलोड: <span className={appDownloadEnabled ? 'text-green-600' : 'text-gray-500'}>
+              {appDownloadEnabled ? 'चालू' : 'बंद (छिपा)'}
+            </span>
           </span>
         </p>
 

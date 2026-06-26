@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FiTwitter, FiFacebook, FiInstagram, FiYoutube, FiLinkedin, FiMail, FiRss } from 'react-icons/fi';
 import { FooterCategoryLinks } from '@/components/layout/CategoryNavLinks';
+import NewsletterForm from '@/components/pages/NewsletterForm';
 
 const COMPANY_LINKS = [
   { label: 'हमारे बारे में', href: '/about' },
@@ -17,7 +18,7 @@ const LEGAL_LINKS = [
   { label: 'साइटमैप', href: '/sitemap.xml' },
 ];
 
-export default function Footer() {
+export default function Footer({ appDownloadEnabled = false }) {
   return (
     <footer className="bg-gray-900 text-white">
       {/* Newsletter Section */}
@@ -28,16 +29,7 @@ export default function Footer() {
               <h3 className="text-lg font-bold">हमारे न्यूज़लेटर से जुड़े रहें</h3>
               <p className="text-red-100 text-sm">नवीनतम खबरें सीधे आपके इनबॉक्स में पाएं</p>
             </div>
-            <form className="flex gap-2 w-full md:w-auto">
-              <input
-                type="email"
-                placeholder="अपना ईमेल दर्ज करें"
-                className="flex-1 md:w-64 px-4 py-2 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-white"
-              />
-              <button className="px-4 py-2 bg-white text-red-600 font-semibold text-sm rounded-lg hover:bg-gray-100 transition-colors">
-                सदस्यता लें
-              </button>
-            </form>
+            <NewsletterForm compact />
           </div>
         </div>
       </div>
@@ -113,17 +105,19 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-            <div className="mt-6">
-              <h4 className="font-bold text-white mb-3 text-sm">ऐप डाउनलोड करें</h4>
-              <div className="flex flex-col gap-2">
-                <a href="#" className="px-3 py-2 bg-gray-800 rounded-lg text-xs text-gray-400 hover:bg-gray-700 transition-colors text-center">
-                  📱 App Store
-                </a>
-                <a href="#" className="px-3 py-2 bg-gray-800 rounded-lg text-xs text-gray-400 hover:bg-gray-700 transition-colors text-center">
-                  🤖 Google Play
-                </a>
+            {appDownloadEnabled && (
+              <div className="mt-6">
+                <h4 className="font-bold text-white mb-3 text-sm">ऐप डाउनलोड करें</h4>
+                <div className="flex flex-col gap-2">
+                  <a href="#" className="px-3 py-2 bg-gray-800 rounded-lg text-xs text-gray-400 hover:bg-gray-700 transition-colors text-center">
+                    📱 App Store
+                  </a>
+                  <a href="#" className="px-3 py-2 bg-gray-800 rounded-lg text-xs text-gray-400 hover:bg-gray-700 transition-colors text-center">
+                    🤖 Google Play
+                  </a>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

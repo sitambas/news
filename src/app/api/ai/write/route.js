@@ -3,7 +3,7 @@ import { errorResponse, successResponse } from '@/utils/apiResponse';
 
 const PROMPTS = {
   category_description: (ctx) =>
-    `आप CGFILE न्यूज़ वेबसाइट के लिए हिंदी में श्रेणी विवरण लिखें। श्रेणी का नाम: "${ctx.name || 'समाचार'}". स्लग: ${ctx.slug || 'news'}। केवल 1-2 वाक्य में संक्षिप्त, स्पष्ट हिंदी विवरण दें। कोई शीर्षक या बुलेट न दें।`,
+    `आप CGFILE न्यूज़ वेबसाइट के लिए हिंदी में श्रेणी विवरण लिखें। श्रेणी का नाम: "${ctx.name || 'समाचार'}". स्लग: ${ctx.slug || 'news'}। अधिकतम 250 अक्षर, 2 वाक्य। केवल विवरण टेक्स्ट दें।`,
 
   reporter_bio: (ctx) =>
     `CGFILE न्यूज़ के लिए रिपोर्टर का संक्षिप्त परिचय हिंदी में लिखें। नाम: "${ctx.name || 'रिपोर्टर'}". लोकेशन: ${ctx.locations?.length ? ctx.locations.join(', ') : 'भारत'}। 2-3 वाक्य, पेशेवर टोन। केवल विवरण टेक्स्ट दें।`,
@@ -18,35 +18,73 @@ const PROMPTS = {
     `CGFILE न्यूज़ के लिए पूरा समाचार लेख हिंदी में लिखें। शीर्षक: "${ctx.title || ''}". श्रेणी: ${ctx.category || 'सामान्य'}। लोकेशन: ${ctx.location || 'भारत'}। 4-6 पैराग्राफ, समाचार शैली। HTML टैग न दें — केवल सादा टेक्स्ट, पैराग्राफ खाली लाइन से अलग करें।`,
 };
 
+const GEMINI_MODELS = [
+  process.env.GEMINI_MODEL,
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-2.0-flash',
+].filter(Boolean);
+
+function geminiErrorMessage(status, body) {
+  try {
+    const parsed = JSON.parse(body);
+    const code = parsed?.error?.code;
+    const msg = parsed?.error?.message || '';
+    if (status === 429 || code === 429) {
+      return 'Gemini API कोटा समाप्त — कुछ मिनट बाद पुनः प्रयास करें या Google AI Studio में बिलिंग चालू करें';
+    }
+    if (status === 403 || code === 403) {
+      return 'Gemini API key अमान्य है — नई key बनाकर GEMINI_API_KEY अपडेट करें';
+    }
+    if (status === 503 || code === 503) {
+      return 'Gemini व्यस्त है — कुछ सेकंड बाद पुनः प्रयास करें';
+    }
+    if (msg) return `Gemini त्रुटि: ${msg.slice(0, 120)}`;
+  } catch {
+    /* ignore */
+  }
+  return `Gemini API विफल (HTTP ${status})`;
+}
+
 async function callGemini(prompt) {
   const key = process.env.GEMINI_API_KEY;
-  if (!key) return null;
+  if (!key) return { text: null, error: null };
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
-      }),
+  let lastError = null;
+
+  for (const model of GEMINI_MODELS) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.text();
+      lastError = geminiErrorMessage(res.status, err);
+      console.error(`Gemini error (${model}):`, err);
+      if (res.status === 429 || res.status === 503) continue;
+      return { text: null, error: lastError };
     }
-  );
 
-  if (!res.ok) {
-    const err = await res.text();
-    console.error('Gemini error:', err);
-    return null;
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+    if (text) return { text, error: null };
+    lastError = 'Gemini ने खाली जवाब दिया';
   }
 
-  const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+  return { text: null, error: lastError };
 }
 
 async function callOpenAI(prompt) {
   const key = process.env.OPENAI_API_KEY;
-  if (!key) return null;
+  if (!key) return { text: null, error: null };
 
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -68,17 +106,21 @@ async function callOpenAI(prompt) {
   if (!res.ok) {
     const err = await res.text();
     console.error('OpenAI error:', err);
-    return null;
+    return { text: null, error: 'OpenAI API विफल' };
   }
 
   const data = await res.json();
-  return data.choices?.[0]?.message?.content?.trim() || null;
+  return { text: data.choices?.[0]?.message?.content?.trim() || null, error: null };
 }
 
 async function generateText(prompt) {
-  let text = await callGemini(prompt);
-  if (!text) text = await callOpenAI(prompt);
-  return text;
+  const gemini = await callGemini(prompt);
+  if (gemini.text) return { text: gemini.text, error: null };
+
+  const openai = await callOpenAI(prompt);
+  if (openai.text) return { text: openai.text, error: null };
+
+  return { text: null, error: gemini.error || openai.error || 'AI से टेक्स्ट नहीं मिला' };
 }
 
 function plainToHtml(text) {
@@ -107,9 +149,9 @@ export async function POST(request) {
     }
 
     const prompt = promptFn(context);
-    const text = await generateText(prompt);
+    const { text, error } = await generateText(prompt);
     if (!text) {
-      return errorResponse('AI से टेक्स्ट नहीं मिला — कृपया पुनः प्रयास करें', 502);
+      return errorResponse(error || 'AI से टेक्स्ट नहीं मिला — कृपया पुनः प्रयास करें', 502);
     }
 
     const result = type === 'article_content'

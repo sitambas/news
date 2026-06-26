@@ -1,7 +1,7 @@
 import connectDB from '@/lib/db';
 import SiteSettings from '@/models/SiteSettings';
 
-const DEFAULTS = { commentsEnabled: false };
+const DEFAULTS = { commentsEnabled: false, appDownloadEnabled: false };
 
 export async function getSiteSettings() {
   await connectDB();
@@ -12,12 +12,13 @@ export async function getSiteSettings() {
   }
   return {
     commentsEnabled: settings.commentsEnabled ?? DEFAULTS.commentsEnabled,
+    appDownloadEnabled: settings.appDownloadEnabled ?? DEFAULTS.appDownloadEnabled,
   };
 }
 
 export async function updateSiteSettings(updates) {
   await connectDB();
-  const allowed = ['commentsEnabled'];
+  const allowed = ['commentsEnabled', 'appDownloadEnabled'];
   const patch = {};
   allowed.forEach((key) => {
     if (updates[key] !== undefined) patch[key] = updates[key];
@@ -31,5 +32,6 @@ export async function updateSiteSettings(updates) {
 
   return {
     commentsEnabled: settings.commentsEnabled ?? DEFAULTS.commentsEnabled,
+    appDownloadEnabled: settings.appDownloadEnabled ?? DEFAULTS.appDownloadEnabled,
   };
 }

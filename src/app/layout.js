@@ -8,6 +8,7 @@ import QueryProvider from '@/components/common/QueryProvider';
 import AuthInitializer from '@/components/common/AuthInitializer';
 import { IndicTypingProvider } from '@/components/ui/IndicTypingProvider';
 import GlobalIndicTyping from '@/components/ui/GlobalIndicTyping';
+import { getSiteSettings } from '@/lib/siteSettings';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -49,7 +50,9 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const { appDownloadEnabled } = await getSiteSettings();
+
   return (
     <html lang="hi" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen`}>
@@ -62,7 +65,7 @@ export default function RootLayout({ children }) {
             <main className="pt-[88px] min-h-screen">
               {children}
             </main>
-            <Footer />
+            <Footer appDownloadEnabled={appDownloadEnabled} />
             <Toaster
               position="top-right"
               toastOptions={{

@@ -99,9 +99,11 @@ function CategoryForm({ category, onSave, onCancel }) {
             value={form.description}
             onChange={(val) => update('description', val)}
             placeholder="राजनीतिक समाचार और विश्लेषण"
-            rows={2}
+            rows={3}
+            maxLength={500}
             className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
           />
+          <p className="text-right text-xs text-gray-400 mt-1">{(form.description || '').length}/500</p>
         </div>
         <div className="sm:col-span-2">
           <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
@@ -150,14 +152,24 @@ export default function AdminCategoriesPage() {
       return;
     }
 
+    const payload = {
+      name: form.name.trim(),
+      description: form.description || '',
+      color: form.color,
+      icon: form.icon,
+      order: form.order ?? 0,
+      isActive: form.isActive !== false,
+    };
+    if (!editing) payload.slug = form.slug;
+
     setSaving(true);
     try {
       const res = await fetch(
-        editing ? `/api/categories/${editing.slug}` : '/api/categories',
+        editing ? `/api/categories/${encodeURIComponent(editing.slug)}` : '/api/categories',
         {
           method: editing ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
+          body: JSON.stringify(payload),
         }
       );
       const data = await res.json();
@@ -178,7 +190,7 @@ export default function AdminCategoriesPage() {
   const handleDelete = async (category) => {
     if (!window.confirm(`क्या आप "${category.name}" हटाना चाहते हैं?`)) return;
     try {
-      const res = await fetch(`/api/categories/${category.slug}`, { method: 'DELETE' });
+      const res = await fetch(`/api/categories/${encodeURIComponent(category.slug)}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         toast.success('श्रेणी हटाई गई');
