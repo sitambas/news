@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { FiTwitter, FiFacebook, FiInstagram, FiYoutube, FiLinkedin, FiMail, FiRss } from 'react-icons/fi';
 import { FooterCategoryLinks } from '@/components/layout/CategoryNavLinks';
 import NewsletterForm from '@/components/pages/NewsletterForm';
+import { DEFAULT_YOUTUBE_CHANNEL_URL } from '@/constants/youtube';
 
 const COMPANY_LINKS = [
   { label: 'हमारे बारे में', href: '/about' },
@@ -53,7 +54,7 @@ export default function Footer({ appDownloadEnabled = false }) {
                 { icon: FiTwitter, href: 'https://twitter.com', label: 'Twitter' },
                 { icon: FiFacebook, href: 'https://facebook.com', label: 'Facebook' },
                 { icon: FiInstagram, href: 'https://instagram.com', label: 'Instagram' },
-                { icon: FiYoutube, href: 'https://youtube.com', label: 'YouTube' },
+                { icon: FiYoutube, href: DEFAULT_YOUTUBE_CHANNEL_URL, label: 'YouTube' },
                 { icon: FiLinkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
               ].map(({ icon: Icon, href, label }) => (
                 <a

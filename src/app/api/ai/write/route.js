@@ -15,7 +15,26 @@ const PROMPTS = {
     `SEO मेटा विवरण हिंदी में लिखें (अधिकतम 155 अक्षर)। लेख शीर्षक: "${ctx.title || ''}". सारांश: "${ctx.excerpt || ''}". केवल मेटा विवरण टेक्स्ट दें।`,
 
   article_content: (ctx) =>
-    `CGFILE न्यूज़ के लिए पूरा समाचार लेख हिंदी में लिखें। शीर्षक: "${ctx.title || ''}". श्रेणी: ${ctx.category || 'सामान्य'}। लोकेशन: ${ctx.location || 'भारत'}। 4-6 पैराग्राफ, समाचार शैली। HTML टैग न दें — केवल सादा टेक्स्ट, पैराग्राफ खाली लाइन से अलग करें।`,
+    `CGFILE न्यूज़ के लिए पूरा विस्तृत समाचार लेख हिंदी में लिखें।
+शीर्षक: "${ctx.title || ''}"
+श्रेणी: ${ctx.category || 'सामान्य'}
+लोकेशन: ${ctx.location || 'भारत'}
+${ctx.excerpt ? `सारांश संदर्भ: "${ctx.excerpt}"` : ''}
+
+आवश्यकताएँ:
+- कम से कम 800–1200 शब्द लिखें (लगभग 8–12 पैराग्राफ)
+- समाचार शैली: क्या हुआ, कहाँ, कब, क्यों, प्रभाव
+- शुरुआत में मुख्य खबर, फिर पृष्ठभूमि, आधिकारिक बयान/प्रतिक्रिया, और अंत में आगे की स्थिति
+- HTML टैग न दें — केवल सादा टेक्स्ट, पैराग्राफ खाली लाइन से अलग करें
+- केवल लेख टेक्स्ट दें, कोई शीर्षक/नोट/स्पष्टीकरण नहीं`,
+};
+
+const OUTPUT_LIMITS = {
+  category_description: 512,
+  reporter_bio: 512,
+  article_excerpt: 512,
+  article_meta: 256,
+  article_content: 4096,
 };
 
 const GEMINI_MODELS = [
@@ -46,7 +65,7 @@ function geminiErrorMessage(status, body) {
   return `Gemini API विफल (HTTP ${status})`;
 }
 
-async function callGemini(prompt) {
+async function callGemini(prompt, maxOutputTokens = 1024) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return { text: null, error: null };
 
@@ -60,7 +79,7 @@ async function callGemini(prompt) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+          generationConfig: { temperature: 0.7, maxOutputTokens },
         }),
       }
     );
@@ -82,7 +101,7 @@ async function callGemini(prompt) {
   return { text: null, error: lastError };
 }
 
-async function callOpenAI(prompt) {
+async function callOpenAI(prompt, maxTokens = 1024) {
   const key = process.env.OPENAI_API_KEY;
   if (!key) return { text: null, error: null };
 
@@ -99,7 +118,7 @@ async function callOpenAI(prompt) {
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
-      max_tokens: 1024,
+      max_tokens: maxTokens,
     }),
   });
 
@@ -113,11 +132,11 @@ async function callOpenAI(prompt) {
   return { text: data.choices?.[0]?.message?.content?.trim() || null, error: null };
 }
 
-async function generateText(prompt) {
-  const gemini = await callGemini(prompt);
+async function generateText(prompt, maxOutputTokens = 1024) {
+  const gemini = await callGemini(prompt, maxOutputTokens);
   if (gemini.text) return { text: gemini.text, error: null };
 
-  const openai = await callOpenAI(prompt);
+  const openai = await callOpenAI(prompt, maxOutputTokens);
   if (openai.text) return { text: openai.text, error: null };
 
   return { text: null, error: gemini.error || openai.error || 'AI से टेक्स्ट नहीं मिला' };
@@ -149,7 +168,8 @@ export async function POST(request) {
     }
 
     const prompt = promptFn(context);
-    const { text, error } = await generateText(prompt);
+    const maxOutputTokens = OUTPUT_LIMITS[type] || 1024;
+    const { text, error } = await generateText(prompt, maxOutputTokens);
     if (!text) {
       return errorResponse(error || 'AI से टेक्स्ट नहीं मिला — कृपया पुनः प्रयास करें', 502);
     }

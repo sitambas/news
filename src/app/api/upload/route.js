@@ -47,9 +47,10 @@ export async function POST(request) {
     if (file.type === 'image/gif') {
       await writeFile(filepath, buffer);
     } else {
-      // Optimize and resize using sharp
+      // Always produce a large cover so WhatsApp/Facebook can show big previews
       await sharp(buffer)
-        .resize(1200, 675, { fit: 'cover', withoutEnlargement: true })
+        .rotate()
+        .resize(1200, 675, { fit: 'cover' })
         .webp({ quality: 85 })
         .toFile(filepath);
     }

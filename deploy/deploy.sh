@@ -59,6 +59,8 @@ run_sync() {
     --exclude .git \
     --exclude keypair \
     --exclude '.env*' \
+    --exclude 'public/uploads' \
+    --exclude 'public/uploads/**' \
     -e "ssh ${SSH_OPTS[*]}" \
     "$PROJECT_ROOT/" "$REMOTE/"
 }
@@ -141,6 +143,8 @@ run_build_local() {
     --exclude .git \
     --exclude keypair \
     --exclude '.env*' \
+    --exclude 'public/uploads' \
+    --exclude 'public/uploads/**' \
     -e "ssh ${SSH_OPTS[*]}" \
     "$PROJECT_ROOT/" "$REMOTE/"
 

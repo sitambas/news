@@ -30,6 +30,29 @@ export function formatNumber(num) {
   return num?.toString() || '0';
 }
 
+/** Absolute site origin for Open Graph / WhatsApp previews */
+export function getSiteOrigin() {
+  return (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || 'https://cgfile.in').replace(/\/$/, '');
+}
+
+/**
+ * WhatsApp-friendly OG image URL (JPEG 1200x630).
+ * WebP / relative / small images often cause the small thumbnail preview.
+ */
+export function getOgImageUrl(coverImage, title = '') {
+  const origin = getSiteOrigin();
+  const params = new URLSearchParams();
+  if (title) params.set('title', String(title).slice(0, 120));
+  if (coverImage) {
+    const src = coverImage.startsWith('http')
+      ? coverImage
+      : `${origin}${coverImage.startsWith('/') ? '' : '/'}${coverImage}`;
+    params.set('src', src);
+  }
+  const qs = params.toString();
+  return `${origin}/api/og${qs ? `?${qs}` : ''}`;
+}
+
 export function generateShareUrls(url, title) {
   const encoded = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);

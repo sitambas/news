@@ -4,11 +4,11 @@ import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {
-  FiSave, FiSend, FiImage, FiUpload, FiX, FiLink, FiPlay
+  FiSave, FiSend, FiImage, FiUpload, FiX, FiLink
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import YouTubePlayer from '@/components/news/YouTubePlayer';
+import YouTubeVideoField from '@/components/admin/YouTubeVideoField';
 import { isValidYouTubeUrl } from '@/utils/youtube';
 import { getReporterLocations } from '@/utils/reporter';
 import IndicInput from '@/components/ui/IndicInput';
@@ -559,32 +559,12 @@ function ArticleEditor() {
             />
           </div>
 
-          {/* YouTube Video */}
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3 flex items-center gap-2">
-              <FiPlay className="w-4 h-4 text-red-600" />
-              YouTube वीडियो
-            </h3>
-            <input
-              type="url"
-              value={form.youtubeUrl}
-              onChange={(e) => update('youtubeUrl', e.target.value)}
-              placeholder="https://www.youtube.com/watch?v=..."
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-            <p className="text-xs text-gray-400 mt-2">
-              YouTube, youtu.be, Shorts या embed लिंक समर्थित हैं
-            </p>
-            {form.youtubeUrl.trim() && (
-              <div className="mt-3">
-                {isValidYouTubeUrl(form.youtubeUrl) ? (
-                  <YouTubePlayer url={form.youtubeUrl} title="YouTube preview" />
-                ) : (
-                  <p className="text-xs text-red-500">अमान्य YouTube URL</p>
-                )}
-              </div>
-            )}
-          </div>
+          <YouTubeVideoField
+            value={form.youtubeUrl}
+            onChange={(url) => update('youtubeUrl', url)}
+            articleTitle={form.title}
+            articleExcerpt={form.excerpt}
+          />
 
           {/* Category */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">

@@ -24,6 +24,11 @@ export function getYouTubeEmbedUrl(urlOrId) {
   return `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`;
 }
 
+export function getYouTubeWatchUrl(videoId) {
+  return `https://www.youtube.com/watch?v=${videoId}`;
+}
+
 export function isValidYouTubeUrl(url) {
   return Boolean(extractYouTubeId(url));
 }
+

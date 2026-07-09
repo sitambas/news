@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FiClock, FiEye, FiCalendar, FiTag, FiShare2, FiMapPin, FiUser } from 'react-icons/fi';
-import { formatDate, timeAgo, formatNumber } from '@/utils/helpers';
+import { formatDate, timeAgo, formatNumber, getOgImageUrl, getSiteOrigin } from '@/utils/helpers';
 import { getReporterName, getReporterId } from '@/utils/reporter';
 import ArticleActions from '@/components/news/ArticleActions';
 import CommentSection from '@/components/news/CommentSection';
@@ -86,23 +86,44 @@ export async function generateMetadata({ params }) {
     return { title: 'Article Not Found' };
   }
 
+  const origin = getSiteOrigin();
+  const pageUrl = `${origin}/news/${article.slug || slug}`;
+  const description = (article.meta?.description || article.excerpt || article.title || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
+  const ogImage = getOgImageUrl(article.coverImage, article.title);
+
   return {
     title: article.meta?.title || article.title,
-    description: article.meta?.description || article.excerpt,
+    description,
     keywords: article.meta?.keywords || article.tags,
+    alternates: { canonical: pageUrl },
     openGraph: {
       title: article.title,
-      description: article.excerpt,
-      images: article.coverImage ? [{ url: article.coverImage }] : [],
+      description,
+      url: pageUrl,
+      siteName: 'CGFILE',
+      locale: 'hi_IN',
       type: 'article',
       publishedTime: article.publishedAt,
-      authors: [article.author?.name],
+      authors: article.author?.name ? [article.author.name] : undefined,
+      images: [
+        {
+          url: ogImage,
+          secureUrl: ogImage,
+          width: 1200,
+          height: 630,
+          type: 'image/jpeg',
+          alt: article.coverImageAlt || article.title,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: article.title,
-      description: article.excerpt,
-      images: article.coverImage ? [article.coverImage] : [],
+      description,
+      images: [ogImage],
     },
   };
 }
