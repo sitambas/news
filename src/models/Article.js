@@ -11,6 +11,7 @@ const articleSchema = new mongoose.Schema(
     content: { type: String, required: true },
     coverImage: { type: String, default: '' },
     coverImageAlt: { type: String, default: '' },
+    coverImages: { type: [String], default: [] },
     youtubeUrl: { type: String, default: '' },
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
@@ -84,6 +85,16 @@ articleSchema.pre('save', async function () {
   if (this.isModified('status') && this.status === 'published' && !this.publishedAt) {
     this.publishedAt = new Date();
   }
+
+  // Keep coverImage (cards/OG) in sync with first gallery image
+  const images = Array.isArray(this.coverImages)
+    ? this.coverImages.filter((u) => typeof u === 'string' && u.trim())
+    : [];
+  if (this.coverImage && !images.includes(this.coverImage)) {
+    images.unshift(this.coverImage);
+  }
+  this.coverImages = [...new Set(images)].slice(0, 10);
+  this.coverImage = this.coverImages[0] || this.coverImage || '';
 });
 
 articleSchema.index({ slug: 1 });

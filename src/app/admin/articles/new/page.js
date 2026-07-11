@@ -53,6 +53,7 @@ function ArticleEditor() {
     tags: [],
     status: 'draft',
     coverImage: '',
+    coverImages: [],
     coverImageAlt: '',
     youtubeUrl: '',
     isBreaking: false,
@@ -103,6 +104,10 @@ function ArticleEditor() {
         const article = data.data;
         const text = (article.content || '').replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean);
 
+        const covers = Array.isArray(article.coverImages) && article.coverImages.length
+          ? article.coverImages.filter(Boolean)
+          : (article.coverImage ? [article.coverImage] : []);
+
         setForm({
           title: article.title || '',
           location: article.location || '',
@@ -112,7 +117,8 @@ function ArticleEditor() {
           category: article.category?.slug || '',
           tags: article.tags || [],
           status: article.status || 'draft',
-          coverImage: article.coverImage || '',
+          coverImage: covers[0] || '',
+          coverImages: covers,
           coverImageAlt: article.coverImageAlt || '',
           youtubeUrl: article.youtubeUrl || '',
           isBreaking: article.isBreaking || false,
@@ -127,7 +133,7 @@ function ArticleEditor() {
         });
         setWordCount(text.length);
         setReadingTime(article.readingTime || Math.ceil(text.length / 200));
-        if (article.coverImage?.startsWith('http')) setCoverTab('url');
+        if (covers[0]?.startsWith('http')) setCoverTab('url');
       })
       .catch(() => {
         toast.error('लेख लोड करने में विफल');
@@ -157,50 +163,113 @@ function ArticleEditor() {
     return options;
   })();
 
+  const MAX_COVER_IMAGES = 10;
+
+  const addCoverImages = useCallback((urls) => {
+    const incoming = (Array.isArray(urls) ? urls : [urls]).filter(Boolean);
+    setForm((p) => {
+      const unique = [...new Set([...(p.coverImages || []), ...incoming])].slice(0, MAX_COVER_IMAGES);
+      return {
+        ...p,
+        coverImages: unique,
+        coverImage: unique[0] || '',
+      };
+    });
+  }, []);
+
+  const removeCoverImage = useCallback((url) => {
+    setForm((p) => {
+      const unique = (p.coverImages || []).filter((u) => u !== url);
+      return {
+        ...p,
+        coverImages: unique,
+        coverImage: unique[0] || '',
+      };
+    });
+  }, []);
+
+  const makePrimaryCover = useCallback((url) => {
+    setForm((p) => {
+      const rest = (p.coverImages || []).filter((u) => u !== url);
+      const unique = [url, ...rest].filter(Boolean).slice(0, MAX_COVER_IMAGES);
+      return {
+        ...p,
+        coverImages: unique,
+        coverImage: unique[0] || '',
+      };
+    });
+  }, []);
+
   const uploadImage = useCallback(async (file) => {
-    if (!file) return;
+    if (!file) return null;
     if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
       toast.error('केवल JPG, PNG, WebP, GIF फ़ाइलें अनुमत हैं');
-      return;
+      return null;
     }
     if (file.size > 5 * 1024 * 1024) {
       toast.error('फ़ाइल 5MB से बड़ी नहीं होनी चाहिए');
+      return null;
+    }
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/api/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success) return data.url;
+    toast.error(data.message || 'अपलोड विफल');
+    return null;
+  }, []);
+
+  const uploadImages = useCallback(async (files) => {
+    const list = Array.from(files || []).filter(Boolean);
+    if (!list.length) return;
+
+    const room = MAX_COVER_IMAGES - (form.coverImages?.length || 0);
+    if (room <= 0) {
+      toast.error(`अधिकतम ${MAX_COVER_IMAGES} छवियाँ`);
       return;
     }
+
+    const toUpload = list.slice(0, room);
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data.success) {
-        update('coverImage', data.url);
-        toast.success('छवि अपलोड हो गई!');
-      } else {
-        toast.error(data.message || 'अपलोड विफल');
+      const urls = [];
+      for (const file of toUpload) {
+        const url = await uploadImage(file);
+        if (url) urls.push(url);
+      }
+      if (urls.length) {
+        addCoverImages(urls);
+        toast.success(`${urls.length} छवि अपलोड हो गई`);
+      }
+      if (list.length > room) {
+        toast.error(`केवल ${room} और छवियाँ जोड़ी जा सकती हैं`);
       }
     } catch {
       toast.error('अपलोड विफल हुआ');
     }
     setUploading(false);
-  }, []);
+  }, [addCoverImages, form.coverImages?.length, uploadImage]);
 
   const handleFileDrop = useCallback((e) => {
     e.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer?.files?.[0];
-    if (file) uploadImage(file);
-  }, [uploadImage]);
+    const files = e.dataTransfer?.files;
+    if (files?.length) uploadImages(files);
+  }, [uploadImages]);
 
   const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (file) uploadImage(file);
+    const files = e.target.files;
+    if (files?.length) uploadImages(files);
     e.target.value = '';
   };
 
   const generateAiCover = async () => {
     if (!form.title?.trim() && !aiCoverPrompt.trim()) {
       toast.error('शीर्षक या AI प्रॉम्प्ट लिखें');
+      return;
+    }
+    if ((form.coverImages?.length || 0) >= MAX_COVER_IMAGES) {
+      toast.error(`अधिकतम ${MAX_COVER_IMAGES} छवियाँ`);
       return;
     }
     setAiCoverLoading(true);
@@ -219,8 +288,8 @@ function ArticleEditor() {
       });
       const data = await res.json();
       if (data.success && data.data?.url) {
-        update('coverImage', data.data.url);
-        if (data.data.alt) update('coverImageAlt', data.data.alt);
+        addCoverImages(data.data.url);
+        if (data.data.alt && !form.coverImageAlt) update('coverImageAlt', data.data.alt);
         toast.success(data.message || 'AI कवर छवि बन गई');
       } else {
         toast.error(data.message || 'AI कवर बनाने में विफल');
@@ -484,26 +553,49 @@ function ArticleEditor() {
             </div>
           </div>
 
-          {/* Cover Image */}
+          {/* Cover Images */}
           <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3 flex items-center gap-2">
               <FiImage className="w-4 h-4 text-red-600" />
-              कवर छवि
+              कवर छवियाँ
+              <span className="ml-auto text-[11px] font-normal text-gray-400">
+                {(form.coverImages?.length || 0)}/{MAX_COVER_IMAGES}
+              </span>
             </h3>
 
-            {/* Preview */}
-            {form.coverImage && (
-              <div className="relative aspect-video rounded-lg overflow-hidden mb-3 bg-gray-100 dark:bg-gray-800">
-                <img src={form.coverImage} alt="Cover preview" className="w-full h-full object-cover" />
-                <button
-                  onClick={() => update('coverImage', '')}
-                  className="absolute top-2 right-2 w-7 h-7 bg-black/70 hover:bg-black text-white rounded-full flex items-center justify-center transition-colors"
-                >
-                  <FiX className="w-3.5 h-3.5" />
-                </button>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                  <p className="text-white text-xs truncate">{form.coverImage.split('/').pop()}</p>
-                </div>
+            {/* Gallery preview */}
+            {(form.coverImages?.length > 0) && (
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                {form.coverImages.map((src, i) => (
+                  <div key={`${src}-${i}`} className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={`Cover ${i + 1}`} className="w-full h-full object-cover" />
+                    {i === 0 && (
+                      <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-red-600 text-white text-[10px] font-medium">
+                        मुख्य
+                      </span>
+                    )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
+                      {i !== 0 && (
+                        <button
+                          type="button"
+                          onClick={() => makePrimaryCover(src)}
+                          className="px-1.5 py-1 rounded bg-white/90 text-[10px] text-gray-800"
+                          title="मुख्य बनाएँ"
+                        >
+                          मुख्य
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeCoverImage(src)}
+                        className="w-7 h-7 bg-black/70 hover:bg-black text-white rounded-full flex items-center justify-center"
+                      >
+                        <FiX className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -563,6 +655,7 @@ function ArticleEditor() {
                   ref={fileInputRef}
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif"
+                  multiple
                   onChange={handleFileSelect}
                   className="hidden"
                 />
@@ -578,31 +671,65 @@ function ArticleEditor() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        क्लिक करें या यहाँ खींचें
+                        कई फ़ाइलें चुनें / खींचें
                       </p>
                       <p className="text-xs text-gray-400 mt-0.5">
-                        JPG, PNG, WebP, GIF • अधिकतम 5MB
+                        JPG, PNG, WebP, GIF • अधिकतम 5MB प्रत्येक
                       </p>
                       <p className="text-xs text-gray-400">
-                        1200×675px में optimize होगी
+                        अधिकतम {MAX_COVER_IMAGES} छवियाँ
                       </p>
                     </div>
                   </div>
                 )}
               </div>
             ) : coverTab === 'url' ? (
-              <input
-                type="url"
-                value={form.coverImage}
-                onChange={(e) => update('coverImage', e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
+              <div className="space-y-2">
+                <input
+                  type="url"
+                  id="cover-url-input"
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const val = e.currentTarget.value.trim();
+                      if (!val) return;
+                      if ((form.coverImages?.length || 0) >= MAX_COVER_IMAGES) {
+                        toast.error(`अधिकतम ${MAX_COVER_IMAGES} छवियाँ`);
+                        return;
+                      }
+                      addCoverImages(val);
+                      e.currentTarget.value = '';
+                      toast.success('URL जोड़ दिया');
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('cover-url-input');
+                    const val = el?.value?.trim();
+                    if (!val) {
+                      toast.error('URL लिखें');
+                      return;
+                    }
+                    if ((form.coverImages?.length || 0) >= MAX_COVER_IMAGES) {
+                      toast.error(`अधिकतम ${MAX_COVER_IMAGES} छवियाँ`);
+                      return;
+                    }
+                    addCoverImages(val);
+                    if (el) el.value = '';
+                    toast.success('URL जोड़ दिया');
+                  }}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  URL जोड़ें
+                </button>
+              </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                  सीन/दृश्य लिखें (जगह + स्थिति)। खाली छोड़ने पर शीर्षक से बनेगा — लेकिन सीन प्रॉम्प्ट बेहतर है।
-                </p>
+               
 
                 <div>
                   <label className="block text-[11px] font-medium text-gray-600 dark:text-gray-400 mb-1">
@@ -617,9 +744,7 @@ function ArticleEditor() {
                     className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
                   />
                 
-                  <p className="text-[10px] text-gray-400 mt-1">
-                    टिप: जगह + वस्तुएँ लिखें। सिर्फ &quot;व्यक्ति&quot;/&quot;आदमी&quot; लिखने से पोर्ट्रेट आ सकता है।
-                  </p>
+               
                   <p className="text-[10px] text-gray-400 text-right">{aiCoverPrompt.length}/500</p>
                 </div>
 

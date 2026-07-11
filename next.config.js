@@ -11,7 +11,10 @@ const nextConfig = {
     ],
   },
   experimental: {
-    serverActions: { allowedOrigins: ['localhost:3000'] },
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'cgfile.in', 'www.cgfile.in'],
+      bodySizeLimit: '512mb',
+    },
   },
   async rewrites() {
     return [

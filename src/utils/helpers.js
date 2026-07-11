@@ -53,6 +53,24 @@ export function getOgImageUrl(coverImage, title = '') {
   return `${origin}/api/og${qs ? `?${qs}` : ''}`;
 }
 
+/** Normalize cover gallery; first image is primary coverImage. Max 10. */
+export function normalizeCoverImages(coverImages, coverImage = '') {
+  const list = [];
+  if (Array.isArray(coverImages)) {
+    coverImages.forEach((u) => {
+      if (typeof u === 'string' && u.trim()) list.push(u.trim());
+    });
+  }
+  if (coverImage && typeof coverImage === 'string' && coverImage.trim()) {
+    list.unshift(coverImage.trim());
+  }
+  const unique = [...new Set(list)].slice(0, 10);
+  return {
+    coverImages: unique,
+    coverImage: unique[0] || '',
+  };
+}
+
 export function generateShareUrls(url, title) {
   const encoded = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);

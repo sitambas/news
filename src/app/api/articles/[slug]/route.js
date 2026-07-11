@@ -5,6 +5,7 @@ import { getServerUser } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/utils/apiResponse';
 import { isValidYouTubeUrl } from '@/utils/youtube';
 import mongoose from 'mongoose';
+import { normalizeCoverImages } from '@/utils/helpers';
 
 const HINDI_CATEGORY_MAP = {
   'राजनीति': 'politics',
@@ -100,7 +101,7 @@ export async function PUT(request, { params }) {
     if (!isOwner && !isAdmin) return errorResponse('Forbidden', 403);
 
     const allowedFields = ['title', 'content', 'excerpt', 'category', 'tags', 'status',
-      'coverImage', 'coverImageAlt', 'youtubeUrl', 'location',
+      'coverImage', 'coverImageAlt', 'coverImages', 'youtubeUrl', 'location',
       'isBreaking', 'isFeatured', 'isTrending',
       'allowComments', 'meta', 'scheduledAt', 'relatedArticles', 'aiSummary'];
 
@@ -135,8 +136,18 @@ export async function PUT(request, { params }) {
           .slice(0, 2000);
         return;
       }
+      if (field === 'coverImages' || field === 'coverImage') return;
       article[field] = body[field];
     });
+
+    if (body.coverImages !== undefined || body.coverImage !== undefined) {
+      const covers = normalizeCoverImages(
+        body.coverImages !== undefined ? body.coverImages : article.coverImages,
+        body.coverImage !== undefined ? body.coverImage : article.coverImage
+      );
+      article.coverImages = covers.coverImages;
+      article.coverImage = covers.coverImage;
+    }
 
     await article.save();
     await article.populate('author', 'name username avatar');

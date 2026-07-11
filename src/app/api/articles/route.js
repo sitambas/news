@@ -5,6 +5,7 @@ import { errorResponse, paginatedResponse, successResponse } from '@/utils/apiRe
 import { isValidYouTubeUrl } from '@/utils/youtube';
 import mongoose from 'mongoose';
 import { resolveCategoryId } from '@/lib/categoryQueries';
+import { normalizeCoverImages } from '@/utils/helpers';
 
 const EXCERPT_MAX = 2000;
 
@@ -112,7 +113,7 @@ export async function POST(request) {
 
     await connectDB();
     const body = await request.json();
-    const { title, content, excerpt, category, tags, status, coverImage, coverImageAlt, youtubeUrl,
+    const { title, content, excerpt, category, tags, status, coverImage, coverImageAlt, coverImages, youtubeUrl,
       location, reporter,
       isBreaking, isFeatured, isTrending, allowComments, meta, scheduledAt } = body;
 
@@ -137,6 +138,8 @@ export async function POST(request) {
       if (!reporterId) return errorResponse('Reporter not found', 400);
     }
 
+    const covers = normalizeCoverImages(coverImages, coverImage);
+
     const article = await Article.create({
       title,
       content,
@@ -144,7 +147,8 @@ export async function POST(request) {
       category: categoryId,
       tags: tags || [],
       status: status || 'draft',
-      coverImage,
+      coverImage: covers.coverImage,
+      coverImages: covers.coverImages,
       coverImageAlt,
       youtubeUrl: youtubeUrl || '',
       location: location || '',

@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { FiClock, FiEye, FiCalendar, FiTag, FiShare2, FiMapPin, FiUser } from 'react-icons/fi';
 import { formatDate, timeAgo, formatNumber, getOgImageUrl, getSiteOrigin } from '@/utils/helpers';
@@ -9,6 +8,7 @@ import CommentSection from '@/components/news/CommentSection';
 import RelatedArticles from '@/components/news/RelatedArticles';
 import ShareButtons from '@/components/news/ShareButtons';
 import YouTubePlayer from '@/components/news/YouTubePlayer';
+import ArticleImageGallery from '@/components/news/ArticleImageGallery';
 import Sidebar from '@/components/layout/Sidebar';
 import { getSiteSettings } from '@/lib/siteSettings';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
@@ -244,23 +244,8 @@ export default async function ArticlePage({ params }) {
               </div>
             )}
 
-            {/* Cover Image */}
-            {article.coverImage && (
-              <div className="relative aspect-[16/9] rounded-xl overflow-hidden mb-8">
-                <Image
-                  src={article.coverImage}
-                  alt={article.coverImageAlt || article.title}
-                  fill
-                  priority
-                  className="object-cover"
-                />
-                {article.coverImageAlt && (
-                  <p className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2 text-center">
-                    {article.coverImageAlt}
-                  </p>
-                )}
-              </div>
-            )}
+            {/* Cover Images */}
+            <ArticleImageGallery article={article} />
 
             {/* YouTube Video */}
             {article.youtubeUrl && (
