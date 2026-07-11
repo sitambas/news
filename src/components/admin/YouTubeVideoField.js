@@ -244,10 +244,7 @@ export default function YouTubeVideoField({
         </>
       ) : (
         <div className="space-y-3">
-          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-            वीडियो चुनें, फिर Title / Description भरें (YouTube Studio जैसा)।
-          </p>
-
+         
           <input
             ref={fileInputRef}
             type="file"
@@ -346,24 +343,7 @@ export default function YouTubeVideoField({
                   </select>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    type="button"
-                    disabled={uploading || !articleTitle}
-                    onClick={() => setVideoTitle(articleTitle.slice(0, 100))}
-                    className="px-2 py-1 rounded-md text-[10px] border border-gray-200 dark:border-gray-700 text-gray-500 hover:border-red-400 disabled:opacity-40"
-                  >
-                    लेख शीर्षक भरें
-                  </button>
-                  <button
-                    type="button"
-                    disabled={uploading || !articleExcerpt}
-                    onClick={() => setVideoDescription(articleExcerpt.slice(0, 5000))}
-                    className="px-2 py-1 rounded-md text-[10px] border border-gray-200 dark:border-gray-700 text-gray-500 hover:border-red-400 disabled:opacity-40"
-                  >
-                    लेख सारांश भरें
-                  </button>
-                </div>
+               
               </div>
             </div>
           )}
