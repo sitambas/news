@@ -8,34 +8,43 @@ const PROMPTS = {
   reporter_bio: (ctx) =>
     `CGFILE न्यूज़ के लिए रिपोर्टर का संक्षिप्त परिचय हिंदी में लिखें। नाम: "${ctx.name || 'रिपोर्टर'}". लोकेशन: ${ctx.locations?.length ? ctx.locations.join(', ') : 'भारत'}। 2-3 वाक्य, पेशेवर टोन। केवल विवरण टेक्स्ट दें।`,
 
-  article_excerpt: (ctx) =>
-    `CGFILE न्यूज़ लेख का संक्षिप्त सारांश (excerpt) हिंदी में लिखें। शीर्षक: "${ctx.title || ''}". श्रेणी: ${ctx.category || 'सामान्य'}। अधिकतम 2-3 वाक्य, 200 शब्द से कम। केवल सारांश टेक्स्ट दें।`,
+  article_excerpt: (ctx) => {
+    const words = Math.min(120, Math.max(40, Number(ctx.wordCount) || 60));
+    return `CGFILE न्यूज़ लेख का बहुत छोटा सारांश (excerpt) हिंदी में लिखें। शीर्षक: "${ctx.title || ''}". श्रेणी: ${ctx.category || 'सामान्य'}। लगभग ${words} शब्द, अधिकतम 2 वाक्य। Markdown/HTML न दें। केवल सादा सारांश टेक्स्ट दें।`;
+  },
 
   article_meta: (ctx) =>
     `SEO मेटा विवरण हिंदी में लिखें (अधिकतम 155 अक्षर)। लेख शीर्षक: "${ctx.title || ''}". सारांश: "${ctx.excerpt || ''}". केवल मेटा विवरण टेक्स्ट दें।`,
 
-  article_content: (ctx) =>
-    `CGFILE न्यूज़ के लिए पूरा विस्तृत समाचार लेख हिंदी में लिखें।
+  article_content: (ctx) => {
+    const words = Math.min(2000, Math.max(100, Number(ctx.wordCount) || 800));
+    const paragraphs = Math.max(3, Math.round(words / 100));
+    return `CGFILE न्यूज़ के लिए पूरा समाचार लेख हिंदी में लिखें।
 शीर्षक: "${ctx.title || ''}"
 श्रेणी: ${ctx.category || 'सामान्य'}
 लोकेशन: ${ctx.location || 'भारत'}
 ${ctx.excerpt ? `सारांश संदर्भ: "${ctx.excerpt}"` : ''}
 
 आवश्यकताएँ:
-- कम से कम 800–1200 शब्द लिखें (लगभग 8–12 पैराग्राफ)
+- लगभग ${words} शब्द लिखें (लगभग ${paragraphs} पैराग्राफ)
+- शब्द संख्या ${Math.round(words * 0.9)} से ${Math.round(words * 1.1)} के बीच रखें
 - समाचार शैली: क्या हुआ, कहाँ, कब, क्यों, प्रभाव
 - शुरुआत में मुख्य खबर, फिर पृष्ठभूमि, आधिकारिक बयान/प्रतिक्रिया, और अंत में आगे की स्थिति
 - HTML टैग न दें — केवल सादा टेक्स्ट, पैराग्राफ खाली लाइन से अलग करें
-- केवल लेख टेक्स्ट दें, कोई शीर्षक/नोट/स्पष्टीकरण नहीं`,
+- केवल लेख टेक्स्ट दें, कोई शीर्षक/नोट/स्पष्टीकरण नहीं`;
+  },
 };
 
-const OUTPUT_LIMITS = {
-  category_description: 512,
-  reporter_bio: 512,
-  article_excerpt: 512,
-  article_meta: 256,
-  article_content: 4096,
-};
+function getOutputLimit(type, wordCount) {
+  if (type === 'article_content') {
+    const words = Math.min(2000, Math.max(100, Number(wordCount) || 800));
+    // Hindi needs more tokens per word; keep headroom
+    return Math.min(8192, Math.max(1024, Math.round(words * 3.5)));
+  }
+  if (type === 'article_excerpt') return 512;
+  if (type === 'article_meta') return 256;
+  return 512;
+}
 
 const GEMINI_MODELS = [
   process.env.GEMINI_MODEL,
@@ -168,7 +177,7 @@ export async function POST(request) {
     }
 
     const prompt = promptFn(context);
-    const maxOutputTokens = OUTPUT_LIMITS[type] || 1024;
+    const maxOutputTokens = getOutputLimit(type, context.wordCount);
     const { text, error } = await generateText(prompt, maxOutputTokens);
     if (!text) {
       return errorResponse(error || 'AI से टेक्स्ट नहीं मिला — कृपया पुनः प्रयास करें', 502);

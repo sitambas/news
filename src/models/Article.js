@@ -7,7 +7,7 @@ const articleSchema = new mongoose.Schema(
     slug: { type: String, unique: true, lowercase: true },
     location: { type: String, default: '', trim: true, maxlength: 100 },
     reporter: { type: mongoose.Schema.Types.ObjectId, ref: 'Reporter', default: null },
-    excerpt: { type: String, maxlength: 500, default: '' },
+    excerpt: { type: String, maxlength: 2000, default: '' },
     content: { type: String, required: true },
     coverImage: { type: String, default: '' },
     coverImageAlt: { type: String, default: '' },

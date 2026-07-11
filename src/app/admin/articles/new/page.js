@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {
-  FiSave, FiSend, FiImage, FiUpload, FiX, FiLink
+  FiSave, FiSend, FiImage, FiUpload, FiX, FiLink, FiZap
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -38,7 +38,10 @@ function ArticleEditor() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [coverTab, setCoverTab] = useState('upload'); // 'upload' | 'url'
+  const [coverTab, setCoverTab] = useState('upload'); // 'upload' | 'url' | 'ai'
+  const [aiCoverLoading, setAiCoverLoading] = useState(false);
+  const [aiCoverStyle, setAiCoverStyle] = useState('news');
+  const [aiCoverPrompt, setAiCoverPrompt] = useState('');
   const fileInputRef = useRef(null);
   const [form, setForm] = useState({
     title: '',
@@ -193,6 +196,39 @@ function ArticleEditor() {
     const file = e.target.files?.[0];
     if (file) uploadImage(file);
     e.target.value = '';
+  };
+
+  const generateAiCover = async () => {
+    if (!form.title?.trim() && !aiCoverPrompt.trim()) {
+      toast.error('शीर्षक या AI प्रॉम्प्ट लिखें');
+      return;
+    }
+    setAiCoverLoading(true);
+    try {
+      const res = await fetch('/api/ai/cover', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: form.title,
+          excerpt: form.excerpt,
+          location: form.location,
+          category: form.category,
+          style: aiCoverStyle,
+          prompt: aiCoverPrompt.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        update('coverImage', data.data.url);
+        if (data.data.alt) update('coverImageAlt', data.data.alt);
+        toast.success(data.message || 'AI कवर छवि बन गई');
+      } else {
+        toast.error(data.message || 'AI कवर बनाने में विफल');
+      }
+    } catch {
+      toast.error('AI कवर सेवा उपलब्ध नहीं है');
+    }
+    setAiCoverLoading(false);
   };
 
   const handleContentChange = (content) => {
@@ -381,10 +417,10 @@ function ArticleEditor() {
               onChange={(val) => update('excerpt', val)}
               placeholder="लेख का संक्षिप्त सारांश..."
               rows={2}
-              maxLength={500}
+              maxLength={2000}
               className="w-full text-sm text-gray-700 dark:text-gray-300 bg-transparent border-0 focus:outline-none placeholder-gray-400 resize-none"
             />
-            <div className="text-right text-xs text-gray-400">{form.excerpt.length}/500</div>
+            <div className="text-right text-xs text-gray-400">{form.excerpt.length}/2000</div>
           </div>
 
           {/* Rich Text Editor */}
@@ -474,6 +510,7 @@ function ArticleEditor() {
             {/* Tabs */}
             <div className="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden mb-3">
               <button
+                type="button"
                 onClick={() => setCoverTab('upload')}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${
                   coverTab === 'upload'
@@ -482,9 +519,10 @@ function ArticleEditor() {
                 }`}
               >
                 <FiUpload className="w-3.5 h-3.5" />
-                फ़ाइल अपलोड
+                फ़ाइल
               </button>
               <button
+                type="button"
                 onClick={() => setCoverTab('url')}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${
                   coverTab === 'url'
@@ -493,7 +531,19 @@ function ArticleEditor() {
                 }`}
               >
                 <FiLink className="w-3.5 h-3.5" />
-                URL लिंक
+                URL
+              </button>
+              <button
+                type="button"
+                onClick={() => setCoverTab('ai')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${
+                  coverTab === 'ai'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              >
+                <FiZap className="w-3.5 h-3.5" />
+                AI
               </button>
             </div>
 
@@ -540,7 +590,7 @@ function ArticleEditor() {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : coverTab === 'url' ? (
               <input
                 type="url"
                 value={form.coverImage}
@@ -548,6 +598,66 @@ function ArticleEditor() {
                 placeholder="https://example.com/image.jpg"
                 className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                  सीन/दृश्य लिखें (जगह + स्थिति)। खाली छोड़ने पर शीर्षक से बनेगा — लेकिन सीन प्रॉम्प्ट बेहतर है।
+                </p>
+
+                <div>
+                  <label className="block text-[11px] font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    सीन प्रॉम्प्ट (जगह / स्थिति)
+                  </label>
+                  <textarea
+                    value={aiCoverPrompt}
+                    onChange={(e) => setAiCoverPrompt(e.target.value)}
+                    rows={3}
+                    maxLength={500}
+                    placeholder="उदा: मनेन्द्रगढ़ में सूखी नदी का बिस्तर, टूटी पाइपलाइन, बाल्टी लेकर खड़े लोग दूर से, दिन का उजाला, कोई क्लोज-अप फेस नहीं"
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                  />
+                
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    टिप: जगह + वस्तुएँ लिखें। सिर्फ &quot;व्यक्ति&quot;/&quot;आदमी&quot; लिखने से पोर्ट्रेट आ सकता है।
+                  </p>
+                  <p className="text-[10px] text-gray-400 text-right">{aiCoverPrompt.length}/500</p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: 'news', label: 'न्यूज़ फोटो' },
+                    { id: 'photo', label: 'रियल फोटो' }
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setAiCoverStyle(s.id)}
+                      className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${
+                        aiCoverStyle === s.id
+                          ? 'bg-violet-600 text-white border-violet-600'
+                          : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={generateAiCover}
+                  disabled={aiCoverLoading || (!form.title?.trim() && !aiCoverPrompt.trim())}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                >
+                  <FiZap className={`w-4 h-4 ${aiCoverLoading ? 'animate-pulse' : ''}`} />
+                  {aiCoverLoading ? 'AI बना रहा है...' : 'AI से कवर बनाएँ'}
+                </button>
+                <p className="text-[11px] text-gray-400 leading-relaxed">
+                  सीन प्रॉम्प्ट होने पर: Pollinations → Gemini → HF (पोर्ट्रेट कम)
+                </p>
+                {!form.title?.trim() && !aiCoverPrompt.trim() && (
+                  <p className="text-[11px] text-amber-600">शीर्षक या प्रॉम्प्ट लिखें</p>
+                )}
+              </div>
             )}
 
             <input

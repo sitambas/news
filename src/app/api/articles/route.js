@@ -6,6 +6,25 @@ import { isValidYouTubeUrl } from '@/utils/youtube';
 import mongoose from 'mongoose';
 import { resolveCategoryId } from '@/lib/categoryQueries';
 
+const EXCERPT_MAX = 2000;
+
+function sanitizeExcerpt(value) {
+  if (!value) return '';
+  return String(value)
+    .replace(/[*_#>`]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, EXCERPT_MAX);
+}
+
+function validationMessage(error) {
+  if (error?.name === 'ValidationError') {
+    const first = Object.values(error.errors || {})[0];
+    return first?.message || 'लेख डेटा अमान्य है';
+  }
+  return null;
+}
+
 async function resolveReporterId(reporter) {
   if (!reporter) return null;
   if (!mongoose.Types.ObjectId.isValid(reporter)) {
@@ -119,12 +138,24 @@ export async function POST(request) {
     }
 
     const article = await Article.create({
-      title, content, excerpt, category: categoryId, tags: tags || [],
-      status: status || 'draft', coverImage, coverImageAlt, youtubeUrl: youtubeUrl || '',
-      location: location || '', reporter: reporterId,
-      isBreaking: isBreaking || false, isFeatured: isFeatured || false,
-      isTrending: isTrending || false, allowComments: allowComments !== false,
-      meta: meta || {}, scheduledAt, author: user.id,
+      title,
+      content,
+      excerpt: sanitizeExcerpt(excerpt),
+      category: categoryId,
+      tags: tags || [],
+      status: status || 'draft',
+      coverImage,
+      coverImageAlt,
+      youtubeUrl: youtubeUrl || '',
+      location: location || '',
+      reporter: reporterId,
+      isBreaking: isBreaking || false,
+      isFeatured: isFeatured || false,
+      isTrending: isTrending || false,
+      allowComments: allowComments !== false,
+      meta: meta || {},
+      scheduledAt,
+      author: user.id,
     });
 
     await article.populate('author', 'name username avatar');
@@ -134,6 +165,6 @@ export async function POST(request) {
     return successResponse(article, 'Article created successfully', 201);
   } catch (error) {
     console.error('Articles POST error:', error);
-    return errorResponse('Failed to create article', 500);
+    return errorResponse(validationMessage(error) || 'Failed to create article', 500);
   }
 }

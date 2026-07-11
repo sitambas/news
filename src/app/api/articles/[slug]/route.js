@@ -126,7 +126,16 @@ export async function PUT(request, { params }) {
 
     allowedFields.forEach((field) => {
       if (field === 'category') return;
-      if (body[field] !== undefined) article[field] = body[field];
+      if (body[field] === undefined) return;
+      if (field === 'excerpt') {
+        article.excerpt = String(body.excerpt || '')
+          .replace(/[*_#>`]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 2000);
+        return;
+      }
+      article[field] = body[field];
     });
 
     await article.save();
@@ -137,7 +146,11 @@ export async function PUT(request, { params }) {
     return successResponse(article, 'Article updated successfully');
   } catch (error) {
     console.error('Article PUT error:', error);
-    return errorResponse('Failed to update article', 500);
+    const msg =
+      error?.name === 'ValidationError'
+        ? Object.values(error.errors || {})[0]?.message || 'लेख डेटा अमान्य है'
+        : 'Failed to update article';
+    return errorResponse(msg, 500);
   }
 }
 
