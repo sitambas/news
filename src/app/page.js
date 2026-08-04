@@ -6,6 +6,9 @@ import TrendingSection from '@/components/news/TrendingSection';
 import CategoryNewsSection from '@/components/news/CategoryNewsSection';
 import Sidebar from '@/components/layout/Sidebar';
 import SkeletonCard from '@/components/ui/SkeletonCard';
+import AdSlot from '@/components/ads/AdSlot';
+import { pickAdsConfig } from '@/lib/ads';
+import { getSiteSettings } from '@/lib/siteSettings';
 export const metadata = {
   title: 'CGFILE - Breaking News & Latest Stories',
   description: 'Stay up to date with the latest breaking news, world events, technology, business, sports, and more.',
@@ -40,8 +43,13 @@ async function getCategories() {
 }
 
 export default async function HomePage() {
-  const [articles, categories] = await Promise.all([getArticles(), getCategories()]);
+  const [articles, categories, settings] = await Promise.all([
+    getArticles(),
+    getCategories(),
+    getSiteSettings(),
+  ]);
   const featuredCategories = categories.slice(0, 2);
+  const ads = pickAdsConfig(settings);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -50,6 +58,17 @@ export default async function HomePage() {
 
       {/* Hero Section */}
       <HeroSection articles={articles} />
+
+      {/* Header ad */}
+      {ads?.adsEnabled && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <AdSlot
+            position="header"
+            ads={ads}
+            className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 overflow-hidden"
+          />
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -78,7 +97,7 @@ export default async function HomePage() {
                 <TrendingSection articles={articles} />
               </Suspense>
               <div className="mt-6">
-                <Sidebar trending={articles} />
+                <Sidebar trending={articles} ads={ads} />
               </div>
             </div>
           </div>

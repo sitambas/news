@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiSave, FiMessageSquare, FiRefreshCw, FiSmartphone, FiYoutube, FiLink } from 'react-icons/fi';
+import { FiSave, FiMessageSquare, FiRefreshCw, FiSmartphone, FiYoutube, FiLink, FiBarChart2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { DEFAULT_YOUTUBE_CHANNEL_URL } from '@/constants/youtube';
@@ -18,6 +18,8 @@ export default function AdminSettingsPage() {
   const [redirectUriUsed, setRedirectUriUsed] = useState('');
   const [googleClientId, setGoogleClientId] = useState('');
   const [disconnecting, setDisconnecting] = useState(false);
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState('');
+  const [googleAnalyticsPropertyId, setGoogleAnalyticsPropertyId] = useState('');
 
   const load = async () => {
     setLoading(true);
@@ -32,6 +34,8 @@ export default function AdminSettingsPage() {
         setCommentsEnabled(data.data?.commentsEnabled === true);
         setAppDownloadEnabled(data.data?.appDownloadEnabled === true);
         setYoutubeChannelUrl(data.data?.youtubeChannelUrl || DEFAULT_YOUTUBE_CHANNEL_URL);
+        setGoogleAnalyticsId(data.data?.googleAnalyticsId || '');
+        setGoogleAnalyticsPropertyId(data.data?.googleAnalyticsPropertyId || '');
       } else {
         toast.error(data.message || 'सेटिंग्स लोड करने में विफल');
       }
@@ -74,6 +78,8 @@ export default function AdminSettingsPage() {
           commentsEnabled,
           appDownloadEnabled,
           youtubeChannelUrl: youtubeChannelUrl.trim(),
+          googleAnalyticsId: googleAnalyticsId.trim(),
+          googleAnalyticsPropertyId: googleAnalyticsPropertyId.trim(),
         }),
       });
       const data = await res.json();
@@ -200,6 +206,68 @@ export default function AdminSettingsPage() {
             </span>
           </span>
         </p>
+
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+        >
+          <FiSave className="w-4 h-4" />
+          {saving ? 'सहेजा जा रहा है...' : 'सहेजें'}
+        </button>
+      </div>
+
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-4">
+        <h2 className="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2">
+          <FiBarChart2 className="w-4 h-4 text-red-600" />
+          Google Analytics (GA4)
+        </h2>
+
+        <div>
+          <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 block">
+            Measurement ID (साइट ट्रैकिंग)
+          </label>
+          <input
+            type="text"
+            value={googleAnalyticsId}
+            onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+            placeholder="G-XXXXXXXXXX"
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono"
+          />
+          <p className="text-xs text-gray-400 mt-1.5">
+            GA4 Admin → Data streams → Web → Measurement ID (G- से शुरू)। इससे लाइव विज़िटर ट्रैक होंगे।
+          </p>
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 block">
+            Property ID (एडमिन रिपोर्ट / लाइव यूज़र्स)
+          </label>
+          <input
+            type="text"
+            value={googleAnalyticsPropertyId}
+            onChange={(e) => setGoogleAnalyticsPropertyId(e.target.value)}
+            placeholder="123456789"
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono"
+          />
+          <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
+            GA4 Admin → Property settings → Property ID (केवल नंबर)। लाइव यूज़र्स और रिपोर्ट के लिए सर्वर पर
+            service account भी चाहिए —{' '}
+            <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">GA_SERVICE_ACCOUNT_JSON</code> या{' '}
+            <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">GA_CLIENT_EMAIL</code> +{' '}
+            <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">GA_PRIVATE_KEY</code>।
+            Service account ईमेल को GA Property में Viewer एक्सेस दें।
+          </p>
+        </div>
+
+        <a
+          href="https://analytics.google.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block text-xs text-red-600 hover:underline"
+        >
+          Google Analytics खोलें →
+        </a>
 
         <button
           onClick={handleSave}

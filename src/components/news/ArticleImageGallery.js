@@ -37,8 +37,10 @@ export default function ArticleImageGallery({ article }) {
           alt={`${alt}${images.length > 1 ? ` (${index + 1}/${images.length})` : ''}`}
           fill
           priority={index === 0}
-          className="object-cover"
+          className="object-cover select-none pointer-events-none"
+          draggable={false}
           unoptimized={current.startsWith('/uploads/')}
+          onContextMenu={(e) => e.preventDefault()}
         />
 
         {images.length > 1 && (
@@ -84,7 +86,13 @@ export default function ArticleImageGallery({ article }) {
               }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="w-full h-full object-cover" />
+              <img
+                src={src}
+                alt=""
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+                className="w-full h-full object-cover select-none pointer-events-none"
+              />
             </button>
           ))}
         </div>

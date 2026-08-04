@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FiTrendingUp, FiTag, FiBookmark, FiClock } from 'react-icons/fi';
 import { timeAgo, formatNumber } from '@/utils/helpers';
 import SkeletonCard from '@/components/ui/SkeletonCard';
+import AdSlot from '@/components/ads/AdSlot';
 
 function TrendingItem({ article, rank }) {
   return (
@@ -51,7 +52,7 @@ function TagCloud({ tags }) {
   );
 }
 
-export default function Sidebar({ trending = [], tags = [] }) {
+export default function Sidebar({ trending = [], tags = [], ads = null }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const defaultTrending = [
@@ -83,21 +84,23 @@ export default function Sidebar({ trending = [], tags = [] }) {
       </div>
 
       {/* Ad Space */}
-      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-5 text-white text-center">
-        <div className="text-xs text-gray-400 mb-2">विज्ञापन</div>
-        <div className="text-lg font-bold mb-1">जुड़े रहें</div>
-        <p className="text-gray-300 text-sm mb-3">हमारे दैनिक न्यूज़लेटर की सदस्यता लें</p>
-        <form className="space-y-2">
-          <input
-            type="email"
-            placeholder="आपका ईमेल"
-            className="w-full px-3 py-2 bg-gray-700 rounded-lg text-sm text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-red-500"
-          />
-          <button className="w-full py-2 bg-red-600 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+      {ads?.adsEnabled ? (
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-3 overflow-hidden">
+          <AdSlot position="sidebar" ads={ads} className="min-h-[250px]" format="rectangle" />
+        </div>
+      ) : (
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-5 text-white text-center">
+          <div className="text-xs text-gray-400 mb-2">विज्ञापन</div>
+          <div className="text-lg font-bold mb-1">जुड़े रहें</div>
+          <p className="text-gray-300 text-sm mb-3">हमारे दैनिक न्यूज़लेटर की सदस्यता लें</p>
+          <Link
+            href="/newsletter"
+            className="block w-full py-2 bg-red-600 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+          >
             मुफ़्त सदस्यता
-          </button>
-        </form>
-      </div>
+          </Link>
+        </div>
+      )}
 
       {/* Tags */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">

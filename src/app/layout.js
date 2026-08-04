@@ -9,6 +9,10 @@ import AuthInitializer from '@/components/common/AuthInitializer';
 import { IndicTypingProvider } from '@/components/ui/IndicTypingProvider';
 import GlobalIndicTyping from '@/components/ui/GlobalIndicTyping';
 import { getSiteSettings } from '@/lib/siteSettings';
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
+import AdSenseScript from '@/components/ads/AdSenseScript';
+import ContentProtection from '@/components/common/ContentProtection';
+import { pickAdsConfig } from '@/lib/ads';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -51,15 +55,20 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const { appDownloadEnabled } = await getSiteSettings();
+  const settings = await getSiteSettings();
+  const { appDownloadEnabled, googleAnalyticsId } = settings;
+  const ads = pickAdsConfig(settings);
 
   return (
     <html lang="hi" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen`}>
+        <GoogleAnalytics measurementId={googleAnalyticsId} />
+        {ads?.adsEnabled && <AdSenseScript clientId={ads.adsenseClientId} />}
         <ThemeProvider>
           <QueryProvider>
             <IndicTypingProvider>
               <AuthInitializer />
+              <ContentProtection />
               <GlobalIndicTyping />
               <Navbar />
             <main className="pt-[88px] min-h-screen">

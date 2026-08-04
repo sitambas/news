@@ -10,6 +10,8 @@ import ShareButtons from '@/components/news/ShareButtons';
 import YouTubePlayer from '@/components/news/YouTubePlayer';
 import ArticleImageGallery from '@/components/news/ArticleImageGallery';
 import Sidebar from '@/components/layout/Sidebar';
+import AdSlot from '@/components/ads/AdSlot';
+import { pickAdsConfig } from '@/lib/ads';
 import { getSiteSettings } from '@/lib/siteSettings';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
@@ -140,6 +142,7 @@ export default async function ArticlePage({ params }) {
 
   const siteSettings = await getSiteSettings();
   const showComments = siteSettings.commentsEnabled && article.allowComments !== false;
+  const ads = pickAdsConfig(siteSettings);
 
   const reporterName = getReporterName(article.reporter);
   const reporterId = getReporterId(article.reporter);
@@ -247,6 +250,13 @@ export default async function ArticlePage({ params }) {
             {/* Cover Images */}
             <ArticleImageGallery article={article} />
 
+            {/* In-article ad */}
+            {ads?.adsEnabled && (
+              <div className="my-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 overflow-hidden">
+                <AdSlot position="inArticle" ads={ads} />
+              </div>
+            )}
+
             {/* YouTube Video */}
             {article.youtubeUrl && (
               <YouTubePlayer url={article.youtubeUrl} title={article.title} />
@@ -257,6 +267,13 @@ export default async function ArticlePage({ params }) {
               className="article-content prose prose-lg dark:prose-invert max-w-none text-gray-800 dark:text-gray-200"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
+
+            {/* After-article ad */}
+            {ads?.adsEnabled && (
+              <div className="mt-8 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 overflow-hidden">
+                <AdSlot position="afterArticle" ads={ads} />
+              </div>
+            )}
 
             {/* Tags */}
             {article.tags?.length > 0 && (
@@ -332,7 +349,7 @@ export default async function ArticlePage({ params }) {
           {/* Sidebar */}
           <aside className="lg:col-span-1">
             <div className="sticky top-28">
-              <Sidebar />
+              <Sidebar ads={ads} />
             </div>
           </aside>
         </div>

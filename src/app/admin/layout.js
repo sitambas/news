@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   FiHome, FiFileText, FiUsers, FiTag, FiBarChart2, FiSettings,
   FiMenu, FiX, FiLogOut, FiBell, FiSearch, FiChevronDown, FiEdit,
-  FiPlusCircle, FiTrendingUp, FiAlertCircle, FiMic
+  FiPlusCircle, FiTrendingUp, FiAlertCircle, FiMic, FiDollarSign,
 } from 'react-icons/fi';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { label: 'रिपोर्टर', href: '/admin/reporters', icon: FiMic },
   { label: 'उपयोगकर्ता', href: '/admin/users', icon: FiUsers },
   { label: 'विश्लेषण', href: '/admin/analytics', icon: FiBarChart2 },
+  { label: 'विज्ञापन', href: '/admin/ads', icon: FiDollarSign },
   { label: 'सेटिंग्स', href: '/admin/settings', icon: FiSettings },
 ];
 

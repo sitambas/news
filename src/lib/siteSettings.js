@@ -11,12 +11,66 @@ function extractChannelId(url) {
   return match?.[1] || '';
 }
 
+const EMPTY_AD_SLOT = {
+  adsenseSlot: '',
+  imageUrl: '',
+  linkUrl: '',
+  alt: '',
+};
+
 const DEFAULTS = {
   commentsEnabled: false,
   appDownloadEnabled: false,
   youtubeChannelId: DEFAULT_YOUTUBE_CHANNEL_ID,
   youtubeChannelUrl: DEFAULT_YOUTUBE_CHANNEL_URL,
+  googleAnalyticsId: '',
+  googleAnalyticsPropertyId: '',
+  adsEnabled: true,
+  adsenseClientId: '',
+  adSlotHeader: { ...EMPTY_AD_SLOT },
+  adSlotSidebar: { ...EMPTY_AD_SLOT },
+  adSlotInArticle: { ...EMPTY_AD_SLOT },
+  adSlotAfterArticle: { ...EMPTY_AD_SLOT },
 };
+
+function normalizeAdSlot(slot) {
+  return {
+    adsenseSlot: (slot?.adsenseSlot || '').trim(),
+    imageUrl: (slot?.imageUrl || '').trim(),
+    linkUrl: (slot?.linkUrl || '').trim(),
+    alt: (slot?.alt || '').trim(),
+  };
+}
+
+function formatPublicSettings(settings) {
+  return {
+    commentsEnabled: settings.commentsEnabled ?? DEFAULTS.commentsEnabled,
+    appDownloadEnabled: settings.appDownloadEnabled ?? DEFAULTS.appDownloadEnabled,
+    youtubeChannelId: settings.youtubeChannelId || DEFAULTS.youtubeChannelId,
+    youtubeChannelUrl: settings.youtubeChannelUrl || DEFAULTS.youtubeChannelUrl,
+    youtubeConnected: Boolean(settings.youtubeRefreshToken),
+    googleAnalyticsId:
+      settings.googleAnalyticsId ||
+      process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
+      process.env.GA_MEASUREMENT_ID ||
+      DEFAULTS.googleAnalyticsId,
+    googleAnalyticsPropertyId:
+      settings.googleAnalyticsPropertyId ||
+      process.env.GA_PROPERTY_ID ||
+      process.env.GOOGLE_ANALYTICS_PROPERTY_ID ||
+      DEFAULTS.googleAnalyticsPropertyId,
+    adsEnabled: settings.adsEnabled === true,
+    adsenseClientId:
+      (settings.adsenseClientId || '').trim() ||
+      process.env.NEXT_PUBLIC_ADSENSE_CLIENT ||
+      process.env.ADSENSE_CLIENT_ID ||
+      '',
+    adSlotHeader: normalizeAdSlot(settings.adSlotHeader),
+    adSlotSidebar: normalizeAdSlot(settings.adSlotSidebar),
+    adSlotInArticle: normalizeAdSlot(settings.adSlotInArticle),
+    adSlotAfterArticle: normalizeAdSlot(settings.adSlotAfterArticle),
+  };
+}
 
 const YOUTUBE_SCOPES = [
   'https://www.googleapis.com/auth/youtube.upload',
@@ -196,13 +250,7 @@ export async function getSiteSettings() {
     const created = await SiteSettings.create({ key: 'site', ...DEFAULTS });
     settings = created.toObject();
   }
-  return {
-    commentsEnabled: settings.commentsEnabled ?? DEFAULTS.commentsEnabled,
-    appDownloadEnabled: settings.appDownloadEnabled ?? DEFAULTS.appDownloadEnabled,
-    youtubeChannelId: settings.youtubeChannelId || DEFAULTS.youtubeChannelId,
-    youtubeChannelUrl: settings.youtubeChannelUrl || DEFAULTS.youtubeChannelUrl,
-    youtubeConnected: Boolean(settings.youtubeRefreshToken),
-  };
+  return formatPublicSettings(settings);
 }
 
 export async function getYouTubeRefreshToken() {
@@ -236,6 +284,10 @@ export async function updateSiteSettings(updates) {
     'appDownloadEnabled',
     'youtubeChannelId',
     'youtubeChannelUrl',
+    'googleAnalyticsId',
+    'googleAnalyticsPropertyId',
+    'adsEnabled',
+    'adsenseClientId',
   ];
   const patch = {};
   allowed.forEach((key) => {
@@ -245,6 +297,20 @@ export async function updateSiteSettings(updates) {
     const id = extractChannelId(updates.youtubeChannelUrl);
     if (id) patch.youtubeChannelId = id;
   }
+  if (typeof patch.googleAnalyticsId === 'string') {
+    patch.googleAnalyticsId = patch.googleAnalyticsId.trim();
+  }
+  if (typeof patch.googleAnalyticsPropertyId === 'string') {
+    patch.googleAnalyticsPropertyId = patch.googleAnalyticsPropertyId.trim();
+  }
+  if (typeof patch.adsenseClientId === 'string') {
+    patch.adsenseClientId = patch.adsenseClientId.trim();
+  }
+  ['adSlotHeader', 'adSlotSidebar', 'adSlotInArticle', 'adSlotAfterArticle'].forEach((key) => {
+    if (updates[key] !== undefined) {
+      patch[key] = normalizeAdSlot(updates[key]);
+    }
+  });
 
   const settings = await SiteSettings.findOneAndUpdate(
     { key: 'site' },
@@ -252,11 +318,5 @@ export async function updateSiteSettings(updates) {
     { new: true, upsert: true, runValidators: true }
   ).lean();
 
-  return {
-    commentsEnabled: settings.commentsEnabled ?? DEFAULTS.commentsEnabled,
-    appDownloadEnabled: settings.appDownloadEnabled ?? DEFAULTS.appDownloadEnabled,
-    youtubeChannelId: settings.youtubeChannelId || DEFAULTS.youtubeChannelId,
-    youtubeChannelUrl: settings.youtubeChannelUrl || DEFAULTS.youtubeChannelUrl,
-    youtubeConnected: Boolean(settings.youtubeRefreshToken),
-  };
+  return formatPublicSettings(settings);
 }

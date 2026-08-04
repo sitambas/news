@@ -103,6 +103,34 @@ body {
   height: auto;
   margin: 1.5rem auto;
   display: block;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Public content protection (copy / image save deterrence) */
+body.content-protected {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+body.content-protected input,
+body.content-protected textarea,
+body.content-protected select,
+body.content-protected [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+body.content-protected img,
+body.content-protected picture,
+body.content-protected video {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+body.content-protected .article-content img {
+  pointer-events: none;
 }
 .article-content a {
   color: #dc2626;

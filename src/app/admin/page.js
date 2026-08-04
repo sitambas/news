@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   FiFileText, FiUsers, FiEye, FiPlus, FiEdit,
   FiArrowUp, FiArrowDown, FiActivity,
-  FiBarChart2, FiRefreshCw,
+  FiBarChart2, FiRefreshCw, FiDollarSign,
 } from 'react-icons/fi';
 import { formatDate, timeAgo, formatNumber } from '@/utils/helpers';
 import { getArticleBylineName } from '@/utils/reporter';
@@ -195,6 +195,7 @@ export default function AdminDashboard() {
                   { label: 'नया लेख लिखें', href: '/admin/articles/new', icon: FiEdit, color: 'red' },
                   { label: 'रिपोर्टर प्रबंधित करें', href: '/admin/reporters', icon: FiUsers, color: 'blue' },
                   { label: 'विश्लेषण देखें', href: '/admin/analytics', icon: FiBarChart2, color: 'purple' },
+                  { label: 'विज्ञापन प्रबंधित करें', href: '/admin/ads', icon: FiDollarSign, color: 'orange' },
                   { label: 'उपयोगकर्ता प्रबंधित करें', href: '/admin/users', icon: FiUsers, color: 'green' },
                   { label: 'वेबसाइट देखें', href: '/', icon: FiEye, color: 'gray' },
                 ].map((action) => {
@@ -202,6 +203,7 @@ export default function AdminDashboard() {
                     red: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400',
                     blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
                     purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+                    orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400',
                     green: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
                     gray: 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
                   };

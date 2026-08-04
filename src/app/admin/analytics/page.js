@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import {
   FiTrendingUp, FiEye, FiUsers, FiFileText, FiArrowUp, FiArrowDown,
-  FiRefreshCw, FiTag,
+  FiRefreshCw, FiTag, FiActivity, FiExternalLink, FiBarChart2,
 } from 'react-icons/fi';
 import { formatNumber } from '@/utils/helpers';
 import { getArticleBylineName } from '@/utils/reporter';
@@ -17,6 +17,13 @@ async function fetchAnalytics() {
   return data.data;
 }
 
+async function fetchGaAnalytics() {
+  const res = await fetch('/api/admin/analytics/ga');
+  const data = await res.json();
+  if (!data.success) throw new Error(data.message || 'Failed to load GA');
+  return data.data;
+}
+
 const BAR_COLORS = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-cyan-500'];
 
 export default function AnalyticsPage() {
@@ -24,6 +31,17 @@ export default function AnalyticsPage() {
     queryKey: ['admin-analytics'],
     queryFn: fetchAnalytics,
     refetchInterval: 60_000,
+  });
+
+  const {
+    data: ga,
+    isLoading: gaLoading,
+    refetch: refetchGa,
+    isFetching: gaFetching,
+  } = useQuery({
+    queryKey: ['admin-analytics-ga'],
+    queryFn: fetchGaAnalytics,
+    refetchInterval: 30_000,
   });
 
   if (isLoading) {
@@ -47,6 +65,7 @@ export default function AnalyticsPage() {
 
   const { stats, monthlyChart, topArticles, categoryBreakdown } = data;
   const maxMonthlyViews = Math.max(...monthlyChart.map((m) => m.views), 1);
+  const maxDaily = Math.max(...(ga?.overview?.daily || []).map((d) => d.pageViews), 1);
 
   const kpis = [
     {
@@ -90,20 +109,178 @@ export default function AnalyticsPage() {
     orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-600',
   };
 
+  const refreshAll = () => {
+    refetch();
+    refetchGa();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">विश्लेषण</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">वास्तविक डेटाबेस से आँकड़े</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            साइट डेटा + Google Analytics
+          </p>
         </div>
         <button
-          onClick={() => refetch()}
-          disabled={isFetching}
+          onClick={refreshAll}
+          disabled={isFetching || gaFetching}
           className="p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
         >
-          <FiRefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+          <FiRefreshCw className={`w-4 h-4 ${isFetching || gaFetching ? 'animate-spin' : ''}`} />
         </button>
+      </div>
+
+      {/* Google Analytics live + overview */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <FiBarChart2 className="w-5 h-5 text-red-600" />
+            <h2 className="font-bold text-gray-900 dark:text-white">Google Analytics</h2>
+          </div>
+          {ga?.dashboardUrl && (
+            <a
+              href={ga.dashboardUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-red-600 hover:underline"
+            >
+              GA डैशबोर्ड <FiExternalLink className="w-3 h-3" />
+            </a>
+          )}
+        </div>
+
+        {gaLoading && !ga ? (
+          <div className="py-8 flex justify-center">
+            <LoadingSpinner />
+          </div>
+        ) : !ga?.trackingEnabled && !ga?.reportingConfigured ? (
+          <div className="text-sm text-gray-500 dark:text-gray-400 space-y-2">
+            <p>Google Analytics अभी सेट नहीं है।</p>
+            <p>
+              <Link href="/admin/settings" className="text-red-600 hover:underline font-medium">
+                सेटिंग्स → Google Analytics
+              </Link>
+              {' '}में Measurement ID (G-…) जोड़ें। लाइव यूज़र्स के लिए Property ID + service account भी चाहिए।
+            </p>
+          </div>
+        ) : (
+          <>
+            {ga?.error && (
+              <p className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2">
+                {ga.error}
+              </p>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+              <div className="rounded-xl border border-green-200 dark:border-green-900/40 bg-green-50 dark:bg-green-900/20 p-4">
+                <div className="flex items-center gap-2 text-green-700 dark:text-green-400 text-xs font-medium mb-1">
+                  <FiActivity className="w-4 h-4" />
+                  अभी लाइव
+                </div>
+                <div className="text-3xl font-bold text-green-800 dark:text-green-300">
+                  {ga?.reportingConfigured
+                    ? formatNumber(ga?.realtime?.activeUsers || 0)
+                    : '—'}
+                </div>
+                <p className="text-xs text-green-700/70 dark:text-green-400/70 mt-1">सक्रिय उपयोगकर्ता</p>
+              </div>
+
+              {(ga?.overview?.summary
+                ? [
+                    { label: '7 दिन यूज़र्स', value: formatNumber(ga.overview.summary.activeUsers) },
+                    { label: '7 दिन सेशन', value: formatNumber(ga.overview.summary.sessions) },
+                    { label: '7 दिन पेज व्यू', value: formatNumber(ga.overview.summary.pageViews) },
+                  ]
+                : [
+                    { label: '7 दिन यूज़र्स', value: '—' },
+                    { label: '7 दिन सेशन', value: '—' },
+                    { label: '7 दिन पेज व्यू', value: '—' },
+                  ]
+              ).map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 p-4"
+                >
+                  <div className="text-xs text-gray-500 mb-1">{item.label}</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">{item.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {ga?.overview?.summary && (
+              <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                <span>बाउंस रेट: <strong className="text-gray-800 dark:text-gray-200">{ga.overview.summary.bounceRate}</strong></span>
+                <span>औसत सेशन: <strong className="text-gray-800 dark:text-gray-200">{ga.overview.summary.avgSessionDuration}</strong></span>
+                {ga.measurementId && (
+                  <span>Measurement: <code className="font-mono">{ga.measurementId}</code></span>
+                )}
+              </div>
+            )}
+
+            {!ga?.reportingConfigured && ga?.trackingEnabled && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                ट्रैकिंग चालू है, लेकिन लाइव रिपोर्ट के लिए Property ID और service account सेट करें
+                (सेटिंग्स / .env)।
+              </p>
+            )}
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              {ga?.overview?.daily?.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                    पिछले 7 दिन — पेज व्यू
+                  </h3>
+                  <div className="flex items-end gap-1.5 h-28">
+                    {ga.overview.daily.map((d) => (
+                      <div key={d.date} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                        <div
+                          className="w-full bg-red-500 rounded-t opacity-80 min-h-[4px]"
+                          style={{
+                            height: `${Math.max((d.pageViews / maxDaily) * 100, d.pageViews > 0 ? 8 : 0)}%`,
+                          }}
+                          title={`${d.date}: ${formatNumber(d.pageViews)} व्यू, ${formatNumber(d.users)} यूज़र`}
+                        />
+                        <span className="text-[10px] text-gray-400">{d.date}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {(ga?.realtime?.topPages?.length > 0 || ga?.overview?.topPages?.length > 0) && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                    {ga?.realtime?.topPages?.length ? 'लाइव टॉप पेज' : 'टॉप पेज (7 दिन)'}
+                  </h3>
+                  <div className="space-y-2">
+                    {(ga?.realtime?.topPages?.length
+                      ? ga.realtime.topPages.map((p) => ({
+                          label: p.page,
+                          meta: `${formatNumber(p.users)} लाइव`,
+                        }))
+                      : ga.overview.topPages.map((p) => ({
+                          label: p.path,
+                          meta: `${formatNumber(p.views)} व्यू · ${formatNumber(p.users)} यूज़र`,
+                        }))
+                    ).map((row) => (
+                      <div
+                        key={row.label}
+                        className="flex items-center justify-between gap-2 text-sm border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0"
+                      >
+                        <span className="truncate text-gray-700 dark:text-gray-300 font-mono text-xs">
+                          {row.label}
+                        </span>
+                        <span className="text-xs text-gray-500 flex-shrink-0">{row.meta}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* KPI Stats */}
@@ -128,7 +305,6 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* Monthly Views Chart */}
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
           <h2 className="font-bold text-gray-900 dark:text-white mb-4">मासिक दृश्य ({stats.year})</h2>
           {stats.yearViewsTotal > 0 ? (
@@ -158,7 +334,6 @@ export default function AnalyticsPage() {
           )}
         </div>
 
-        {/* Category Breakdown */}
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
           <div className="flex items-center gap-2 mb-4">
             <FiTag className="w-5 h-5 text-red-600" />
@@ -191,7 +366,6 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Top Articles */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
         <h2 className="font-bold text-gray-900 dark:text-white mb-4">शीर्ष लेख</h2>
         {topArticles.length > 0 ? (

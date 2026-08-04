@@ -18,6 +18,7 @@ export async function POST(request) {
 
     const formData = await request.formData();
     const file = formData.get('file');
+    const purpose = String(formData.get('purpose') || 'cover').toLowerCase();
 
     if (!file) {
       return NextResponse.json({ success: false, message: 'कोई फ़ाइल नहीं मिली' }, { status: 400 });
@@ -46,6 +47,13 @@ export async function POST(request) {
 
     if (file.type === 'image/gif') {
       await writeFile(filepath, buffer);
+    } else if (purpose === 'ad') {
+      // Keep banner aspect ratio (728x90, 300x250, etc.)
+      await sharp(buffer)
+        .rotate()
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 88 })
+        .toFile(filepath);
     } else {
       // Always produce a large cover so WhatsApp/Facebook can show big previews
       await sharp(buffer)
