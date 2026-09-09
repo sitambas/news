@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { FiTwitter, FiFacebook, FiInstagram, FiYoutube, FiLinkedin, FiMail, FiRss } from 'react-icons/fi';
 import { FooterCategoryLinks } from '@/components/layout/CategoryNavLinks';
 import NewsletterForm from '@/components/pages/NewsletterForm';
+import AdSlot from '@/components/ads/AdSlot';
 import { DEFAULT_YOUTUBE_CHANNEL_URL } from '@/constants/youtube';
+import { isIndependenceDay } from '@/lib/independenceDay';
 
 const COMPANY_LINKS = [
   { label: 'हमारे बारे में', href: '/about' },
@@ -19,11 +21,25 @@ const LEGAL_LINKS = [
   { label: 'साइटमैप', href: '/sitemap.xml' },
 ];
 
-export default function Footer({ appDownloadEnabled = false }) {
+export default function Footer({ appDownloadEnabled = false, ads = null }) {
+  const aug15 = isIndependenceDay();
+
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="site-footer bg-gray-900 text-white">
+      {ads?.adsEnabled && (
+        <div className="bg-gray-950 py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AdSlot
+              position="footer"
+              ads={ads}
+              className="rounded-xl border border-gray-800 bg-gray-900 p-3 overflow-hidden"
+            />
+          </div>
+        </div>
+      )}
+
       {/* Newsletter Section */}
-      <div className="bg-red-600 py-8">
+      <div className={`py-8 ${aug15 ? 'aug15-footer-cta' : 'bg-red-600'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div>

@@ -2,12 +2,17 @@
 
 import { useEffect, useRef } from 'react';
 import { AD_SLOTS } from '@/constants/ads';
+import AdBannerImage from '@/components/ads/AdBannerImage';
 
 const PLACEHOLDER_SIZES = {
-  header: 'min-h-[90px] sm:min-h-[100px]',
+  header: 'min-h-[120px] sm:min-h-[160px]',
   sidebar: 'min-h-[250px]',
+  latest: 'min-h-[90px] sm:min-h-[100px]',
+  homeMid: 'min-h-[120px] sm:min-h-[160px]',
+  betweenCategories: 'min-h-[90px] sm:min-h-[100px]',
   inArticle: 'min-h-[120px] sm:min-h-[140px]',
   afterArticle: 'min-h-[120px] sm:min-h-[140px]',
+  footer: 'min-h-[90px] sm:min-h-[110px]',
   default: 'min-h-[100px]',
 };
 
@@ -61,11 +66,12 @@ export default function AdUnit({
   const pushed = useRef(false);
   const adsenseSlot = (slot?.adsenseSlot || '').trim();
   const imageUrl = (slot?.imageUrl || '').trim();
+  const mobileImageUrl = (slot?.mobileImageUrl || '').trim();
   const linkUrl = (slot?.linkUrl || '').trim();
   const alt = (slot?.alt || label || 'Advertisement').trim();
   const pubId = (clientId || '').trim();
 
-  const hasCustom = Boolean(imageUrl);
+  const hasCustom = Boolean(imageUrl || mobileImageUrl);
   const hasAdsense = Boolean(pubId && adsenseSlot && /^ca-pub-\d+$/i.test(pubId));
 
   useEffect(() => {
@@ -90,27 +96,12 @@ export default function AdUnit({
   }
 
   if (hasCustom) {
-    const img = (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={imageUrl}
-        alt={alt}
-        className="w-full h-auto max-h-[280px] object-contain mx-auto"
-        loading="lazy"
-      />
-    );
     return (
       <div className={`ad-unit ad-unit-custom ${className}`} data-ad="custom">
         <div className="text-[10px] uppercase tracking-wide text-gray-400 text-center mb-1">
           {label}
         </div>
-        {linkUrl ? (
-          <a href={linkUrl} target="_blank" rel="noopener noreferrer sponsored" className="block">
-            {img}
-          </a>
-        ) : (
-          img
-        )}
+        <AdBannerImage src={imageUrl} mobileSrc={mobileImageUrl} alt={alt} linkUrl={linkUrl} />
       </div>
     );
   }

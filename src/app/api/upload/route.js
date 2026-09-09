@@ -6,7 +6,7 @@ import sharp from 'sharp';
 import { getServerUser } from '@/lib/auth';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_SIZE = 8 * 1024 * 1024; // 8MB (greeting banners can be large)
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export async function POST(request) {
@@ -47,19 +47,17 @@ export async function POST(request) {
 
     if (file.type === 'image/gif') {
       await writeFile(filepath, buffer);
-    } else if (purpose === 'ad') {
-      // Keep banner aspect ratio (728x90, 300x250, etc.)
-      await sharp(buffer)
-        .rotate()
-        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 88 })
-        .toFile(filepath);
     } else {
-      // Always produce a large cover so WhatsApp/Facebook can show big previews
+      // Never crop or stretch on upload — keep full image, only downscale large files.
+      // Cards/gallery use CSS object-cover to fill frames without distortion.
+      const maxEdge = purpose === 'ad' ? 1200 : 1600;
       await sharp(buffer)
         .rotate()
-        .resize(1200, 675, { fit: 'cover' })
-        .webp({ quality: 85 })
+        .resize(maxEdge, maxEdge, {
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .webp({ quality: purpose === 'ad' ? 88 : 86 })
         .toFile(filepath);
     }
 

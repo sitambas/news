@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   FiHome, FiFileText, FiUsers, FiTag, FiBarChart2, FiSettings,
   FiMenu, FiX, FiLogOut, FiBell, FiSearch, FiChevronDown, FiEdit,
-  FiPlusCircle, FiTrendingUp, FiAlertCircle, FiMic, FiDollarSign,
+  FiPlusCircle, FiTrendingUp, FiAlertCircle, FiMic, FiDollarSign, FiPrinter,
 } from 'react-icons/fi';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { label: 'उपयोगकर्ता', href: '/admin/users', icon: FiUsers },
   { label: 'विश्लेषण', href: '/admin/analytics', icon: FiBarChart2 },
   { label: 'विज्ञापन', href: '/admin/ads', icon: FiDollarSign },
+  { label: 'बिलिंग', href: '/admin/billing', icon: FiPrinter },
   { label: 'सेटिंग्स', href: '/admin/settings', icon: FiSettings },
 ];
 
@@ -104,13 +105,13 @@ export default function AdminLayout({ children }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 admin-app-shell">
       <AdminSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main Content */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
+      <div className="lg:pl-64 flex flex-col min-h-screen admin-main-shell">
         {/* Top Bar */}
-        <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 sticky top-0 z-30">
+        <header className="no-print h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 sticky top-0 z-30">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}

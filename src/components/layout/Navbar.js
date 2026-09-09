@@ -12,6 +12,7 @@ import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import IndicTypingToggle from '@/components/ui/IndicTypingToggle';
+import { isIndependenceDay } from '@/lib/independenceDay';
 
 const HOME_LINK = { label: 'होम', href: '/' };
 
@@ -24,6 +25,7 @@ export default function Navbar() {
   const [notifCount, setNotifCount] = useState(3);
   const [mounted, setMounted] = useState(false);
   const [navCategories, setNavCategories] = useState([]);
+  const [aug15, setAug15] = useState(false);
   const searchRef = useRef(null);
   const userMenuRef = useRef(null);
   const router = useRouter();
@@ -31,7 +33,10 @@ export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const { user, logout, isAuthenticated } = useAuthStore();
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    setAug15(isIndependenceDay());
+  }, []);
 
   useEffect(() => {
     fetch('/api/categories')
@@ -87,14 +92,22 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    <header className={`site-navbar fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       scrolled ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md' : 'bg-white dark:bg-gray-900'
     } border-b border-gray-200 dark:border-gray-800`}>
       {/* Top Bar */}
-      <div className="bg-red-600 text-white py-1 px-4 text-xs">
+      <div className={`text-white py-1 px-4 text-xs ${aug15 ? 'aug15-topbar' : 'bg-red-600'}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <span className="font-medium">📰 CG<span className="text-red-300">FILE</span> — ब्रेकिंग न्यूज़ का आपका विश्वसनीय स्रोत</span>
-          <span className="hidden sm:block">{new Date().toLocaleDateString('hi-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <span className={`font-medium ${aug15 ? 'aug15-topbar-text' : ''}`}>
+            {aug15 ? (
+              <>स्वतंत्रता दिवस विशेष · CG<span className="text-red-700">FILE</span> — जय हिंद</>
+            ) : (
+              <>📰 CG<span className="text-red-300">FILE</span> — ब्रेकिंग न्यूज़ का आपका विश्वसनीय स्रोत</>
+            )}
+          </span>
+          <span className={`hidden sm:block ${aug15 ? 'aug15-topbar-text' : ''}`}>
+            {new Date().toLocaleDateString('hi-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </span>
         </div>
       </div>
 
@@ -103,7 +116,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${aug15 ? 'aug15-logo-badge' : 'bg-red-600'}`}>
               <span className="text-white font-black text-xs tracking-tight">CG</span>
             </div>
             <span className="text-xl font-black text-gray-900 dark:text-white tracking-tight">

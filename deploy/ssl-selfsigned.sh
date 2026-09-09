@@ -5,7 +5,7 @@ set -euo pipefail
 # Self-signed SSL for IP access — browsers will show a security warning.
 
 APP_PORT="${APP_PORT:-3000}"
-CN="${SSL_CN:-13.215.161.54}"
+CN="${SSL_CN:-18.136.207.153}"
 
 CERT_DIR="/etc/ssl/newshub"
 sudo mkdir -p "$CERT_DIR"

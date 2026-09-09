@@ -11,8 +11,10 @@ import YouTubePlayer from '@/components/news/YouTubePlayer';
 import ArticleImageGallery from '@/components/news/ArticleImageGallery';
 import Sidebar from '@/components/layout/Sidebar';
 import AdSlot from '@/components/ads/AdSlot';
+import AdSidebarCards from '@/components/ads/AdSidebarCards';
 import { pickAdsConfig } from '@/lib/ads';
 import { getSiteSettings } from '@/lib/siteSettings';
+import JsonLd, { buildNewsArticleJsonLd } from '@/components/seo/JsonLd';
 import { SAMPLE_ARTICLES } from '@/utils/sampleData';
 
 // Sample article for demo (used when DB article not found)
@@ -146,11 +148,13 @@ export default async function ArticlePage({ params }) {
 
   const reporterName = getReporterName(article.reporter);
   const reporterId = getReporterId(article.reporter);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const articleUrl = `${appUrl}/news/${article.slug}`;
+  const origin = getSiteOrigin();
+  const articleUrl = `${origin}/news/${article.slug}`;
+  const newsJsonLd = buildNewsArticleJsonLd(article, articleUrl);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <JsonLd data={newsJsonLd} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Article Main Content */}
@@ -348,8 +352,11 @@ export default async function ArticlePage({ params }) {
 
           {/* Sidebar */}
           <aside className="lg:col-span-1">
-            <div className="sticky top-28">
-              <Sidebar ads={ads} />
+            <div className="space-y-6">
+              <AdSidebarCards ads={ads} />
+              <div className="lg:sticky lg:top-28">
+                <Sidebar ads={ads} showSidebarAd={!(ads?.adCarousel || []).some((b) => b?.imageUrl)} />
+              </div>
             </div>
           </aside>
         </div>

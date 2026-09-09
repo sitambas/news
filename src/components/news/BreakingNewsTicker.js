@@ -3,10 +3,16 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FiChevronRight, FiChevronLeft, FiAlertCircle } from 'react-icons/fi';
+import { isIndependenceDay } from '@/lib/independenceDay';
 
 export default function BreakingNewsTicker({ news = [] }) {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [aug15, setAug15] = useState(false);
+
+  useEffect(() => {
+    setAug15(isIndependenceDay());
+  }, []);
 
   useEffect(() => {
     if (paused || news.length <= 1) return;
@@ -27,7 +33,7 @@ export default function BreakingNewsTicker({ news = [] }) {
 
   return (
     <div
-      className="bg-red-600 text-white"
+      className={`text-white ${aug15 ? 'aug15-breaking' : 'bg-red-600'}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

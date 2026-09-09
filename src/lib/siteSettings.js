@@ -2,6 +2,7 @@ import {
   DEFAULT_YOUTUBE_CHANNEL_ID,
   DEFAULT_YOUTUBE_CHANNEL_URL,
 } from '@/constants/youtube';
+import { formatAdsExpiresDateInput, normalizeAdsExpiresAt } from '@/lib/ads';
 import connectDB from '@/lib/db';
 import SiteSettings from '@/models/SiteSettings';
 
@@ -14,6 +15,7 @@ function extractChannelId(url) {
 const EMPTY_AD_SLOT = {
   adsenseSlot: '',
   imageUrl: '',
+  mobileImageUrl: '',
   linkUrl: '',
   alt: '',
 };
@@ -26,20 +28,62 @@ const DEFAULTS = {
   googleAnalyticsId: '',
   googleAnalyticsPropertyId: '',
   adsEnabled: true,
+  adsExpiresAt: null,
   adsenseClientId: '',
   adSlotHeader: { ...EMPTY_AD_SLOT },
   adSlotSidebar: { ...EMPTY_AD_SLOT },
+  adSlotLatest: { ...EMPTY_AD_SLOT },
+  adSlotHomeMid: { ...EMPTY_AD_SLOT },
+  adSlotBetweenCategories: { ...EMPTY_AD_SLOT },
   adSlotInArticle: { ...EMPTY_AD_SLOT },
   adSlotAfterArticle: { ...EMPTY_AD_SLOT },
+  adSlotFooter: { ...EMPTY_AD_SLOT },
+  adCarousel: [],
+  adNative: [],
 };
 
 function normalizeAdSlot(slot) {
   return {
     adsenseSlot: (slot?.adsenseSlot || '').trim(),
     imageUrl: (slot?.imageUrl || '').trim(),
+    mobileImageUrl: (slot?.mobileImageUrl || '').trim(),
     linkUrl: (slot?.linkUrl || '').trim(),
     alt: (slot?.alt || '').trim(),
   };
+}
+
+function normalizeAdCarousel(list) {
+  if (!Array.isArray(list)) return [];
+  return list
+    .map((item) => ({
+      imageUrl: (item?.imageUrl || '').trim(),
+      linkUrl: (item?.linkUrl || '').trim(),
+      alt: (item?.alt || '').trim(),
+    }))
+    .filter((item) => item.imageUrl)
+    .slice(0, 30);
+}
+
+function normalizeAdNative(list) {
+  if (!Array.isArray(list)) return [];
+  return list
+    .map((item, index) => {
+      const after = Number(item?.afterArticle);
+      const placement = ['latest', 'category', 'both'].includes(item?.placement)
+        ? item.placement
+        : 'latest';
+      return {
+        imageUrl: (item?.imageUrl || '').trim(),
+        linkUrl: (item?.linkUrl || '').trim(),
+        title: (item?.title || '').trim(),
+        excerpt: (item?.excerpt || '').trim(),
+        sponsor: (item?.sponsor || '').trim(),
+        afterArticle: Number.isFinite(after) && after >= 1 ? Math.min(20, Math.floor(after)) : index * 2 + 1,
+        placement,
+      };
+    })
+    .filter((item) => item.imageUrl && item.title)
+    .slice(0, 12);
 }
 
 function formatPublicSettings(settings) {
@@ -60,6 +104,7 @@ function formatPublicSettings(settings) {
       process.env.GOOGLE_ANALYTICS_PROPERTY_ID ||
       DEFAULTS.googleAnalyticsPropertyId,
     adsEnabled: settings.adsEnabled === true,
+    adsExpiresAt: formatAdsExpiresDateInput(settings.adsExpiresAt),
     adsenseClientId:
       (settings.adsenseClientId || '').trim() ||
       process.env.NEXT_PUBLIC_ADSENSE_CLIENT ||
@@ -67,8 +112,14 @@ function formatPublicSettings(settings) {
       '',
     adSlotHeader: normalizeAdSlot(settings.adSlotHeader),
     adSlotSidebar: normalizeAdSlot(settings.adSlotSidebar),
+    adSlotLatest: normalizeAdSlot(settings.adSlotLatest),
+    adSlotHomeMid: normalizeAdSlot(settings.adSlotHomeMid),
+    adSlotBetweenCategories: normalizeAdSlot(settings.adSlotBetweenCategories),
     adSlotInArticle: normalizeAdSlot(settings.adSlotInArticle),
     adSlotAfterArticle: normalizeAdSlot(settings.adSlotAfterArticle),
+    adSlotFooter: normalizeAdSlot(settings.adSlotFooter),
+    adCarousel: normalizeAdCarousel(settings.adCarousel),
+    adNative: normalizeAdNative(settings.adNative),
   };
 }
 
@@ -293,6 +344,9 @@ export async function updateSiteSettings(updates) {
   allowed.forEach((key) => {
     if (updates[key] !== undefined) patch[key] = updates[key];
   });
+  if (updates.adsExpiresAt !== undefined) {
+    patch.adsExpiresAt = normalizeAdsExpiresAt(updates.adsExpiresAt);
+  }
   if (updates.youtubeChannelUrl !== undefined) {
     const id = extractChannelId(updates.youtubeChannelUrl);
     if (id) patch.youtubeChannelId = id;
@@ -306,11 +360,17 @@ export async function updateSiteSettings(updates) {
   if (typeof patch.adsenseClientId === 'string') {
     patch.adsenseClientId = patch.adsenseClientId.trim();
   }
-  ['adSlotHeader', 'adSlotSidebar', 'adSlotInArticle', 'adSlotAfterArticle'].forEach((key) => {
+  ['adSlotHeader', 'adSlotSidebar', 'adSlotLatest', 'adSlotHomeMid', 'adSlotBetweenCategories', 'adSlotInArticle', 'adSlotAfterArticle', 'adSlotFooter'].forEach((key) => {
     if (updates[key] !== undefined) {
       patch[key] = normalizeAdSlot(updates[key]);
     }
   });
+  if (updates.adCarousel !== undefined) {
+    patch.adCarousel = normalizeAdCarousel(updates.adCarousel);
+  }
+  if (updates.adNative !== undefined) {
+    patch.adNative = normalizeAdNative(updates.adNative);
+  }
 
   const settings = await SiteSettings.findOneAndUpdate(
     { key: 'site' },

@@ -1,8 +1,14 @@
 import { notFound } from 'next/navigation';
 import ArticleCard from '@/components/news/ArticleCard';
 import Sidebar from '@/components/layout/Sidebar';
+import AdSlot from '@/components/ads/AdSlot';
+import AdSidebarCards from '@/components/ads/AdSidebarCards';
+import NativeAdCard from '@/components/ads/NativeAdCard';
 import { getCategoryDisplay } from '@/utils/category';
 import { findCategoryBySlug, getPublishedArticlesByCategory, normalizeCategorySlug } from '@/lib/categoryQueries';
+import { getNativeAdsAfterIndex, pickAdsConfig } from '@/lib/ads';
+import { getSiteSettings } from '@/lib/siteSettings';
+import { absoluteUrl } from '@/constants/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,9 +17,24 @@ export async function generateMetadata({ params }) {
   const category = await findCategoryBySlug(slug);
   if (!category) return { title: 'श्रेणी नहीं मिली' };
   const meta = getCategoryDisplay(category);
+  const title = `${meta.name} समाचार | CGFILE ताज़ा अपडेट`;
+  const description =
+    meta.description ||
+    `${meta.name} की नवीनतम और ब्रेकिंग न्यूज़ पढ़ें — CGFILE पर छत्तीसगढ़ और भारत की ताज़ा खबरें।`;
+  const url = absoluteUrl(`/category/${category.slug || slug}`);
+
   return {
-    title: `${meta.name} समाचार - नवीनतम अपडेट`,
-    description: meta.description || `${meta.name} की नवीनतम खबरें`,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+      locale: 'hi_IN',
+      siteName: 'CGFILE',
+    },
   };
 }
 
@@ -24,7 +45,11 @@ export default async function CategoryPage({ params }) {
   if (!category || category.isActive === false) notFound();
 
   const meta = getCategoryDisplay(category);
-  const { articles, total } = await getPublishedArticlesByCategory(category._id, { limit: 24 });
+  const [{ articles, total }, settings] = await Promise.all([
+    getPublishedArticlesByCategory(category._id, { limit: 24 }),
+    getSiteSettings(),
+  ]);
+  const ads = pickAdsConfig(settings);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -58,13 +83,32 @@ export default async function CategoryPage({ params }) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {ads?.adsEnabled && (
+          <div className="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 overflow-hidden">
+            <AdSlot position="header" ads={ads} />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             {articles.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {articles.map((article, i) => (
-                  <ArticleCard key={article._id || article.slug || i} article={article} />
-                ))}
+                {articles.map((article, i) => {
+                  const natives = getNativeAdsAfterIndex(ads, i, 'category');
+                  return (
+                  <div key={article._id || article.slug || i} className="contents">
+                    <ArticleCard article={article} />
+                    {natives.map((ad, ni) => (
+                      <NativeAdCard key={`native-cat-${i}-${ni}`} ad={ad} />
+                    ))}
+                    {ads?.adsEnabled && i === 3 && (
+                      <div className="sm:col-span-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 overflow-hidden">
+                        <AdSlot position="latest" ads={ads} />
+                      </div>
+                    )}
+                  </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
@@ -77,8 +121,16 @@ export default async function CategoryPage({ params }) {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-28">
-              <Sidebar trending={articles} />
+            <div className="space-y-6">
+              <AdSidebarCards ads={ads} />
+              {!(ads?.adCarousel || []).some((b) => b?.imageUrl) && ads?.adsEnabled && (
+                <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 overflow-hidden">
+                  <AdSlot position="sidebar" ads={ads} className="min-h-[250px]" format="rectangle" />
+                </div>
+              )}
+              <div className="lg:sticky lg:top-28">
+                <Sidebar trending={articles} ads={ads} showSidebarAd={false} />
+              </div>
             </div>
           </div>
         </div>

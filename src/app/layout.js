@@ -12,56 +12,27 @@ import { getSiteSettings } from '@/lib/siteSettings';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import AdSenseScript from '@/components/ads/AdSenseScript';
 import ContentProtection from '@/components/common/ContentProtection';
+import NotificationPrompt from '@/components/notifications/NotificationPrompt';
+import IndependenceDayTheme from '@/components/theme/IndependenceDayTheme';
+import JsonLd, { buildWebsiteJsonLd } from '@/components/seo/JsonLd';
 import { pickAdsConfig } from '@/lib/ads';
+import { isIndependenceDay } from '@/lib/independenceDay';
+import { siteMetadata } from '@/lib/seoMetadata';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
-export const metadata = {
-  title: {
-    default: 'CGFILE - ब्रेकिंग न्यूज़ और ताज़ा खबरें',
-    template: '%s | CGFILE',
-  },
-  description: 'ब्रेकिंग न्यूज़, गहन विश्लेषण और दुनिया भर की नवीनतम खबरों के लिए आपका विश्वसनीय स्रोत।',
-  keywords: ['समाचार', 'ब्रेकिंग न्यूज़', 'ताज़ा खबरें', 'विश्व समाचार', 'तकनीक', 'राजनीति', 'खेल'],
-  authors: [{ name: 'CGFILE' }],
-  creator: 'CGFILE',
-  publisher: 'CGFILE',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
-  openGraph: {
-    type: 'website',
-    locale: 'hi_IN',
-    url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: 'CGFILE',
-    title: 'CGFILE - ब्रेकिंग न्यूज़ और ताज़ा खबरें',
-    description: 'ब्रेकिंग न्यूज़, गहन विश्लेषण और नवीनतम खबरों के लिए आपका विश्वसनीय स्रोत।',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'CGFILE' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'CGFILE - ब्रेकिंग न्यूज़',
-    description: 'ब्रेकिंग न्यूज़ और ताज़ा खबरों के लिए आपका विश्वसनीय स्रोत।',
-    images: ['/og-image.jpg'],
-  },
-  manifest: '/manifest.json',
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
-  },
-};
+export const metadata = siteMetadata;
 
 export default async function RootLayout({ children }) {
   const settings = await getSiteSettings();
   const { appDownloadEnabled, googleAnalyticsId } = settings;
   const ads = pickAdsConfig(settings);
+  const aug15 = isIndependenceDay();
 
   return (
-    <html lang="hi" suppressHydrationWarning>
+    <html lang="hi" className={aug15 ? 'theme-15aug' : undefined} suppressHydrationWarning>
       <body className={`${inter.variable} font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen`}>
+        <JsonLd data={buildWebsiteJsonLd()} />
         <GoogleAnalytics measurementId={googleAnalyticsId} />
         {ads?.adsEnabled && <AdSenseScript clientId={ads.adsenseClientId} />}
         <ThemeProvider>
@@ -69,12 +40,14 @@ export default async function RootLayout({ children }) {
             <IndicTypingProvider>
               <AuthInitializer />
               <ContentProtection />
+              <NotificationPrompt />
+              <IndependenceDayTheme />
               <GlobalIndicTyping />
               <Navbar />
-            <main className="pt-[88px] min-h-screen">
+            <main className={`main-shell min-h-screen ${aug15 ? 'pt-[124px]' : 'pt-[88px]'}`}>
               {children}
             </main>
-            <Footer appDownloadEnabled={appDownloadEnabled} />
+            <Footer appDownloadEnabled={appDownloadEnabled} ads={ads} />
             <Toaster
               position="top-right"
               toastOptions={{

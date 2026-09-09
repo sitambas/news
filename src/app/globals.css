@@ -100,9 +100,11 @@ body {
 .article-content img {
   border-radius: 0.5rem;
   max-width: 100%;
+  width: 100%;
   height: auto;
   margin: 1.5rem auto;
   display: block;
+  object-fit: cover;
   -webkit-user-drag: none;
   user-select: none;
   pointer-events: none;
@@ -188,3 +190,152 @@ body.content-protected .article-content img {
 .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
 .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+
+/* —— 15–17 August theme (auto, Asia/Kolkata) —— */
+html.theme-15aug {
+  --primary: #BF360C;
+  --primary-dark: #8B1538;
+  --aug-saffron: #FF9933;
+  --aug-green: #138808;
+  --aug-navy: #000080;
+}
+
+html.theme-15aug body {
+  background:
+    linear-gradient(180deg, rgba(255, 153, 51, 0.12) 0%, transparent 180px),
+    linear-gradient(0deg, rgba(19, 136, 8, 0.08) 0%, transparent 160px),
+    var(--background, #f9fafb);
+}
+
+html.dark.theme-15aug body {
+  background:
+    linear-gradient(180deg, rgba(255, 153, 51, 0.1) 0%, transparent 180px),
+    linear-gradient(0deg, rgba(19, 136, 8, 0.08) 0%, transparent 160px),
+    #030712;
+}
+
+/* Soft tricolor wash behind main content */
+html.theme-15aug main {
+  background-image:
+    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(255, 153, 51, 0.14), transparent),
+    radial-gradient(ellipse 70% 30% at 50% 110%, rgba(19, 136, 8, 0.1), transparent);
+  background-repeat: no-repeat;
+}
+
+/* Extra top padding handled via Tailwind pt-[124px] on main when Aug 15 */
+
+html.theme-15aug .aug15-topbar {
+  background: linear-gradient(
+    90deg,
+    #FF9933 0%,
+    #FF9933 33%,
+    #ffffff 33%,
+    #ffffff 66%,
+    #138808 66%,
+    #138808 100%
+  ) !important;
+  color: #111827 !important;
+}
+
+html.theme-15aug .aug15-topbar .aug15-topbar-text {
+  color: #111827;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+html.theme-15aug .aug15-breaking {
+  background: linear-gradient(90deg, #FF9933 0%, #BF360C 45%, #138808 100%) !important;
+}
+
+html.theme-15aug .aug15-footer-cta {
+  background: linear-gradient(90deg, #FF9933 0%, #BF360C 50%, #138808 100%) !important;
+}
+
+@keyframes aug15-shine {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+html.theme-15aug .aug15-logo-badge {
+  background: linear-gradient(135deg, #FF9933, #BF360C 45%, #138808) !important;
+  background-size: 200% 200%;
+  animation: aug15-shine 6s linear infinite;
+}
+
+/* —— Ad banners: full image visible, no crop —— */
+.ad-banner-frame {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  line-height: 0;
+}
+
+.ad-banner-link {
+  display: block;
+  line-height: 0;
+}
+
+.ad-banner-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  margin-inline: auto;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* —— Invoice print (admin billing) —— */
+@media print {
+  body.invoice-print-mode aside,
+  body.invoice-print-mode .admin-app-shell > aside,
+  body.invoice-print-mode .admin-main-shell > header,
+  body.invoice-print-mode .site-navbar,
+  body.invoice-print-mode .site-footer,
+  body.invoice-print-mode .no-print,
+  body.invoice-print-mode .invoice-print-toolbar {
+    display: none !important;
+  }
+
+  body.invoice-print-mode .main-shell {
+    padding-top: 0 !important;
+    min-height: 0 !important;
+  }
+
+  body.invoice-print-mode .admin-main-shell {
+    padding-left: 0 !important;
+  }
+
+  body.invoice-print-mode,
+  body.invoice-print-mode .admin-app-shell,
+  body.invoice-print-mode .admin-main-shell {
+    background: white !important;
+  }
+
+  body.invoice-print-mode .invoice-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body.invoice-print-mode .invoice-sheet-header {
+    display: flex !important;
+    visibility: visible !important;
+  }
+
+  body.invoice-print-mode .invoice-logo,
+  body.invoice-print-mode .invoice-sheet img {
+    display: inline-block !important;
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}

@@ -1,41 +1,52 @@
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+import connectDB from '@/lib/db';
+import Article from '@/models/Article';
+import Category from '@/models/Category';
 
-const CATEGORIES = ['politics', 'technology', 'business', 'science', 'sports', 'entertainment', 'health', 'world'];
+const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://cgfile.in').replace(/\/$/, '');
 
 export default async function sitemap() {
-  const routes = [
+  const staticRoutes = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: 'hourly', priority: 1.0 },
-    { url: `${baseUrl}/search`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 },
-    { url: `${baseUrl}/auth/login`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
-    { url: `${baseUrl}/auth/register`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
-    ...CATEGORIES.map((cat) => ({
-      url: `${baseUrl}/category/${cat}`,
-      lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.9,
-    })),
+    { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/advertise`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/newsletter`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.4 },
+    { url: `${baseUrl}/search`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.6 },
+    { url: `${baseUrl}/rss.xml`, lastModified: new Date(), changeFrequency: 'hourly', priority: 0.3 },
   ];
 
-  // Dynamically add articles if DB is available
   try {
-    const res = await fetch(`${baseUrl}/api/articles?status=published&limit=100`, {
-      next: { revalidate: 3600 },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const articles = data.data || [];
-      articles.forEach((article) => {
-        routes.push({
-          url: `${baseUrl}/news/${article.slug}`,
-          lastModified: new Date(article.updatedAt || article.publishedAt),
-          changeFrequency: 'weekly',
-          priority: 0.8,
-        });
-      });
-    }
-  } catch {
-    // DB unavailable, skip dynamic articles
-  }
+    await connectDB();
 
-  return routes;
+    const [categories, articles] = await Promise.all([
+      Category.find({ isActive: { $ne: false } }).select('slug updatedAt').lean(),
+      Article.find({ status: 'published' })
+        .select('slug updatedAt publishedAt')
+        .sort({ publishedAt: -1 })
+        .limit(2000)
+        .lean(),
+    ]);
+
+    const categoryRoutes = (categories || [])
+      .filter((c) => c?.slug)
+      .map((cat) => ({
+        url: `${baseUrl}/category/${cat.slug}`,
+        lastModified: new Date(cat.updatedAt || Date.now()),
+        changeFrequency: 'hourly',
+        priority: 0.85,
+      }));
+
+    const articleRoutes = (articles || [])
+      .filter((a) => a?.slug)
+      .map((article) => ({
+        url: `${baseUrl}/news/${article.slug}`,
+        lastModified: new Date(article.updatedAt || article.publishedAt || Date.now()),
+        changeFrequency: 'daily',
+        priority: 0.8,
+      }));
+
+    return [...staticRoutes, ...categoryRoutes, ...articleRoutes];
+  } catch {
+    return staticRoutes;
+  }
 }

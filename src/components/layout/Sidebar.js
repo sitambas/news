@@ -52,7 +52,7 @@ function TagCloud({ tags }) {
   );
 }
 
-export default function Sidebar({ trending = [], tags = [], ads = null }) {
+export default function Sidebar({ trending = [], tags = [], ads = null, showSidebarAd = true }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const defaultTrending = [
@@ -83,12 +83,14 @@ export default function Sidebar({ trending = [], tags = [], ads = null }) {
         </div>
       </div>
 
-      {/* Ad Space */}
-      {ads?.adsEnabled ? (
+      {/* Mid-sidebar ad (article pages / below local trending) */}
+      {showSidebarAd && ads?.adsEnabled && (
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-3 overflow-hidden">
           <AdSlot position="sidebar" ads={ads} className="min-h-[250px]" format="rectangle" />
         </div>
-      ) : (
+      )}
+
+      {showSidebarAd && !ads?.adsEnabled && (
         <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-5 text-white text-center">
           <div className="text-xs text-gray-400 mb-2">विज्ञापन</div>
           <div className="text-lg font-bold mb-1">जुड़े रहें</div>

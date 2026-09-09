@@ -5,8 +5,12 @@ import AdUnit from '@/components/ads/AdUnit';
 const SLOT_KEYS = {
   header: 'adSlotHeader',
   sidebar: 'adSlotSidebar',
+  latest: 'adSlotLatest',
+  homeMid: 'adSlotHomeMid',
+  betweenCategories: 'adSlotBetweenCategories',
   inArticle: 'adSlotInArticle',
   afterArticle: 'adSlotAfterArticle',
+  footer: 'adSlotFooter',
 };
 
 /**
