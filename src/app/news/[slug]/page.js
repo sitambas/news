@@ -251,9 +251,6 @@ export default async function ArticlePage({ params }) {
               </div>
             )}
 
-            {/* Cover Images */}
-            <ArticleImageGallery article={article} />
-
             {/* In-article ad */}
             {ads?.adsEnabled && (
               <div className="my-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 overflow-hidden">
@@ -266,11 +263,8 @@ export default async function ArticlePage({ params }) {
               <YouTubePlayer url={article.youtubeUrl} title={article.title} />
             )}
 
-            {/* Article Content */}
-            <div
-              className="article-content prose prose-lg dark:prose-invert max-w-none text-gray-800 dark:text-gray-200"
-              dangerouslySetInnerHTML={{ __html: article.content }}
-            />
+            {/* Cover + inline images through content (no slider) */}
+            <ArticleImageGallery article={article} content={article.content} />
 
             {/* After-article ad */}
             {ads?.adsEnabled && (
